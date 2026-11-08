@@ -595,8 +595,6 @@ static u8 timerSoundEditing;
 static u8 timerSoundDirty;
 static char timerRingText[24];
 static char timerRepeatText[12];
-static char timerRingLine[32];
-static char timerRepeatLine[24];
 
 void saveTimerSoundSettingsIfDirty(void){
     clearDelayFunction(&saveTimerSoundSettingsIfDirty);
@@ -616,8 +614,6 @@ static void updateTimerSoundValues(void){
     if(dataSaveInfo.clockCountTimes)
         snprintf(timerRepeatText,sizeof(timerRepeatText),"%u次",dataSaveInfo.clockCountTimes);
     else snprintf(timerRepeatText,sizeof(timerRepeatText),"无限");
-    snprintf(timerRingLine,sizeof(timerRingLine),"铃:%s",timerRingText);
-    snprintf(timerRepeatLine,sizeof(timerRepeatLine),"循环:%s",timerRepeatText);
 }
 static void clockCountSettingsInit(void);
 
@@ -823,7 +819,6 @@ void clockCountPageInit(void){
     TNumS1 = newWSTimerDigit(&FN0,208,176);
 
     updateTTime(CCTimeTemp);
-    updateTimerSoundValues();
     //------------按钮底和文字---------
 
     addChild(4,TNumM2);
@@ -834,8 +829,6 @@ void clockCountPageInit(void){
     TNumM->visible = 0;
     addChild(1,newChar(12,"分",GRAY,70,72));
     addChild(1,newChar(12,"秒",GRAY,70,170));
-    addChild(1,newChar(12,timerRingLine,0,48,113));
-    addChild(1,newChar(12,timerRepeatLine,0,48,145));
 
     setTClockColor(0);
 
