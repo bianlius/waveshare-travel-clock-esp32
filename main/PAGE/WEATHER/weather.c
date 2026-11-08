@@ -117,22 +117,28 @@ void weatherInit(void){
         addChild(0,newRoundRectDisObj(0xFFFF,110,196,x,y,6,1));
         addChild(0,newNativePic(weatherArr[code],x+43,y+14));
         wsSplitCondition(wsCondition[i], condition);
+        const int conditionLines = wsCondition[i][1][0] ? 2 : 1;
+        const int conditionY = y + 52 + (2-conditionLines)*10;
+        // Leave 16 pixels after the final 16-pixel condition glyph.
+        const int temperatureY = conditionY + conditionLines*20 + 12;
+        const int humidityY = temperatureY + 30;
+        const int weekdayY = humidityY + 34;
         for(u8 line=0; line<2; line++){
             if(wsCondition[i][line][0]){
                 const int textX = centerX - getTxtLength(wsCondition[i][line]) * 4;
                 wsDrawNativeText(wsCondition[i][line],textX,
-                                 wsPhysicalY(y+52)+line*20,1);
+                                 wsPhysicalY(conditionY)+line*20,1);
             }
         }
-        wsDrawNativeText(temperature,wsPhysicalX(tempX),wsPhysicalY(y+120),1);
+        wsDrawNativeText(temperature,wsPhysicalX(tempX),wsPhysicalY(temperatureY),1);
         if(forecast.ready)
-            addChild(9,newNativePicSingle(&duc,0,tempX+getTxtLength(temperature)*8,y+118));
-        addChild(9,newNativePicSingle(&water_ico,0x14DF,humidityX,y+146));
+            addChild(9,newNativePicSingle(&duc,0,tempX+getTxtLength(temperature)*8,temperatureY-2));
+        addChild(9,newNativePicSingle(&water_ico,0x14DF,humidityX,humidityY-2));
         wsDrawNativeText(humidity,wsPhysicalX(humidityX+16)+2,
-                         wsPhysicalY(y+148),2);
+                         wsPhysicalY(humidityY),2);
         wsDrawNativeText(weekdays[dayIndex],
                          centerX-getTxtLength(weekdays[dayIndex])*4,
-                         wsPhysicalY(y+172),3);
+                         wsPhysicalY(weekdayY),3);
     }
     LCD_SetNativeOverlay(wsNativeInk,&pageNow,PAGE_WEATHER);
 
