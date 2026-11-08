@@ -1,0 +1,10 @@
+artifacts/
+build/
+.DS_Store
+__pycache__/
+*.pyc
+main/weather_config.local.h
+*.pem
+*.key
+.env
+.env.*

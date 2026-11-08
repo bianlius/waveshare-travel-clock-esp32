@@ -1,0 +1,21 @@
+Travel Clock ESP32 - license and rights notice
+
+Copyrightable additions, modifications, and original assets contributed to
+this project by bianlius are offered, to the extent bianlius owns the relevant
+rights, under the PolyForm Noncommercial License 1.0.0. Its full text is in
+LICENSES/PolyForm-Noncommercial-1.0.0.md and at
+https://polyformproject.org/licenses/noncommercial/1.0.0/ . Commercial use of
+those contributions requires separate permission from the rights holder.
+
+This notice does not relicense third-party material:
+
+* Code inherited from GVIEW-Engine remains under its original MIT License,
+  preserved in LICENSES/GVIEW-Engine-MIT.txt with the original copyright notice.
+* Bundled libraries retain their own licenses. See THIRD_PARTY_NOTICES.md and
+  the license files in their respective directories.
+* Game music, characters, and other third-party artwork are not licensed for
+  reuse by this notice. See THIRD_PARTY_NOTICES.md.
+
+Earlier versions of this repository published under MIT remain subject to the
+terms under which they were released. This notice does not withdraw rights
+already granted for those versions.

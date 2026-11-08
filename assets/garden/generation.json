@@ -1,0 +1,20 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "reference": "floorPicWS-smooth.png",
+  "selected_generation": "floorPicWS-sparse-generated.png",
+  "native_sprite": "floorPicWS.png",
+  "dimensions": [
+    224,
+    98
+  ],
+  "rgb565_palette": [
+    "0xD718",
+    "0xB692",
+    "0xA64E"
+  ],
+  "prompts": [
+    "Edit this exact small lawn sprite. Keep the complete oval outline, rim shapes, flat green centre, dimensions/proportions and transparent exterior. Replace the empty centre with a VERY SPARSE grass texture: ONLY 8 tiny simple V-shaped grass tufts in total, loosely and unevenly distributed across the inner green area, including the centre. At the final 224x98 logical pixel size each tuft is only 2–3 pixels wide and 2–3 pixels tall; do not make any large grass clumps or plants. Use a calm, harmonious low-contrast palette: lawn base #A4CA73, grass tufts a slightly lighter muted green #B4D294, pale outer rim #D5E2C5. The whole centre stays one uniform flat base green between tufts. No black, dark shadows, grey patches, darkened centre, lighting gradients, drop shadows, holes, pits, mottling, dense patterns, large leaves or outlines. The lawn must be fully opaque inside and only transparent outside its complete oval. Crisp handheld-game pixel art, no antialiasing. Provide a 224x98 game sprite if possible; if larger, keep exactly this simple logical pixel structure. Only this one oval lawn, no text and no surrounding scenery."
+  ],
+  "packing": "tools/pack_garden_floor.py: native-size indexed conversion with the original three gentle greens, closed opaque surface, transparent exterior; no black or dark shadow colours.",
+  "runtime_overlay": "none; original grassF overlays removed"
+}
