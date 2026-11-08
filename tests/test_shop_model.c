@@ -2,6 +2,11 @@
 #include <assert.h>
 #include <stdio.h>
 int main(void){
+    const uint16_t costs[]={0,200,500,150,150,300};
+    uint8_t order[6];
+    const uint8_t expected[]={0,3,4,1,5,2};
+    shopBuildPriceOrder(costs,6,order);
+    for(unsigned i=0;i<6;++i) assert(order[i]==expected[i]);
     uint64_t owned=1;
     uint8_t equipped=0;
     uint32_t money=200;

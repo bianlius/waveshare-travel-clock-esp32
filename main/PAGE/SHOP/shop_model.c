@@ -1,5 +1,16 @@
 #include "shop_model.h"
 #include <stddef.h>
+void shopBuildPriceOrder(const uint16_t *costs, uint8_t count, uint8_t *order){
+    if(!costs || !order) return;
+    for(uint8_t i=0;i<count;++i){
+        uint8_t position=i;
+        while(position && costs[order[position-1]]>costs[i]){
+            order[position]=order[position-1];
+            --position;
+        }
+        order[position]=i;
+    }
+}
 ShopActionResult shopApply(uint64_t *owned, uint8_t *equipped, uint8_t item, uint16_t cost, uint32_t *balance){
     if(!owned || !balance || item >= 64) return SHOP_INVALID;
     uint64_t bit = UINT64_C(1) << item;

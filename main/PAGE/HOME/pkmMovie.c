@@ -1,5 +1,6 @@
 
 #include "./pkmMovie.h"
+#include "../SHOP/shop.h"
 
 
 float timeOffset;
@@ -7,13 +8,9 @@ pkmMovieProperty pkmMvProp[5];
 
 //{"不跟随","喷火龙","风速狗","拉蒂奥斯","拉蒂亚斯","烈焰马","鬼斯","炎帝"};
 u8 checkMonsterType(u8 index){
-    if(index == 2||index == 5||index == 7||index == 9){
-        //陆地
-        return 1;
-    }
-    //飞行
-    return 0;
+    return index<getShopListArrNum(0) ? ShopListMonsterGround[index] : 0;
 }
+
 void pkmMovieEx(u8 index){
     //精灵移动
     if(pkmMvProp[index].nextTime>0){
@@ -32,34 +29,28 @@ void pkmMovieEx(u8 index){
 short Ex1Max;
 short Ex1Min;
 void pkmMovieEx1(u8 index){
-    //陆地精灵动画处理
+    if(index>=5 || !pkmMvProp[index].disOb) return;
     if(pkmMvProp[index].nextTime>0){
-        pkmMvProp[index].nextTime--;
-    }else{
-        timeOffset = (float)(random()%30)/10;
-        short middleX = (Ex1Max + Ex1Min) /2;
-
-        u8 wz = random()%10;
-        short targetX = 0;
-        if(wz>6){
-            targetX = Ex1Max;
-        }else if(wz>4){
-            targetX = (Ex1Max + Ex1Min)/4*3;
-        }else if(wz>2){
-            targetX = (Ex1Max + Ex1Min)/4;
-        }else{
-            targetX = Ex1Min;
-        }
-        //限制单次移动范围
-        if(pkmMvProp[index].disOb->x > targetX){
-            if(pkmMvProp[index].disOb->x - targetX > 80)targetX = pkmMvProp[index].disOb->x-80;
-        }else{
-            if(targetX - pkmMvProp[index].disOb->x > 80)targetX = pkmMvProp[index].disOb->x+80;
-        }
-        Tween(&pkmMvProp[index].disOb->x,2+timeOffset,random()%50-25+targetX,0,fs_Sine_EaseInOut);
-        pkmMvProp[index].nextTime = fps*(2+timeOffset);
+        --pkmMvProp[index].nextTime;
+        return;
     }
+    DisplayObject *follower=pkmMvProp[index].disOb;
+    // Leave four pixels for the home's slow horizontal scene drift.
+    const short halfWidth=(follower->width+1)/2;
+    short minX=Ex1Min, maxX=Ex1Max;
+    if(minX<WS_UI_LEFT+4+halfWidth) minX=WS_UI_LEFT+4+halfWidth;
+    if(maxX>WS_UI_RIGHT-4-halfWidth) maxX=WS_UI_RIGHT-4-halfWidth;
+    if(minX>maxX) minX=maxX=WS_UI_MID;
+    short targetX=minX+random()%(maxX-minX+1);
+    if(targetX>follower->x+80) targetX=follower->x+80;
+    if(targetX<follower->x-80) targetX=follower->x-80;
+    if(targetX<minX) targetX=minX;
+    if(targetX>maxX) targetX=maxX;
+    timeOffset=(float)(random()%30)/10;
+    Tween(&follower->x,2+timeOffset,targetX,0,fs_Sine_EaseInOut);
+    pkmMvProp[index].nextTime=fps*(2+timeOffset);
 }
+
 void pkmMovieEx2(u8 index,short yOffset){
     //飞行精灵动画处理
     if(pkmMvProp->disOb==NULL)return;

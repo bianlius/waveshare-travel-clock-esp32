@@ -108,6 +108,7 @@
 #include "cloths/Tshirt_A.h"
 #include "cloths/Tshirt_B.h"
 #include "pocketMon/BKQ_M.h"
+#include "pocketMon/followers.h"
 #include "pocketMon/FSG_M.h"
 #include "pocketMon/GS_M.h"
 #include "pocketMon/LDYS_M.h"

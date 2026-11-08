@@ -1237,7 +1237,7 @@ void renderHomeInit(void){
 
     refrushMonsterList();//刷新精灵列表
     //添加精灵
-    if(itemSaveInfo.monsterIndex){
+    if(itemSaveInfo.monsterIndex && itemSaveInfo.monsterIndex<getShopListArrNum(0)){
         phlPkm = getNewMvAction(momsterListArr[itemSaveInfo.monsterIndex - 1],-100,46+WS_HOME_GROUND_OFFSET);
         if(itemSaveInfo.monsterIndex == 9){
             addChild(6,phlPkm);//比卡丘在前面

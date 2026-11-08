@@ -1,0 +1,81 @@
+{
+  "repository": "https://github.com/christt105/PokemonEmeraldIntroVideo",
+  "revision": "870520f6161ee521835d2a1bb6b4d037d61c5278",
+  "assets": [
+    {
+      "file": "torchic_walk.png",
+      "source_path": "project/pokemon/torchic_walk.png",
+      "sha256": "024de820526537330bde87f9db24fa10a48a6cddec955efe3d45eb22f2e6bafb",
+      "symbol": "followerTorchic",
+      "frames": 4,
+      "frame_width": 18,
+      "frame_height": 24,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "Nintendo / Game Freak",
+        "christt105 (extraction)"
+      ]
+    },
+    {
+      "file": "mudkip_walk.png",
+      "source_path": "project/pokemon/mudkip_walk.png",
+      "sha256": "350e79131815a9f8432ec8d8acfa09471f30e9dcd54d5b987a7a21eadf3d04f8",
+      "symbol": "followerMudkip",
+      "frames": 3,
+      "frame_width": 22,
+      "frame_height": 22,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "Nintendo / Game Freak",
+        "christt105 (extraction)"
+      ]
+    },
+    {
+      "file": "zigzagoon_run.png",
+      "source_path": "project/pokemon/zigzagoon_run.png",
+      "sha256": "0fa3f0f47e85c5df16e47a8f29ad28f51b2b57293eb5c1d7976a49fa9389978d",
+      "symbol": "followerZigzagoon",
+      "frames": 7,
+      "frame_width": 68,
+      "frame_height": 47,
+      "frame_ticks": 1,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (sheet extraction and alignment)"
+      ]
+    },
+    {
+      "file": "manectric_run.png",
+      "source_path": "project/pokemon/manectric_run.png",
+      "sha256": "ef7ef887d3d40bd756b69216c57aa7356bab2d489f04b02dd275365070e03513",
+      "symbol": "followerManectric",
+      "frames": 4,
+      "frame_width": 54,
+      "frame_height": 48,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "Nintendo / Game Freak",
+        "christt105 (extraction)"
+      ]
+    },
+    {
+      "file": "breloom_run.png",
+      "source_path": "project/pokemon/breloom_run.png",
+      "sha256": "5933fd38ebfcbb660b5f52f6275ce6098a813d341f6e8074c2262ffd4bf7b064",
+      "symbol": "followerBreloom",
+      "frames": 10,
+      "frame_width": 60,
+      "frame_height": 74,
+      "frame_ticks": 1,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (sheet extraction and alignment)"
+      ]
+    }
+  ]
+}

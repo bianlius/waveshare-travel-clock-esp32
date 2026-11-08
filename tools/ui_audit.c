@@ -95,12 +95,19 @@ static void shopPurchasePage(void){
     renderShopInit();
     doKeyFun(KM1);
     doKeyFun(KM2);
-    assert(dataSaveInfo.money==0 && itemSaveInfo.itemMonster==3 && itemSaveInfo.monsterIndex==0);
+    assert(dataSaveInfo.money==50 && itemSaveInfo.itemMonster==(1|(UINT64_C(1)<<10)) && itemSaveInfo.monsterIndex==0);
     doKeyFun(KM2);
-    assert(dataSaveInfo.money==0 && itemSaveInfo.monsterIndex==1);
+    assert(dataSaveInfo.money==50 && itemSaveInfo.monsterIndex==10);
     hideTips();
     printf("@UI_CHECK shop_purchase passed\n");
 }
+static void shopDragonPage(void){itemSaveInfo.monsterIndex=1;renderShopInit();}
+static void shopHorsePage(void){itemSaveInfo.monsterIndex=5;renderShopInit();}
+static void shopTorchicPage(void){itemSaveInfo.monsterIndex=10;renderShopInit();}
+static void shopMudkipPage(void){itemSaveInfo.monsterIndex=11;renderShopInit();}
+static void shopZigzagoonPage(void){itemSaveInfo.monsterIndex=12;renderShopInit();}
+static void shopManectricPage(void){itemSaveInfo.monsterIndex=13;renderShopInit();}
+static void shopBreloomPage(void){itemSaveInfo.monsterIndex=14;renderShopInit();}
 static void plantPurchasePage(void){
     dataSaveInfo.money=200;
     gardenSaveInfo.itemGarden=1;
@@ -115,18 +122,17 @@ static void plantPurchasePage(void){
     printf("@UI_CHECK plant_purchase passed\n");
 }
 static void brightnessControlsPage(void){
-    u8 oldTimeout=dataSaveInfo.idleTimeoutMinutes;
-    u8 oldLevel=dataSaveInfo.idleBrightnessLevel;
+    u16 oldSchedule=dataSaveInfo.brightnessInfo[0];
     setBGLightInit();
-    assert(pageNow==PAGE_BGLIGHT_SET);
-    doKeyFun(KM2); doKeyFun(KM1); doKeyFun(KM2);
-    assert(dataSaveInfo.idleTimeoutMinutes!=oldTimeout);
-    doKeyFun(KM1); doKeyFun(KM2); doKeyFun(KM1); doKeyFun(KM2);
-    assert(dataSaveInfo.idleBrightnessLevel!=oldLevel);
-    doKeyFun(KM1); doKeyFun(KM2);
     assert(pageNow==PAGE_BGLIGHT_SCHEDULE);
+    doKeyFun(KM2); doKeyFun(KM2); doKeyFun(KM2);
+    doKeyFun(KM1);
+    assert((dataSaveInfo.brightnessInfo[0]&0x0F)!=(oldSchedule&0x0F));
+    doKeyFun(KM3);
+    assert(dataSaveInfo.brightnessInfo[0]==oldSchedule);
+    doKeyFun(KM2);
     doKeyFun(KML);
-    assert(pageNow==PAGE_BGLIGHT_SET);
+    assert(pageNow==PAGE_MENU);
     printf("@UI_CHECK brightness_navigation passed\n");
 }
 static const AuditPage pages[] = {
@@ -152,8 +158,13 @@ static const AuditPage pages[] = {
     {"wifi_maximum",maximumPasswordPage,0,0},
     {"wifi_buttons",keyboardButtonsPage,0,0},
     {"wifi_touch",keyboardTouchPage,0,0},
-    {"shop_dragon",renderShopInit,0,1},
-    {"shop_horse",renderShopInit,0,5},
+    {"shop_dragon",shopDragonPage,0,0},
+    {"shop_horse",shopHorsePage,0,0},
+    {"shop_torchic",shopTorchicPage,0,0},
+    {"shop_mudkip",shopMudkipPage,0,0},
+    {"shop_zigzagoon",shopZigzagoonPage,0,0},
+    {"shop_manectric",shopManectricPage,0,0},
+    {"shop_breloom",shopBreloomPage,0,0},
     {"shop_tent",renderShopInit,1,1},
     {"shop_bike",renderShopInit,2,1},
     {"shop_hat",renderShopInit,3,1},

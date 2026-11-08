@@ -9,9 +9,11 @@ char costTxt[8];
 DisplayObject *costTxtSp;
 DisplayObject *shopListObj;
 
-const char* ShopListMonsterTxt[] = {"不跟随","喷火龙","风速狗","拉蒂奥斯","拉蒂亚斯","烈焰马","鬼斯","炎帝","沙漠蜻蜓","比卡丘"};//可选择的怪物列表
-const u16 ShopListMonsterCost[] = {0,200,200,200,500,500,200,1000,800,1800};//可选择的怪物列表
-const u8* momsterListArr[] = {PHL_M,FSG_M,LDYS_M,pkm_ldys2,LYM_M,GS_M,YD_M,SMQT_M,BKQ_M};//可选择的怪物列表
+const char* ShopListMonsterTxt[] = {"不跟随","喷火龙","风速狗","拉蒂奥斯","拉蒂亚斯","烈焰马","鬼斯","炎帝","沙漠蜻蜓","比卡丘","火稚鸡","水跃鱼","蛇纹熊","雷电兽","斗笠菇"};//可选择的怪物列表
+const u16 ShopListMonsterCost[] = {0,200,200,200,500,500,200,1000,800,1800,150,150,300,600,500};//可选择的怪物列表
+const u8* momsterListArr[] = {PHL_M,FSG_M,LDYS_M,pkm_ldys2,LYM_M,GS_M,YD_M,SMQT_M,BKQ_M,followerTorchic,followerMudkip,followerZigzagoon,followerManectric,followerBreloom};
+// Entries retain their saved IDs; price order is only a shop presentation.
+const u8 ShopListMonsterGround[] = {0,0,1,0,0,1,0,1,0,1,1,1,1,1,1};//可选择的怪物列表
 const pkmProperty property[] = {
     {.pic = PHL_M,.maxX = 240,.minX = 60,.style = 1,.FrontBack = 1},//喷火龙
 };
@@ -49,6 +51,10 @@ const u16 ShopListBagCost[4] = {0,80,180,380};
 const u8* bagListArr[] = {Bag_A,Bag_B,Bag_C};
 
 #define COUNT(a) (sizeof(a)/sizeof((a)[0]))
+_Static_assert(COUNT(ShopListMonsterCost)==COUNT(ShopListMonsterTxt),"Monster prices must match names");
+_Static_assert(COUNT(momsterListArr)+1==COUNT(ShopListMonsterTxt),"Monster sprites must match names");
+_Static_assert(COUNT(ShopListMonsterGround)==COUNT(ShopListMonsterTxt),"Monster motion must match names");
+_Static_assert(COUNT(ShopListMonsterTxt)<=64,"Monster ownership uses a 64-bit save field");
 typedef struct {
     const char *title;
     const char *const *names;
@@ -70,6 +76,7 @@ static const ShopCategory categories[] = {
     {"背包",ShopListBagTxt,ShopListBagCost,&itemSaveInfo.itemBag,&itemSaveInfo.bagIndex,COUNT(ShopListBagTxt)},
 };
 static u8 categoryIndex, itemIndex;
+static u8 monsterOrder[COUNT(ShopListMonsterTxt)];
 static char categoryText[32], itemText[40], priceText[24], counterText[16];
 static DisplayObject *itemLabel;
 
@@ -80,6 +87,16 @@ u8 checkIsUnlock(uint64_t owned,u8 item){
     return item < 64 && (owned & (UINT64_C(1) << item)) != 0;
 }
 
+static u8 itemDisplayPosition(void){
+    if(categoryIndex!=0) return itemIndex;
+    for(u8 position=0;position<COUNT(monsterOrder);++position)
+        if(monsterOrder[position]==itemIndex) return position;
+    return 0;
+}
+static u8 itemAtDisplayPosition(u8 position){
+    return categoryIndex==0 ? monsterOrder[position] : position;
+}
+
 static void refreshShop(void){
     const ShopCategory *category = &categories[categoryIndex];
     const int owned = checkIsUnlock(*category->owned,itemIndex);
@@ -87,7 +104,7 @@ static void refreshShop(void){
     hideTips();
     removeAllLayerChild(5);
     snprintf(categoryText,sizeof(categoryText),"%s %u/%u",category->title,categoryIndex+1,(unsigned)COUNT(categories));
-    snprintf(counterText,sizeof(counterText),"%u/%u",itemIndex+1,category->count);
+    snprintf(counterText,sizeof(counterText),"%u/%u",itemDisplayPosition()+1,category->count);
     snprintf(itemText,sizeof(itemText),"%s",category->names[itemIndex]);
     snprintf(priceText,sizeof(priceText),owned ? (equipped ? "使用中" : "已解锁") : "花费 %u",category->costs[itemIndex]);
     itemLabel->x = 160-getTxtLength(itemText)*4;
@@ -117,11 +134,11 @@ static void refreshShop(void){
 
 static void previousItem(void){
     u8 count = categories[categoryIndex].count;
-    itemIndex = (itemIndex+count-1)%count;
+    itemIndex = itemAtDisplayPosition((itemDisplayPosition()+count-1)%count);
     refreshShop();
 }
 static void nextItem(void){
-    itemIndex = (itemIndex+1)%categories[categoryIndex].count;
+    itemIndex = itemAtDisplayPosition((itemDisplayPosition()+1)%categories[categoryIndex].count);
     refreshShop();
 }
 static void nextCategory(void){
@@ -157,6 +174,7 @@ void renderShopInit(void){
     BGColor = 0xFFFF;
     resetPageView(&shopEx);
     setPageUILongKeyText("返回","分类");
+    shopBuildPriceOrder(ShopListMonsterCost,COUNT(ShopListMonsterCost),monsterOrder);
     categoryIndex = 0;
     itemIndex = itemSaveInfo.monsterIndex < categories[0].count ? itemSaveInfo.monsterIndex : 0;
     addChild(1,newChar(12,categoryText,0,48,30));

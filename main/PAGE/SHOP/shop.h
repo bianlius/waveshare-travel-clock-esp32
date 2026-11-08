@@ -15,6 +15,7 @@ extern DisplayObject *costTxtSp;//花费
 extern DisplayObject *shopListObj;
 
 extern const u8* momsterListArr[];//可选择的怪物列表
+extern const u8 ShopListMonsterGround[];
 extern const u8* gardenListArr[];
 extern const u8* tentListArr[];
 extern const u8* shirtListArr[];

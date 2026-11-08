@@ -15,3 +15,5 @@
 `main/assets/track_00.mp3` 至 `track_09.mp3` 是由 [Pokémon Red](https://www.zophar.net/music/gameboy-gbs/pokemon-red)、[Pokémon Gold](https://www.zophar.net/music/gameboy-gbs/pokemon-gold) 与 [Pokémon Sapphire](https://www.zophar.net/music/gameboy-advance-gsf/pokemon-sapphire) 的游戏音乐存档转码所得。各文件对应的源曲目和下载路径记录在 `tools/prepare_mp3.py` 中。
 
 `main/pic_data/` 和相关图片资源包含从原工程移植、改编的游戏角色与像素图像。音乐和这些第三方图像的再分发授权未在本仓库得到确认；列出来源只用于说明素材出处，不表示素材已经获得开放许可。使用、修改或再分发这些素材前，请自行取得所需授权。
+
+新增的火稚鸡、水跃鱼、蛇纹熊、雷电兽和斗笠菇动画取自 [christt105/PokemonEmeraldIntroVideo](https://github.com/christt105/PokemonEmeraldIntroVideo)。蛇纹熊与斗笠菇由 **JoshR691** 绘制，其余三套的原始游戏美术归 Nintendo / Game Freak；christt105 整理了动画条带。固定来源版本、文件校验和及处理方式见 [素材说明](assets/pokemon_followers/README.md)。这些动画不属于本项目 PolyForm 非商业许可授予的原创内容。
