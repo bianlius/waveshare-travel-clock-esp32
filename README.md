@@ -87,32 +87,57 @@ python3 tools/pack_sound_data.py
 普通文字在 LCD 实际像素上绘制；启用原生文字渲染的页面在缓冲区分配或绘制失败时会直接报错，避免悄悄回退到旧画布字体。滚动列表按多行文字自动增加行高，长 Wi-Fi 名称和密码会换行。搜索 Wi-Fi 列表的单行项目高 28 像素，双行项目高 44 像素；选中框和滚动位置按每项实际高度调整。成功、失败、金币不足等提示逐行按 LCD 实际字形宽度居中，整段在屏幕中央显示；文字全程保持原生像素绘制并定时消失，避免透明度变化时退回旧字体。页面切换或重建顶部按钮前清除旧提示，避免旧提示对象指向新页面对象。
 纯数字时钟把四张原始 60×90 数字图以最近邻采样缩为 48×72 像素，左右两组之间使用原始 14×46 像素冒号，并随秒闪烁。日期和天气图标放在顶部，Wi-Fi、地区、天气描述、天气温度和温度符号放在底部，图标按原像素绘制。
 
-## 编译与烧录
+## 自行编译与刷机
 
-### 使用发布版刷机
+### 1. 安装工具并获取源码
 
-[微雪官方 ESP32-S3-Touch-LCD-1.54 刷机教程](https://docs.waveshare.com/ESP32-S3-Touch-LCD-1.54/Firmware-Flashing)介绍了 Flash Download Tool 的使用方法。刷入本项目时，请从[本项目 Releases](https://github.com/bianlius/waveshare-travel-clock-esp32/releases)下载 `waveshare-travel-clock-esp32-v0.1.0-full.bin`，在工具中选择 **ESP32-S3 / USB**，添加该文件并将烧录地址设为 **`0x0`**，再选择设备串口并开始刷写。该完整镜像包含启动程序、分区表、应用及 MP3 音频数据；刷入时会覆盖设备原有设置、Wi-Fi 信息和花园存档。
+按[乐鑫 ESP-IDF 5.5.2 安装指南](https://docs.espressif.com/projects/esp-idf/en/v5.5.2/esp32s3/get-started/)安装 ESP32-S3 编译环境。Windows 请打开安装程序提供的 **ESP-IDF Command Prompt**；macOS / Linux 请在终端执行 `. /你的/esp-idf/目录/export.sh`。工程和 ESP-IDF 的路径不要包含空格。
 
-如果 USB 串口没有出现，按住 **BOOT** 键连接 USB 后松开；刷写完成后重新上电。微雪教程中的下载链接是官方测试固件，本项目固件请使用上方的 Releases 链接。
-
-### 从源码编译
-
-使用 ESP-IDF 5.5.2。在本目录执行：
+首次获取工程时执行：
 
 ```bash
-. ~/esp/esp-idf-v5.5.2/export.sh
-python3 tools/pack_sound_data.py
-idf.py build
-idf.py -p <设备串口> flash
-python3 -m esptool --chip esp32s3 -p <设备串口> write_flash 0x312000 build/sounddata.bin
-idf.py -p <设备串口> monitor
+git clone https://github.com/bianlius/waveshare-travel-clock-esp32.git
+cd waveshare-travel-clock-esp32
 ```
 
-项目在 `CMakeLists.txt` 中固定目标为 `esp32s3`，使用本目录的 `components/`、`partitions.csv` 和 `sdkconfig.defaults`。设备串口可通过 `ls /dev/cu.usb*` 查找。编译产物位于 `build/`，不纳入 Git。
+项目已在 `CMakeLists.txt` 中指定 `esp32s3`，并包含 `sdkconfig.defaults`、分区表和 10 首 MP3，无需另行下载音频。已有本地工程时直接在工程目录继续。
+
+### 2. 编译应用和音频镜像
+
+在已激活 ESP-IDF 5.5.2 的终端、工程根目录中执行：
+
+```bash
+python tools/pack_sound_data.py
+idf.py -DGVIEW_UI_AUDIT=OFF build
+```
+
+成功后会得到 `build/bootloader/bootloader.bin`、`build/partition_table/partition-table.bin`、`build/travel_clock_esp32.bin` 和 `build/sounddata.bin`。其中音频镜像由仓库内的 MP3 打包生成；`idf.py build` 不会自动生成音频镜像。构建产物位于 `build/`，不纳入 Git。
+
+### 3. 烧录到设备
+
+用可传输数据的 USB 线连接微雪 ESP32-S3-Touch-LCD-1.54。将下列命令中的 `PORT` 换成实际串口：Windows 如 `COM3`，macOS 如 `/dev/cu.usbmodem...`，Linux 如 `/dev/ttyACM0`。`idf.py flash` 烧录启动程序、分区表和应用；再把音频镜像写入当前分区表的 `sounddata` 地址 `0x312000`：
+
+```bash
+idf.py -p PORT flash
+python -m esptool --chip esp32s3 -p PORT write_flash 0x312000 build/sounddata.bin
+idf.py -p PORT monitor
+```
+
+串口没有出现时，按住 **BOOT** 键接入 USB 后松开；刷完后重新上电。微雪的[官方刷机教程](https://docs.waveshare.com/ESP32-S3-Touch-LCD-1.54/Firmware-Flashing)也有串口、下载模式和 Flash Download Tool 的图示。上述分开烧录方式在分区表不变时保留原有设置和花园存档。
+
+### 可选：制作供 Flash Download Tool 使用的单文件镜像
+
+若要按微雪教程在 `0x0` 烧录一个文件，可在编译和音频打包完成后执行：
+
+```bash
+python -m esptool --chip esp32s3 merge_bin --output build/travel-clock-full.bin --flash_mode dio --flash_freq 80m --flash_size 16MB 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/travel_clock_esp32.bin 0x312000 build/sounddata.bin
+```
+
+在 Flash Download Tool 中选择 **ESP32-S3 / USB**、`build/travel-clock-full.bin` 和地址 **`0x0`**。单文件镜像会覆盖设置、Wi-Fi 信息及花园存档。微雪教程中的固件下载链接是其官方测试固件，本项目请使用自己编译生成的镜像。
 
 天气预报使用 Open-Meteo 免费接口，无需配置密钥。天气数据来源：Open-Meteo（CC BY 4.0）；免费接口仅供非商业用途。
 
-此前设备测试已覆盖屏幕、触摸、按键及 ES8311 音频播放；本次发布包完成了编译与镜像校验，尚未重新刷机验收。
+此前设备测试已覆盖屏幕、触摸、按键及 ES8311 音频播放；修改固件后请按实际设备重新验收。
 
 ## 设备帧图检查
 
