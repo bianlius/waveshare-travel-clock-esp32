@@ -4,7 +4,7 @@ Travel Clock ESP32 是参考工程 [GVIEW-Engine](https://github.com/zhengjunlan
 
 ## 许可与素材
 
-本项目采用分层许可，详见 [LICENSE](LICENSE)：原工程 GVIEW-Engine 的代码保留原 [MIT 许可证](LICENSES/GVIEW-Engine-MIT.txt)；`bianlius` 拥有权利的新增、修改代码及原创素材，按 [PolyForm Noncommercial 1.0.0](LICENSES/PolyForm-Noncommercial-1.0.0.md) 提供，**不允许商业用途**，商用须另行取得相应权利人的许可。此前已按 MIT 发布的版本保留当时的授权，不受本次调整追溯限制。采用非商业限制后，本项目整体不属于 OSI 定义的开源软件。
+许可说明见 [LICENSE](LICENSE)：参考工程 GVIEW-Engine 保留原 [MIT 许可证](LICENSES/GVIEW-Engine-MIT.txt)；`bianlius` 拥有权利的部分按 [PolyForm Noncommercial 1.0.0](LICENSES/PolyForm-Noncommercial-1.0.0.md) 提供，未经授权不得商用。
 
 第三方代码和素材的来源、许可范围见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。仓库包含宝可梦相关音乐与像素素材；这些素材不受上述两种许可证授权，来源标注不等于再分发许可。使用或再分发时请自行确认相应权利。
 
@@ -89,10 +89,19 @@ python3 tools/pack_sound_data.py
 
 ## 编译与烧录
 
+### 使用发布版刷机
+
+[微雪官方 ESP32-S3-Touch-LCD-1.54 刷机教程](https://docs.waveshare.com/ESP32-S3-Touch-LCD-1.54/Firmware-Flashing)介绍了 Flash Download Tool 的使用方法。刷入本项目时，请从[本项目 Releases](https://github.com/bianlius/waveshare-travel-clock-esp32/releases)下载 `waveshare-travel-clock-esp32-v0.1.0-full.bin`，在工具中选择 **ESP32-S3 / USB**，添加该文件并将烧录地址设为 **`0x0`**，再选择设备串口并开始刷写。该完整镜像包含启动程序、分区表、应用及 MP3 音频数据；刷入时会覆盖设备原有设置、Wi-Fi 信息和花园存档。
+
+如果 USB 串口没有出现，按住 **BOOT** 键连接 USB 后松开；刷写完成后重新上电。微雪教程中的下载链接是官方测试固件，本项目固件请使用上方的 Releases 链接。
+
+### 从源码编译
+
 使用 ESP-IDF 5.5.2。在本目录执行：
 
 ```bash
 . ~/esp/esp-idf-v5.5.2/export.sh
+python3 tools/pack_sound_data.py
 idf.py build
 idf.py -p <设备串口> flash
 python3 -m esptool --chip esp32s3 -p <设备串口> write_flash 0x312000 build/sounddata.bin
@@ -103,7 +112,7 @@ idf.py -p <设备串口> monitor
 
 天气预报使用 Open-Meteo 免费接口，无需配置密钥。天气数据来源：Open-Meteo（CC BY 4.0）；免费接口仅供非商业用途。
 
-目前已验证屏幕启动、触摸响应、PWR 长按关机/唤醒和 ES8311 音频播放；本次 MP3 曲目、声音设置和首页音乐快捷开关尚待刷机试听与操作验收。
+此前设备测试已覆盖屏幕、触摸、按键及 ES8311 音频播放；本次发布包完成了编译与镜像校验，尚未重新刷机验收。
 
 ## 设备帧图检查
 
