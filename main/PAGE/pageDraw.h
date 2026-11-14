@@ -38,8 +38,6 @@ void addWIFI(u16 $x,u16 $y);//Ìí¼ÓwifiÍ¼±ê
 // void addNewPaopaoRandom(u16 Probability,short sx);
 // void addNewPaopao(short sx);
 // void movePaopao(void);
-// // void addNewKuan(u8 $deep,u8 x,u8 y,u8 w,u8 h);
-// void addNewKuanSingle(u8 $deep,u16 $color,u8 x,u8 y,u8 w,u8 h);
 
 void showTips(const char* txt,float time);
 void hideTips(void);

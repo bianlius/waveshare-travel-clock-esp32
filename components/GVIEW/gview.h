@@ -163,7 +163,7 @@ typedef struct DisplayObject{
     uint8_t nativeIcon; // Render this UI sprite at one LCD pixel per source pixel.
     uint8_t picType;//图片类型 16位 8位 4位 2位 1位
     uint8_t *p;//图像 指针
-    short frameOffset;//图像偏移,用于渲染动画里的不同帧
+    int32_t frameOffset;//图像偏移,用于渲染动画里的不同帧
     short offsetx;//
     short offsety;
     uint16_t childrenNum;//子对象数量
@@ -218,7 +218,7 @@ typedef struct DisObjAction{
     uint8_t frameTime;//计算播放下一帧的时间，减为0则切换下一帧
     uint8_t currentFrame;//当前帧数 取值1~totallFrame
     uint8_t playing;//是否播放动画
-    uint16_t frameOffset;
+    uint32_t frameOffset;
     short scaleX;//缩放和旋转只能同时存在一种,只对pic类型有效
     short scaleY;//100表示原始大小,除以100为实际缩放比例
     short scaleXNow;//用于记录已经缩放处理过的值
@@ -304,7 +304,7 @@ void removeChildAt(uint16_t layer,uint16_t deep);//从层对象中移除某个对象
 DisplayObject*  getChildAt(DisplayObject *disObj,uint16_t num);//查找子对象
 void removeChildFor(DisplayObject *disObj,uint16_t deep);//从子对象中移除子对象
 void removeAllChildForObj(DisplayObject *disObj);
-uint16_t getPicOffset(uint8_t frame,uint8_t* p);//获取某帧的图像指针
+uint32_t getPicOffset(uint8_t frame,uint8_t* p);//获取某帧的图像指针
 void setPicColor(DisplayObject *obj,char* color);//设置4位色和2位色图的颜色
 void refrushScaleAction(DisObjAction* action);//刷新缩放
 

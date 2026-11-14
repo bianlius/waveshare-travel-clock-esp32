@@ -1,6 +1,7 @@
 #ifndef _LCD_INIT_H_
 #define _LCD_INIT_H_
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "../SPI/spi.h"
 #include "GVIEW/gview.h"
@@ -22,6 +23,10 @@ void LCD_Fill(uint16_t xs, uint16_t ys, uint16_t xe, uint16_t ye, uint16_t color
 void LCD_Enter_Sleep(void);                                                        // Òº¾§½øÈëÐÝÃß
 void LCD_Exit_Sleep(void);                                                         // Òº¾§ÍË³öÐÝÃß
 void LCD_Init(void);
+// Clockwise quarter turns from the board default orientation (0..3).
+void LCD_SetRotation(uint8_t quarter_turns);
+uint8_t LCD_GetRotation(void);
+void LCD_MapTouchToLogical(int *x, int *y);
 
 void LCD_SetSkipUnchanged(bool enabled);
 void LCD_PrepareFrame(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey);

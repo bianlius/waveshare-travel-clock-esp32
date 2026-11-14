@@ -1,6 +1,7 @@
 #include "./setting.h"
 #include "../../LCD/backLight.h"
 #include "../../rom.h"
+#include "../../imu_rotation.h"
 #include "../../sound.h"
 
 #define SOUND_SET_COUNT 2
@@ -221,42 +222,76 @@ static void renderHomeBgmSettingsInit(void){
     setKeyFun(KM1,&homeBgmNext);
 }
 
-static DisplayObject *systemValue;
+#define SYSTEM_SET_COUNT 3
+#define SYSTEM_SET_TOP 44
+#define SYSTEM_SET_PITCH 44
+static DisplayObject *systemSetBGObj;
+static DisplayObject *systemValues[SYSTEM_SET_COUNT];
+static u8 systemSelect;
 static u8 systemEditing;
 static u8 systemDirty;
 static char tempOffsetText[8];
+static char autoRotationText[8];
+static char homePlantHintText[8];
 void saveSystemSettingsIfDirty(void){
     clearDelayFunction(&saveSystemSettingsIfDirty);
     if(systemDirty){ systemDirty=0; writeData(); }
 }
+static void queueSystemSettingsSave(void){
+    systemDirty=1;
+    clearDelayFunction(&saveSystemSettingsIfDirty);
+    DelayFunction(&saveSystemSettingsIfDirty,2.0f);
+}
 static void updateSystemSettings(void){
     signed char value=dataSaveInfo.tempOffset;
     snprintf(tempOffsetText,sizeof(tempOffsetText),"%s%d",value>0?"+":"",value);
-    systemValue->color=systemEditing ? ORANGE : 0;
-    setPageUIKeyText(0,systemEditing && value>-5 ? "减少" : "");
-    setPageUIMiddleText(systemEditing ? "完成" : "编辑");
-    setPageUIKeyText(2,systemEditing && value<5 ? "增加" : "");
+    snprintf(autoRotationText,sizeof(autoRotationText),"%s",
+             dataSaveInfo.autoRotationEnabled ? "开启" : "关闭");
+    snprintf(homePlantHintText,sizeof(homePlantHintText),"%s",
+             dataSaveInfo.homePlantHintConfig==HOME_PLANT_HINT_ON ? "开启" : "关闭");
+    for(u8 i=0;i<SYSTEM_SET_COUNT;++i)
+        systemValues[i]->color=i==systemSelect ? ORANGE : 0;
+    systemSetBGObj->y=SYSTEM_SET_TOP-6+systemSelect*SYSTEM_SET_PITCH;
+    if(!systemEditing){
+        setPageUIKeyText(0,"上一项");
+        setPageUIMiddleText(systemSelect ? "切换" : "编辑");
+        setPageUIKeyText(2,"下一项");
+    }else{
+        setPageUIKeyText(0,value>-5 ? "减少" : "");
+        setPageUIMiddleText("完成");
+        setPageUIKeyText(2,value<5 ? "增加" : "");
+    }
 }
 static void systemPrevious(void){
-    if(systemEditing && dataSaveInfo.tempOffset>-5){
+    if(!systemEditing){
+        systemSelect=(systemSelect+SYSTEM_SET_COUNT-1)%SYSTEM_SET_COUNT;
+    }else if(dataSaveInfo.tempOffset>-5){
         --dataSaveInfo.tempOffset;
-        systemDirty=1;
-        clearDelayFunction(&saveSystemSettingsIfDirty);
-        DelayFunction(&saveSystemSettingsIfDirty,2.0f);
-        updateSystemSettings();
+        queueSystemSettingsSave();
     }
+    updateSystemSettings();
 }
 static void systemNext(void){
-    if(systemEditing && dataSaveInfo.tempOffset<5){
+    if(!systemEditing){
+        systemSelect=(systemSelect+1)%SYSTEM_SET_COUNT;
+    }else if(dataSaveInfo.tempOffset<5){
         ++dataSaveInfo.tempOffset;
-        systemDirty=1;
-        clearDelayFunction(&saveSystemSettingsIfDirty);
-        DelayFunction(&saveSystemSettingsIfDirty,2.0f);
-        updateSystemSettings();
+        queueSystemSettingsSave();
     }
+    updateSystemSettings();
 }
 static void systemConfirm(void){
-    systemEditing=!systemEditing;
+    if(systemSelect==1){
+        dataSaveInfo.autoRotationEnabled=!dataSaveInfo.autoRotationEnabled;
+        imuRotationSetEnabled(dataSaveInfo.autoRotationEnabled != 0);
+        queueSystemSettingsSave();
+    }else if(systemSelect==2){
+        dataSaveInfo.homePlantHintConfig=dataSaveInfo.homePlantHintConfig==HOME_PLANT_HINT_ON
+            ? HOME_PLANT_HINT_OFF : HOME_PLANT_HINT_ON;
+        queueSystemSettingsSave();
+    }else{
+        systemEditing=!systemEditing;
+    }
     updateSystemSettings();
 }
 void leaveSystemSettings(void){
@@ -270,15 +305,23 @@ void setSystemInit(void){
     pageNow=PAGE_SYSTEM_SET;
     BGColor=0xFFFF;
     resetPageView(&systemSettingsEx);
+    systemSelect=0;
     systemEditing=0;
     systemDirty=0;
-    drawPageUITxt("","编辑","");
-    addChild(0,newRoundRectDisObj(0x9efc,164,20,78,44,8,1));
-    addChild(0,newChar(12,"温度补偿",0,80,44));
-    systemValue=newChar(12,tempOffsetText,0,177,44);
-    addChild(0,systemValue);
-    addChild(moveClipMaxNum-1,newNativePicSingle(&duc,0,218,44));
-    addChild(0,newChar(12,"系统版本 v2.4",0,80,84));
+    drawPageUITxt("上一项","编辑","下一项");
+    systemSetBGObj=newRoundRectDisObj(0x9efc,224,32,48,SYSTEM_SET_TOP-6,8,1);
+    addChild(0,systemSetBGObj);
+    addChild(0,newChar(12,"温度补偿",0,54,SYSTEM_SET_TOP));
+    systemValues[0]=newChar(12,tempOffsetText,0,208,SYSTEM_SET_TOP);
+    addChild(0,systemValues[0]);
+    addChild(moveClipMaxNum-1,newNativePicSingle(&duc,0,242,SYSTEM_SET_TOP));
+    addChild(0,newChar(12,"自动旋转",0,54,SYSTEM_SET_TOP+SYSTEM_SET_PITCH));
+    systemValues[1]=newChar(12,autoRotationText,0,208,SYSTEM_SET_TOP+SYSTEM_SET_PITCH);
+    addChild(0,systemValues[1]);
+    addChild(0,newChar(12,"首页植物提示",0,54,SYSTEM_SET_TOP+2*SYSTEM_SET_PITCH));
+    systemValues[2]=newChar(12,homePlantHintText,0,208,SYSTEM_SET_TOP+2*SYSTEM_SET_PITCH);
+    addChild(0,systemValues[2]);
+    addChild(0,newChar(12,"系统版本 v2.4",0,54,184));
     updateSystemSettings();
     setKeyFun(KML,&leaveSystemSettings);
     setKeyFun(KMR,&systemNext);

@@ -83,79 +83,6 @@ void addFrame(u16 $x,u16 $y){
 
 
 
-//添加圆角描边框 deep加载到哪一层
-// x坐标
-// y坐标
-// w宽度*10pix
-// h高度*10pix
-// void addNewKuan(u8 $deep,u8 x,u8 y,u8 w,u8 h){
-//     DisplayObject *J1 = newPic(&kuanA,x,y);
-//     DisplayObject *J2 = newPic(&kuanA,x+w*10,y);
-//     DisplayObject *J3 = newPic(&kuanA,x,y+h*10);
-//     DisplayObject *J4 = newPic(&kuanA,x+w*10,y+h*10);
-//     for(u8 i=0;i<w-1;i++){
-//         DisplayObject *KU = newPic(&kuanC,x+10+i*10,y);
-//         DisplayObject *KD = newPic(&kuanC,x+10+i*10,y+h*10);
-//         KD->dir = 0xF0;
-//         addChild($deep,KU);
-//         addChild($deep,KD);
-//     }
-//     for(u8 i=0;i<h-1;i++){
-//         DisplayObject *KL = newPic(&kuanB,x,y+10+i*10);
-//         DisplayObject *KR = newPic(&kuanB,x+w*10,y+10+i*10);
-//         KR->dir = 0x0F;
-//         addChild($deep,KL);
-//         addChild($deep,KR);
-//     }
-//     J2->dir = 0xF;
-//     J3->dir = 0xF0;
-//     J4->dir = 0xFF;
-//     addChild($deep,J1);
-//     addChild($deep,J2);
-//     addChild($deep,J3);
-//     addChild($deep,J4);
-
-//     addChild($deep,newRect(COLOR256_16[0x3c]>>8|COLOR256_16[0x3c]<<8,(w-1)*10,(h-1)*10,x+10,y+10));    
-// }
-
-//添加圆角单色框 deep加载到哪一层
-// x坐标
-// y坐标
-// w宽度*4pix
-// h高度*4pix
-// void addNewKuanSingle(u8 $deep,u16 $color,u8 x,u8 y,u8 w,u8 h){
-//     u8 kW = 4;
-
-//     DisplayObject *J1 = newPicSingle(&kuan4A,$color,x,y);
-//     DisplayObject *J2 = newPicSingle(&kuan4A,$color,x+w*kW,y);
-//     DisplayObject *J3 = newPicSingle(&kuan4A,$color,x,y+h*kW);
-//     DisplayObject *J4 = newPicSingle(&kuan4A,$color,x+w*kW,y+h*kW);
-
-//     DisplayObject *KU = newRect($color,kW*(w-1),kW,x+kW,y);
-//     DisplayObject *KD = newRect($color,kW*(w-1),kW,x+kW,y+h*kW);
-//     KD->dir = 0xF0;
-//     addChild($deep,KU);
-//     addChild($deep,KD);
-    
-//     DisplayObject *KL = newRect($color,kW,kW*(h-1),x,y+kW);
-//     DisplayObject *KR = newRect($color,kW,kW*(h-1),x+w*kW,y+kW);
-//     KR->dir = 0x0F;
-//     addChild($deep,KL);
-//     addChild($deep,KR);
-        
-//     J2->dir = 0xF;
-//     J3->dir = 0xF0;
-//     J4->dir = 0xFF;
-//     addChild($deep,J1);
-//     addChild($deep,J2);
-//     addChild($deep,J3);
-//     addChild($deep,J4);
-
-//     addChild($deep,newRect($color,(w-1)*kW,(h-1)*kW,x+kW,y+kW));
-// }
-
-
-
 //===============提示START================
 
 static u8 extraPageReturnHint;
@@ -232,8 +159,8 @@ void setPageUILongKeyText(const char* left,const char* right){
 }
 
 void setPageUIHoldPromotion(u8 rightSide,u8 enabled){
-    if(rightSide>1) return;
-    holdPromotionEnabled[rightSide]=enabled;
+    if(rightSide>1 || holdPromotionEnabled[rightSide]==!!enabled) return;
+    holdPromotionEnabled[rightSide]=!!enabled;
     refreshHeaderLabels();
 }
 

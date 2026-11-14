@@ -18,7 +18,9 @@ static char plantInfo[48];
 enum { GARDEN_FLOOR_WIDTH=224, GARDEN_FLOOR_HEIGHT=98, GARDEN_FLOOR_TOP=115 };
 
 #define GARDEN_STORAGE_MAGIC 0x4752444Eu
-#define GARDEN_STORAGE_VERSION 1
+#define GARDEN_STORAGE_VERSION 2
+#define GARDEN_PREVIOUS_STORAGE_VERSION 1
+#define GARDEN_PREVIOUS_MAX_PLANTS 20
 #define GARDEN_NVS_NAMESPACE "garden"
 #define GARDEN_NVS_KEY "plants"
 
@@ -28,6 +30,12 @@ typedef struct {
     uint8_t count;
     Clover plants[cloverMaxNum];
 } GardenSnapshot;
+typedef struct {
+    uint32_t magic;
+    uint8_t version;
+    uint8_t count;
+    Clover plants[GARDEN_PREVIOUS_MAX_PLANTS];
+} GardenSnapshotV1;
 
 static SemaphoreHandle_t gardenMutex;
 static bool repairPlantPositionsLocked(void);
@@ -39,17 +47,26 @@ static void unlockGarden(void){
     if(gardenMutex) xSemaphoreGive(gardenMutex);
 }
 
-static bool validGardenSnapshot(const GardenSnapshot *snapshot){
-    if(snapshot->magic!=GARDEN_STORAGE_MAGIC ||
-       snapshot->version!=GARDEN_STORAGE_VERSION ||
-       snapshot->count>cloverMaxNum) return false;
+static bool validGardenPlants(const Clover *plants,u8 count){
     const u8 typeCount=getGardenShopListArrNum(gardenShopNum);
-    for(u8 i=0;i<snapshot->count;++i){
-        const Clover *plant=&snapshot->plants[i];
+    for(u8 i=0;i<count;++i){
+        const Clover *plant=&plants[i];
         if(plant->type>=typeCount || plant->x<0 || plant->x>=320 ||
            plant->y<-128 || plant->y>=240) return false;
     }
     return true;
+}
+static bool validGardenSnapshot(const GardenSnapshot *snapshot){
+    return snapshot->magic==GARDEN_STORAGE_MAGIC &&
+           snapshot->version==GARDEN_STORAGE_VERSION &&
+           snapshot->count<=cloverMaxNum &&
+           validGardenPlants(snapshot->plants,snapshot->count);
+}
+static bool validGardenSnapshotV1(const GardenSnapshotV1 *snapshot){
+    return snapshot->magic==GARDEN_STORAGE_MAGIC &&
+           snapshot->version==GARDEN_PREVIOUS_STORAGE_VERSION &&
+           snapshot->count<=GARDEN_PREVIOUS_MAX_PLANTS &&
+           validGardenPlants(snapshot->plants,snapshot->count);
 }
 
 // Called with gardenMutex held so generation and harvest save in order.
@@ -78,16 +95,31 @@ void gardenRestorePlants(void){
 #endif
     nvs_handle_t handle;
     if(nvs_open(GARDEN_NVS_NAMESPACE,NVS_READONLY,&handle)!=ESP_OK) return;
-    GardenSnapshot snapshot;
-    size_t length=sizeof(snapshot);
-    const esp_err_t err=nvs_get_blob(handle,GARDEN_NVS_KEY,&snapshot,&length);
+    size_t length=0;
+    esp_err_t err=nvs_get_blob(handle,GARDEN_NVS_KEY,NULL,&length);
+    GardenSnapshot snapshot={0};
+    bool previous=false;
+    if(err==ESP_OK && length==sizeof(snapshot)){
+        err=nvs_get_blob(handle,GARDEN_NVS_KEY,&snapshot,&length);
+        if(err!=ESP_OK || length!=sizeof(snapshot) || !validGardenSnapshot(&snapshot))
+            err=ESP_FAIL;
+    }else if(err==ESP_OK && length==sizeof(GardenSnapshotV1)){
+        GardenSnapshotV1 oldSnapshot;
+        err=nvs_get_blob(handle,GARDEN_NVS_KEY,&oldSnapshot,&length);
+        if(err==ESP_OK && length==sizeof(oldSnapshot) && validGardenSnapshotV1(&oldSnapshot)){
+            snapshot.count=oldSnapshot.count;
+            memcpy(snapshot.plants,oldSnapshot.plants,oldSnapshot.count*sizeof(Clover));
+            previous=true;
+        }else err=ESP_FAIL;
+    }else err=ESP_FAIL;
     nvs_close(handle);
-    if(err!=ESP_OK || length!=sizeof(snapshot) || !validGardenSnapshot(&snapshot)) return;
+    if(err!=ESP_OK) return;
     lockGarden();
     memcpy(cloverArr,snapshot.plants,snapshot.count*sizeof(cloverArr[0]));
     cloverNumNow=snapshot.count;
     selectedPlant=0;
-    if(repairPlantPositionsLocked()) saveGardenPlantsLocked();
+    const bool repaired=repairPlantPositionsLocked();
+    if(previous || repaired) saveGardenPlantsLocked();
     unlockGarden();
 }
 
@@ -141,17 +173,19 @@ void refrushClover(void){
     }
 }
 
-// Twenty staggered root positions on the continuous green part of the lawn.
-// The closest pair is 20 pixels apart; each slot is occupied at most once.
+// Thirty root positions stay on the green lawn. The original twenty retain
+// their coordinates so existing gardens do not jump during the upgrade.
 typedef struct { short x,rootY; } GardenSpot;
 static const GardenSpot gardenSpots[] = {
     {105,137},{127,137},{149,137},{171,137},{193,137},{215,137},
     {83,158},{105,158},{127,158},{149,158},
     {171,158},{193,158},{215,158},{237,158},
     {110,179},{130,179},{150,179},{170,179},{190,179},{210,179},
+    {82,137},{236,137},{70,173},{82,187},{236,187},
+    {140,197},{202,197},{120,199},{160,199},{182,199},
 };
 _Static_assert(sizeof(gardenSpots)/sizeof(gardenSpots[0])==cloverMaxNum,
-               "Garden needs exactly 20 planting spots");
+               "Garden needs exactly 30 planting spots");
 
 static bool gardenSpotOccupied(const Clover *plants,u8 count,u8 spot){
     for(u8 i=0;i<count;i++){

@@ -17,6 +17,7 @@
 #include "rom.h"
 #include "sound.h"
 #include "PAGE/pageDraw.h"
+#include "LCD/lcd_init.h"
 
 #define TOUCH_ADDR 0x15
 #define KEY_COUNT 5
@@ -113,7 +114,9 @@ static bool touch_point(int *x, int *y)
     if ((data[0] & 0x0f) == 0) return false;
     *x = ((data[1] & 0x0f) << 8) | data[2];
     *y = ((data[3] & 0x0f) << 8) | data[4];
-    return *x >= 0 && *x < 240 && *y >= 0 && *y < 240;
+    if(*x < 0 || *x >= 240 || *y < 0 || *y >= 240) return false;
+    LCD_MapTouchToLogical(x, y);
+    return true;
 }
 
 static int touch_key_at(int x,int y)
@@ -162,6 +165,8 @@ static int content_gesture_key(int sx, int sy, int ex, int ey)
 void keyCheckC(void)
 {
     static bool contact;
+    static bool ignore_touch_until_release;
+    static uint8_t touch_rotation;
     static int start_x, start_y, last_x, last_y, active_touch_key = -1;
     static int64_t pwr_press_us;
     static int64_t left_press_us, right_press_us;
@@ -174,7 +179,16 @@ void keyCheckC(void)
     int left_action = -1, right_action = -1;
     if (shutting_down) { keyState = 0; return; }
     const bool touching = touch_point(&x, &y);
-    if (touching) {
+    const uint8_t rotation = LCD_GetRotation();
+    if(rotation != touch_rotation){
+        touch_rotation = rotation;
+        contact = false;
+        active_touch_key = -1;
+        ignore_touch_until_release = touching;
+        KEY0Temp = KEY1Temp = KEY2Temp = KEY3Temp = KEY4Temp = 0;
+    }
+    if(!touching) ignore_touch_until_release = false;
+    if (touching && !ignore_touch_until_release) {
         if (!contact) {
             contact = true;
             start_x = x;

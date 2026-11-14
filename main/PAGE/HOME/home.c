@@ -14,6 +14,7 @@
 #define WS_HOME_TOP 0
 #define WS_HOME_SIZE 240
 #define WS_HOME_TOP_LEFT_INSET 6
+#define HOME_STATUS_ICON_Y 12
 #define WS_HOME_RIGHT (WS_HOME_LEFT + WS_HOME_SIZE)
 #define WS_HOME_BOTTOM (WS_HOME_TOP + WS_HOME_SIZE)
 #define WS_HOME_GROUND_OFFSET 70
@@ -127,6 +128,10 @@ DisplayObject* tempNetObj;
 static DisplayObject *tempDegreeObj;
 static DisplayObject *homeBatteryObj;
 static DisplayObject *homePlantHintObj;
+static DisplayObject *homePlantCountObj;
+static char homePlantCountText[4];
+static DisplayObject *homeAlarmHintObj,*homeAlarmCountObj;
+static char homeAlarmCountText[4];
 //草
 DisplayObject *grassArr[10];
 DisplayObject *grassRctObj;
@@ -159,6 +164,8 @@ static DisplayObject *homeBikeParts[HOME_BIKE_PARTS];
 static short homeBikeBaseX[HOME_BIKE_PARTS];
 static u8 homeBikePartCount;
 static uint32_t homeBikeFrame;
+static uint8_t homeWheelFrame,homeWheelTicks;
+static uint8_t homeRiderFrame,homeRiderTicks;
 
 static void moveHomeBike(void){
     if(!homeBikePartCount || !fps) return;
@@ -176,13 +183,32 @@ static void moveHomeBike(void){
         const uint32_t eased=(uint32_t)((uint64_t)t*t*(3072-2*t)/(1024*1024));
         offset=-HOME_BIKE_TRAVEL+
                (short)((2*HOME_BIKE_TRAVEL*eased+512)/1024);
-    }else homeBikeFrame=0;
+    }else{
+        homeBikeFrame=0;
+        homeWheelFrame=0;
+        homeWheelTicks=0;
+        homeRiderFrame=homeRiderTicks=0;
+    }
     for(u8 i=0;i<homeBikePartCount;i++)
         homeBikeParts[i]->x=homeBikeBaseX[i]+offset;
-    // Wheels roll in both directions. The rider freewheels on the return
-    // ride, so the feet and clothing stay in a fixed pose instead of pedalling backward.
-    const uint8_t wheelFrame=((offset+HOME_BIKE_TRAVEL)/3)%4;
-    const uint8_t riderFrame=pedalling ? wheelFrame : 0;
+    // Faster forward wheels; the return stays slow and the pedals keep their cadence.
+    if(hour>=5){
+        const uint8_t wheelStep=pedalling ? (fps>=12 ? fps/12 : 1)
+                                          : (fps>=4 ? fps/4 : 1);
+        if(++homeWheelTicks>=wheelStep){
+            homeWheelTicks=0;
+            homeWheelFrame=(homeWheelFrame+1)%4;
+        }
+    }
+    if(pedalling){
+        const u8 pedalStep=fps>=8 ? fps/8 : 1;
+        if(++homeRiderTicks>=pedalStep){
+            homeRiderTicks=0;
+            homeRiderFrame=(homeRiderFrame+1)%4;
+        }
+    }else homeRiderFrame=homeRiderTicks=0;
+    const uint8_t wheelFrame=homeWheelFrame;
+    const uint8_t riderFrame=homeRiderFrame;
     for(u8 i=0;i<homeBikePartCount;i++){
         DisObjAction *action=homeBikeParts[i]->ac;
         if(action && action->totallFrame>1){
@@ -353,11 +379,41 @@ static char homeBatteryText[24];
 static int64_t homeBatteryLastRefreshUs = -60000000LL;
 static void positionHomeBattery(void){
     if(!homeBatteryObj || pageNow != PAGE_HOME) return;
-    homeBatteryObj->x = WS_HOME_RIGHT - WS_HOME_TOP_LEFT_INSET
-        - getTxtLength(homeBatteryText) * 8;
-    if(homePlantHintObj)
-        homePlantHintObj->x = homeBatteryObj->x - homePlantHintObj->width - 4;
+    // Native text needs complete column pairs, including a trailing percent sign.
+    const unsigned columns=(getTxtLength(homeBatteryText)+1u)&~1u;
+    homeBatteryObj->x = WS_HOME_RIGHT - WS_HOME_TOP_LEFT_INSET - columns*8;
+    if(homePlantHintObj && homePlantCountObj){
+        homePlantCountObj->x = homeBatteryObj->x
+            - getTxtLength(homePlantCountText) * 8 - 4;
+        homePlantHintObj->x = homePlantCountObj->x - homePlantHintObj->width - 2;
+    }
 }
+static void refreshHomePlantHint(void){
+    if(!homePlantHintObj || !homePlantCountObj) return;
+    snprintf(homePlantCountText,sizeof(homePlantCountText),"%u",cloverNumNow);
+    positionHomeBattery();
+    const u8 visible=dataSaveInfo.homePlantHintConfig==HOME_PLANT_HINT_ON && cloverNumNow
+        ? !homePlantHintObj->visible : 0;
+    homePlantHintObj->visible=visible;
+    homePlantCountObj->visible=visible;
+}
+static u8 enabledHomeAlarmCount(void){
+    u8 count=0;
+    for(u8 i=0;i<5;i++){
+        const u8 ring=dataSaveInfo.alarmClock[i]&0x0F;
+        if(ring>=1 && ring<=SOUND_TRACK_COUNT &&
+           (dataSaveInfo.alarmClock[i]>>4)<24*60 &&
+           (dataSaveInfo.alarmClockWeek[i]&0x7F)) ++count;
+    }
+    return count;
+}
+static void refreshHomeAlarmHint(void){
+    if(!homeAlarmHintObj || !homeAlarmCountObj) return;
+    const u8 count=enabledHomeAlarmCount();
+    snprintf(homeAlarmCountText,sizeof(homeAlarmCountText),"%u",count);
+    homeAlarmHintObj->visible=homeAlarmCountObj->visible=pageNow==PAGE_HOME && count>0;
+}
+
 static void refreshHomeBatteryText(void){
     const unsigned voltageMv = VoltageVal;
     if(!voltageMv){
@@ -390,9 +446,9 @@ void doUIfor1S(void){
     }else{
         wifiSp->visible = wifiSp->visible?0:1;
     }
-    // The home garden cue blinks once per second while plants are available.
-    if(homePlantHintObj)
-        homePlantHintObj->visible = cloverNumNow ? !homePlantHintObj->visible : 0;
+    // Keep the plant count and icon together as they blink.
+    refreshHomePlantHint();
+    refreshHomeAlarmHint();
     
     //===========================
 }
@@ -929,6 +985,8 @@ void resetHomeTempX(void){
 
 void addTompBottomTxt(void){
     homePlantHintObj=NULL;
+    homePlantCountObj=NULL;
+    homeAlarmHintObj=homeAlarmCountObj=NULL;
     homeBatteryObj=NULL;
     tempDegreeObj=NULL;
     char *cityNameTemp = getCityTxt(dataSaveInfo.provice,dataSaveInfo.city+1);
@@ -953,7 +1011,7 @@ void addTompBottomTxt(void){
         pageNow == PAGE_HOME ? 221 : 221));
     weatherObj = newNativePic(weatherArr[weatherCode],
         pageNow == PAGE_HOME ? WS_HOME_RIGHT-24 : 202,
-        pageNow == PAGE_HOME ? 8 : 4);
+        pageNow == PAGE_HOME ? HOME_STATUS_ICON_Y : 4);
     if(pageNow == PAGE_CLOCK) weatherObj->y = 8;
     tempNetObj = newChar(12,tempNetTxt,0xffff,105,
         pageNow == PAGE_HOME ? 52 : 221);
@@ -970,9 +1028,17 @@ void addTompBottomTxt(void){
     if(pageNow == PAGE_HOME){
         // Keep the plant cue beside the battery in the bottom-right corner.
         homePlantHintObj=newNativePic(gardenHint,0,homeBatteryObj->y-3);
-        homePlantHintObj->visible=0;
+        snprintf(homePlantCountText,sizeof(homePlantCountText),"%u",cloverNumNow);
+        homePlantCountObj=newChar(12,homePlantCountText,0xFFFF,0,homeBatteryObj->y);
+        homePlantHintObj->visible=homePlantCountObj->visible=0;
         addChild(moveClipMaxNum - 1,homePlantHintObj);
-        positionHomeBattery();
+        addChild(moveClipMaxNum - 1,homePlantCountObj);
+        refreshHomePlantHint();
+        homeAlarmHintObj=newNativePic(alarmHint,WS_HOME_RIGHT-58,HOME_STATUS_ICON_Y);
+        homeAlarmCountObj=newChar(12,homeAlarmCountText,0xFFFF,WS_HOME_RIGHT-38,HOME_STATUS_ICON_Y);
+        addChild(moveClipMaxNum - 1,homeAlarmHintObj);
+        addChild(moveClipMaxNum - 1,homeAlarmCountObj);
+        refreshHomeAlarmHint();
     }
     resetHomeTempX();
     positionWeatherDescription();
@@ -1080,14 +1146,40 @@ void addManBike(u8 deep,short $x,short $y,u8 bikeNum,u8 headNum,u8 shirtNum,u8 p
     if(bagNum)addHomeBikePart(deep,getNewMvAction(bagListArr[bagNum-1],bikeman->x,bikeman->y));//背包
 }
 
+void addSavedBike(u8 deep,short x,short y,u8 bikeNum){
+    if(bikeNum>8)bikeNum=0;
+    addManBike(deep,x,y,bikeNum,itemSaveInfo.headIndex,itemSaveInfo.shirtIndex,
+        itemSaveInfo.pantsIndex,itemSaveInfo.shoesIndex,
+        itemSaveInfo.glovesIndex,itemSaveInfo.bagIndex);
+}
+
+static void placeHomeFollower(u8 index){
+    const bool ground=checkMonsterType(index);
+    const bool small=ground && index>=9; // Pikachu and the compact followers.
+    addChild(small ? 6 : 1,phlPkm);
+    if(!ground){
+        if(index>=SHOP_FIRST_FLYING_FOLLOWER){
+            phlPkm->x=WS_UI_MID;
+            phlPkm->y=46+WS_HOME_GROUND_OFFSET;
+        }
+        return;
+    }
+    Ex1Min=small ? 40 : 60;
+    Ex1Max=small ? 100 : 240;
+    phlPkm->y=(small ? 146 : 140)+WS_HOME_GROUND_OFFSET-phlPkm->height/2;
+}
+
 char hz[3];
 const u8* tentArr[2] = {sleepBag,house};
 
 u8 treeStartFirst = 0;
 void renderHomeInit(void){
     homeState = 0;
+    phlPkm=NULL;
     homeBikePartCount=0;
     homeBikeFrame=0;
+    homeWheelFrame=homeWheelTicks=0;
+    homeRiderFrame=homeRiderTicks=0;
     homeDriftFrame=0;
     homeSceneOffsetX=0;
     homeUiOffsetX=0;
@@ -1099,9 +1191,9 @@ void renderHomeInit(void){
     LCD_SetPageViewport(&pageNow,PAGE_HOME,
         WS_HOME_LEFT,WS_HOME_TOP,WS_HOME_SIZE,WS_HOME_SIZE);
     
-    // Keep the sun inside the 240x240 home viewport.
+    // Overdraw the right edge through the full leftward scene drift.
     sunObj = newPic(&sun,0,0);
-    sunObj->x = WS_HOME_RIGHT - sunObj->width;
+    sunObj->x = WS_HOME_RIGHT - sunObj->width + HOME_SCENE_DRIFT_X;
     addChild(1,sunObj);
     sunObj->visible = false;
     //添加云
@@ -1215,7 +1307,7 @@ void renderHomeInit(void){
     }
     
      //---------------添加角色----------------
-    addManBike(6,140,105+WS_HOME_GROUND_OFFSET,itemSaveInfo.bikeIndex,itemSaveInfo.headIndex,itemSaveInfo.shirtIndex,itemSaveInfo.pantsIndex,itemSaveInfo.shoesIndex,itemSaveInfo.glovesIndex,itemSaveInfo.bagIndex);
+    addSavedBike(6,140,105+WS_HOME_GROUND_OFFSET,itemSaveInfo.bikeIndex);
     
     //---------------添加角色END----------------
 
@@ -1237,47 +1329,16 @@ void renderHomeInit(void){
 
     refrushMonsterList();//刷新精灵列表
     //添加精灵
-    if(itemSaveInfo.monsterIndex && itemSaveInfo.monsterIndex<getShopListArrNum(0)){
+    if(itemSaveInfo.monsterIndex && shopMonsterAvailable(itemSaveInfo.monsterIndex)){
         phlPkm = getNewMvAction(momsterListArr[itemSaveInfo.monsterIndex - 1],-100,46+WS_HOME_GROUND_OFFSET);
-        if(itemSaveInfo.monsterIndex == 9){
-            addChild(6,phlPkm);//比卡丘在前面
-        }else{
-            addChild(1,phlPkm);
-        }
-        
+        placeHomeFollower(itemSaveInfo.monsterIndex);
         pkmMvProp[0].disOb = phlPkm;
         pkmMvProp[0].nextTime = 0;
-        if(checkMonsterType(itemSaveInfo.monsterIndex)){
-            if(itemSaveInfo.monsterIndex == 9){
-                Ex1Max = 100;
-                Ex1Min = 40;
-                phlPkm->y = 142+4+WS_HOME_GROUND_OFFSET - phlPkm->height/2;
-            }else{
-                Ex1Max = 240;
-                Ex1Min = 60;
-                phlPkm->y = 136+4+WS_HOME_GROUND_OFFSET - phlPkm->height/2;
-            }
-        }
     }else{
         pkmMvProp[0].disOb = NULL;
     }
 
     //添加精灵
-
-    // struct DisplayObject* laysPkm = getNewMvAction(&pkm_ldys,160,46);
-    // addChild(3,laysPkm);
-    // pkmMvProp[0].disOb = laysPkm;
-    // pkmMvProp[0].state = Hover;
-    // pkmMvProp[0].nextTime = 0;
-    // laysPkm->visible = false;
-
-    // struct DisplayObject* laysPkm2 = getNewMvAction(&pkm_ldys,160,46);
-    // addChild(3,laysPkm2);
-    // laysPkm2->f = colorArr;
-    // pkmMvProp[1].disOb = laysPkm2;
-    // pkmMvProp[1].state = Hover;
-    // pkmMvProp[1].nextTime = 0;
-    // laysPkm2->visible = false;
 
     //按键事件
     setKeyFun(KM1,mainViewOpenGarden);

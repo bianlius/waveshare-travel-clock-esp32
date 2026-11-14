@@ -1844,8 +1844,8 @@ static FAST_CODE void render_rgb454_image(DisplayObject* disObj,int16_t mcx,int1
 
 
 
-    uint16_t *img_data=
-        (uint16_t*)(disObj->p+disObj->frameOffset);
+    // Five-frame RGB454 headers have odd offsets; read bytes without alignment assumptions.
+    const uint8_t *img_data=disObj->p+disObj->frameOffset;
 
 
     uint16_t img_width=
@@ -1909,23 +1909,19 @@ static FAST_CODE void render_rgb454_image(DisplayObject* disObj,int16_t mcx,int1
 
 
 
-        uint16_t *src;
+        const uint8_t *src;
 
 
 
         if(flip_x)
         {
             src=
-            &img_data[
-            (src_y+y)*img_width+
-            src_x+w-1];
+            img_data+2*((src_y+y)*img_width+src_x+w-1);
         }
         else
         {
             src=
-            &img_data[
-            (src_y+y)*img_width+
-            src_x];
+            img_data+2*((src_y+y)*img_width+src_x);
         }
 
 
@@ -1933,21 +1929,9 @@ static FAST_CODE void render_rgb454_image(DisplayObject* disObj,int16_t mcx,int1
         for(int x=0;x<w;x++)
         {
 
-            uint16_t raw=
-                flip_x?
-                *src--:
-                src[x];
-
-
-
-            if(raw==0x0001)
-                continue;
-
-
-
-            uint16_t color=
-                (raw>>8)|
-                (raw<<8);
+            uint16_t color=((uint16_t)src[0]<<8)|src[1];
+            src+=flip_x ? -2 : 2;
+            if(color==0x0100) continue;
 
 
 
@@ -2304,7 +2288,7 @@ void setScalePic(DisObjAction* action){
     float snumy = 100.0f/action->scaleY;//缩放倍数转化
     uint16_t x,y;
     uint16_t ytemp1,ytemp2;
-    uint16_t pixOffset = action->frameOffset;//2+p[1]*5;
+    uint32_t pixOffset = action->frameOffset;//2+p[1]*5;
     action->disObj->p = pDst;
     if(p[0] == 16){
         for(y = 0; y < dstH; y++){
@@ -3143,8 +3127,8 @@ static FAST_CODE void render_16bit_4corner_image( DisplayObject *disObj, int16_t
     }
 }
 //获取动画帧数据偏移
-uint16_t getPicOffset(uint8_t frame,uint8_t* p){
-    uint16_t reOffset = 0;
+uint32_t getPicOffset(uint8_t frame,uint8_t* p){
+    uint32_t reOffset = 0;
     if(frame<p[1]){
         uint16_t ff = frame*basicOffset;
         if(!p[4+ ff]&&!p[5+ff])frame = p[3+ff]-1;

@@ -27,6 +27,7 @@ void uiAuditAfterFrame(void);
 #include "config.h"
 #include "rom.h"
 #include "adc.h"
+#include "imu_rotation.h"
 #include "sound.h"
 #include "freertos/queue.h"
 #include "esp_timer.h"           // 主要头文件
@@ -174,6 +175,7 @@ void rendLcd(void *arg){
         keyCheckC();
 #endif
         update();
+        wifiProcessSavedConnection();
         drawPageReturnHint();
         // The LCD task reads the prepared image, so GVIEW can draw the next
         // frame while the previous image is being sent.
@@ -244,6 +246,10 @@ void app_main(void)
     //----------------------
     // gpioInit();    
     adcInit();
+#ifndef GVIEW_UI_AUDIT
+    imuRotationSetEnabled(dataSaveInfo.autoRotationEnabled != 0);
+    imuRotationStart(waveshare_i2c_bus());
+#endif
     soundInit();
 
      //-----任务-----

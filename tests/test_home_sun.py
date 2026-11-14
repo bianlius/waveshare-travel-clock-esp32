@@ -23,9 +23,15 @@ temperature_start = source.index("void resetHomeTempX(void){")
 temperature_end = source.index("\n}", temperature_start) + 2
 battery_start = source.index("static void positionHomeBattery(void){")
 battery_end = source.index("\n}", battery_start) + 2
+plant_start = source.index("static void refreshHomePlantHint(void){")
+plant_end = source.index("\n}", plant_start) + 2
 production = "\n".join((source[start:end], source[position_start:position_end],
                         source[temperature_start:temperature_end],
-                        source[battery_start:battery_end]))
+                        source[battery_start:battery_end],source[plant_start:plant_end]))
+for signature in ("static u8 enabledHomeAlarmCount(void){", "static void refreshHomeAlarmHint(void){"):
+    a = source.index(signature)
+    z = source.index("\n}", a) + 2
+    production += "\n" + source[a:z]
 home_start = source.index("void homeEx(void){")
 home_end = source.index("\n}", home_start)
 home = source[home_start:home_end]
@@ -44,12 +50,23 @@ typedef uint8_t u8;
 #define WS_UI_RIGHT 280
 #define PAGE_HOME 1
 #define PAGE_CLOCK 2
+#define HOME_PLANT_HINT_ON 0xD5
+#define HOME_PLANT_HINT_OFF 0xD4
+#define SOUND_TRACK_COUNT 10
 typedef struct { int visible,x,y,width,height; } DisplayObject;
-static DisplayObject sun,weather,description,temperature,degree,battery,plant;
+static DisplayObject sun,weather,description,temperature,degree,battery,plant,plantCount;
 static DisplayObject *sunObj=&sun,*weatherObj=&weather;
 static DisplayObject *weatherDescriptionObj=&description;
 static DisplayObject *tempNetObj=&temperature,*tempDegreeObj=&degree;
 static DisplayObject *homeBatteryObj=&battery,*homePlantHintObj=&plant;
+static DisplayObject *homePlantCountObj=&plantCount;
+static char homePlantCountText[4];
+static DisplayObject alarm,alarmCount;
+static DisplayObject *homeAlarmHintObj=&alarm,*homeAlarmCountObj=&alarmCount;
+static char homeAlarmCountText[4];
+static struct { u8 homePlantHintConfig; uint16_t alarmClock[5]; u8 alarmClockWeek[5]; }
+    dataSaveInfo={.homePlantHintConfig=HOME_PLANT_HINT_ON};
+static u8 cloverNumNow;
 static u8 DayTime,weatherSunny,weatherCode;
 static int pageNow;
 static char weatherTxt[20];
@@ -100,9 +117,42 @@ int main(void){
     pageNow=PAGE_HOME;
     plant.width=16;
     strcpy(homeBatteryText,"\xb5\xe7\xc1\xbf 100%");
+    strcpy(homePlantCountText,"1");
     positionHomeBattery();
-    assert(battery.x==202 && plant.x==182);
-    puts("PASS: home sun visibility, weather row, clock caption, and battery placement");
+    assert(battery.x==194 && plantCount.x==182 && plant.x==164);
+    cloverNumNow=9;
+    refreshHomePlantHint();
+    assert(strcmp(homePlantCountText,"9")==0);
+    assert(plant.visible && plantCount.visible && plantCount.x==182 && plant.x==164);
+    cloverNumNow=10;
+    refreshHomePlantHint();
+    assert(strcmp(homePlantCountText,"10")==0);
+    assert(!plant.visible && !plantCount.visible && plantCount.x==174 && plant.x==156);
+    cloverNumNow=0;
+    refreshHomePlantHint();
+    assert(!plant.visible && !plantCount.visible);
+    cloverNumNow=5;
+    refreshHomePlantHint();
+    assert(plant.visible && plantCount.visible);
+    dataSaveInfo.homePlantHintConfig=HOME_PLANT_HINT_OFF;
+    refreshHomePlantHint();refreshHomePlantHint();
+    assert(!plant.visible && !plantCount.visible && cloverNumNow==5);
+    dataSaveInfo.homePlantHintConfig=HOME_PLANT_HINT_ON;
+    refreshHomePlantHint();assert(plant.visible && plantCount.visible);
+    refreshHomeAlarmHint();assert(!alarm.visible && !alarmCount.visible);
+    dataSaveInfo.alarmClock[0]=((7*60)<<4)|1;dataSaveInfo.alarmClockWeek[0]=1;
+    refreshHomeAlarmHint();assert(alarm.visible && alarmCount.visible && strcmp(homeAlarmCountText,"1")==0);
+    dataSaveInfo.alarmClock[1]=((8*60)<<4)|2;dataSaveInfo.alarmClockWeek[1]=64;
+    refreshHomeAlarmHint();assert(strcmp(homeAlarmCountText,"2")==0);
+    dataSaveInfo.alarmClock[2]=((9*60)<<4);dataSaveInfo.alarmClockWeek[2]=127; // Switched off.
+    dataSaveInfo.alarmClock[3]=((9*60)<<4)|11;dataSaveInfo.alarmClockWeek[3]=127; // Invalid ring.
+    dataSaveInfo.alarmClock[4]=((24*60)<<4)|1;dataSaveInfo.alarmClockWeek[4]=127; // Invalid time.
+    assert(enabledHomeAlarmCount()==2);
+    dataSaveInfo.alarmClockWeek[1]=128;assert(enabledHomeAlarmCount()==1);
+    pageNow=PAGE_CLOCK;refreshHomeAlarmHint();assert(!alarm.visible && !alarmCount.visible);
+    pageNow=PAGE_HOME;memset(dataSaveInfo.alarmClockWeek,0,5);
+    refreshHomeAlarmHint();assert(!alarm.visible && !alarmCount.visible);
+    puts("PASS: home weather/battery, plant visibility toggle, and enabled alarm indicator/count");
 }
 '''
 

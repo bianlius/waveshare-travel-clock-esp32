@@ -24,3 +24,12 @@ ShopActionResult shopApply(uint64_t *owned, uint8_t *equipped, uint8_t item, uin
     *equipped = item;
     return SHOP_EQUIPPED;
 }
+
+uint8_t shopRemoveRetiredMonster(uint64_t *owned,uint8_t *equipped){
+    if(!owned || !equipped) return 0;
+    const uint64_t retired=UINT64_C(1)<<SHOP_RETIRED_BRELOOM;
+    const uint8_t changed=(*owned & retired)!=0 || *equipped==SHOP_RETIRED_BRELOOM;
+    *owned &= ~retired;
+    if(*equipped==SHOP_RETIRED_BRELOOM) *equipped=0;
+    return changed;
+}

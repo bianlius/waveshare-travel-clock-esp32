@@ -2,6 +2,7 @@
 #include "viewport.h"
 #include "esp_timer.h"
 #include <stdbool.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -112,6 +113,34 @@ void LCD_Fill(uint16_t xs, uint16_t ys, uint16_t xe, uint16_t ye, uint16_t color
     }
 }
 
+// The ST7789 rotates the image in GRAM; touch uses the inverse map.
+static atomic_uchar lcd_rotation;
+
+void LCD_SetRotation(uint8_t quarter_turns){
+    if(quarter_turns < 4) atomic_store(&lcd_rotation, quarter_turns);
+}
+
+uint8_t LCD_GetRotation(void){
+    return atomic_load(&lcd_rotation);
+}
+
+static inline void lcdPhysicalToLogical(uint8_t rotation, uint16_t *x, uint16_t *y){
+    const uint16_t px = *x, py = *y;
+    switch(rotation){
+        case 1: *x = py; *y = LCD_W - 1 - px; break;
+        case 2: *x = LCD_W - 1 - px; *y = LCD_H - 1 - py; break;
+        case 3: *x = LCD_H - 1 - py; *y = px; break;
+        default: break;
+    }
+}
+
+void LCD_MapTouchToLogical(int *x, int *y){
+    if(!x || !y || *x < 0 || *x >= LCD_W || *y < 0 || *y >= LCD_H) return;
+    uint16_t lx = (uint16_t)*x, ly = (uint16_t)*y;
+    lcdPhysicalToLogical(LCD_GetRotation(), &lx, &ly);
+    *x = lx; *y = ly;
+}
+
 void LCD_Init(void)
 {
     LCD_GPIOInit();
@@ -146,6 +175,12 @@ static bool lcd_skip_unchanged;
 static size_t lcd_sent_frame_bytes;
 static uint16_t sent_x0, sent_y0, sent_x1, sent_y1;
 static uint16_t prepared_x0, prepared_y0, prepared_x1, prepared_y1, prepared_row_bytes;
+static uint8_t prepared_rotation;
+static uint8_t lcd_panel_rotation;
+// The 240x240 glass is a crop of the controller's 240x320 GRAM.
+static const uint8_t lcd_madctl[4] = {0x00, 0x60, 0xc0, 0xa0};
+static const uint8_t lcd_x_offset[4] = {0, 0, 0, 80};
+static const uint8_t lcd_y_offset[4] = {0, 0, 80, 0};
 static const uint8_t *volatile native_overlay;
 static const volatile uint8_t *native_overlay_page;
 static uint8_t native_overlay_active_page;
@@ -194,6 +229,7 @@ void LCD_PrepareFrame(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey){
     if (dx0 == dx1 || dy0 == dy1) {
         return;
     }
+    prepared_rotation = LCD_GetRotation();
     if(!lcd_prepared_frame){
         lcd_prepared_frame = malloc((size_t)LCD_W * LCD_H * 2);
         if(!lcd_prepared_frame){
@@ -280,6 +316,13 @@ void LCD_PrepareFrame(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey){
 void LCD_SendPrepared(void){
     const int64_t started_us = esp_timer_get_time();
     if(prepared_y1 > prepared_y0 && lcd_prepared_frame){
+        const uint8_t rotation = prepared_rotation;
+        if(rotation != lcd_panel_rotation){
+            LCD_WR_REG(0x36);
+            LCD_WR_Byte(lcd_madctl[rotation]);
+            lcd_panel_rotation = rotation;
+            lcd_sent_frame_valid = false;
+        }
         const size_t frame_bytes = (size_t)(prepared_y1 - prepared_y0) * prepared_row_bytes;
         if(lcd_skip_unchanged && lcd_sent_frame_valid &&
            frame_bytes == lcd_sent_frame_bytes &&
@@ -289,7 +332,10 @@ void LCD_SendPrepared(void){
             spiSendHd = 0;
             return;
         }
-        LCD_Address_Set(prepared_x0, prepared_y0, prepared_x1 - 1, prepared_y1 - 1);
+        LCD_Address_Set(prepared_x0 + lcd_x_offset[rotation],
+                        prepared_y0 + lcd_y_offset[rotation],
+                        prepared_x1 - 1 + lcd_x_offset[rotation],
+                        prepared_y1 - 1 + lcd_y_offset[rotation]);
         const uint16_t rows = prepared_y1 - prepared_y0;
         for(uint16_t row = 0; row < rows; row += 24){
             const uint16_t count = rows - row < 24 ? rows - row : 24;

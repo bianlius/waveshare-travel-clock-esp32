@@ -9,6 +9,8 @@
 #include "config.h"
 #include "GVIEW/gview.h"
 #include "rom.h"
+#include "wifi_ssid.h"
+#include "PAGE/SHOP/shop_model.h"
 #include "./NET/connect.h"
 #include "./PAGE/pageDraw.h"
 #include "./PAGE/GARDEN/garden.h"
@@ -22,6 +24,7 @@ esp_partition_t* Wifi_res;
 
 // WIFISAVEINFOTxt wifiSaveInfoTxt;
 WIFISAVEINFO wifiSaveInfo = {0};
+static u8 savedWifiSelection=0xFF;
 
 // The native font uses two-byte GB2312 glyphs. Never truncate inside one.
 void formatSoundTrackTitle(char *dest,size_t capacity,u8 slot,size_t maxUnits){
@@ -53,6 +56,9 @@ DATASAVEINFO dataSaveInfo = {
     .homeBgmConfigVersion = HOME_BGM_CONFIG_VERSION,
     .homeBgmSelection = HOME_BGM_DEFAULT_SELECTION,
     .homeBgmPreferredSelection = HOME_BGM_DEFAULT_SELECTION,
+    .autoRotationConfigVersion = AUTO_ROTATION_CONFIG_VERSION,
+    .autoRotationEnabled = 1,
+    .homePlantHintConfig = HOME_PLANT_HINT_ON,
 };
 // Daily levels for a 09:00-17:00 workday: wake, work, commute, evening, sleep.
 #define BRIGHTNESS_SLOT(hour, level) ((((hour) * 60) << 4) | (level))
@@ -67,6 +73,24 @@ static const u16 previousBrightnessSchedule[5] = {
     BRIGHTNESS_SLOT(22,2),
 };
 static u8 brightnessPresetSaveNeeded;
+static u8 autoRotationSaveNeeded;
+static u8 homePlantHintSaveNeeded;
+static void migrateAutoRotationSetting(void){
+    if(dataSaveInfo.autoRotationConfigVersion != AUTO_ROTATION_CONFIG_VERSION ||
+       dataSaveInfo.autoRotationEnabled > 1){
+        dataSaveInfo.autoRotationConfigVersion = AUTO_ROTATION_CONFIG_VERSION;
+        dataSaveInfo.autoRotationEnabled = 1;
+        autoRotationSaveNeeded = 1;
+    }
+}
+
+static void migrateHomePlantHintSetting(void){
+    if(dataSaveInfo.homePlantHintConfig!=HOME_PLANT_HINT_ON &&
+       dataSaveInfo.homePlantHintConfig!=HOME_PLANT_HINT_OFF){
+        dataSaveInfo.homePlantHintConfig=HOME_PLANT_HINT_ON;
+        homePlantHintSaveNeeded=1;
+    }
+}
 
 static void loadDefaultBrightnessSchedule(void){
     memcpy(dataSaveInfo.brightnessInfo,defaultBrightnessSchedule,
@@ -106,14 +130,27 @@ ITEMSAVEINFO itemSaveInfo = {
     .shoesIndex = 0,
     .glovesIndex = 0,
     .bagIndex = 0,
+    .legacyRiderConfigVersion = LEGACY_RIDER_CONFIG_VERSION,
+    .legacyRiderIndex = 0,
     
 };
 GARDENSAVEINFO  gardenSaveInfo = {
     .gardenLevel = 1,
-    .maxPlantNum = 20,//最大同时生长植物
+    .maxPlantNum = cloverMaxNum,//最大同时生长植物
     .itemGarden = 1,
     .gardenIndex = 0,
 };
+
+static u8 legacyRiderSaveNeeded;
+static u8 monsterSaveNeeded;
+static void migrateLegacyRiderSelection(void){
+    if(itemSaveInfo.legacyRiderConfigVersion!=LEGACY_RIDER_CONFIG_VERSION ||
+       itemSaveInfo.legacyRiderIndex!=0){
+        itemSaveInfo.legacyRiderConfigVersion=LEGACY_RIDER_CONFIG_VERSION;
+        itemSaveInfo.legacyRiderIndex=0;
+        legacyRiderSaveNeeded=1;
+    }
+}
 
 void refrushMonsterList(void){
     // monsterBagNum = 0;
@@ -181,22 +218,24 @@ void writeData(void){
         return ;
     }
 }
-void writeWifi(void){
+u8 writeWifi(void){
 #ifdef GVIEW_UI_AUDIT
-    return; // The visual audit must never modify saved user data.
+    return 1; // The visual audit must never modify saved user data.
 #endif
     //擦除分区 168K 6763个汉字 
     if(esp_partition_erase_range(Wifi_res,0,4096)!=ESP_OK)
     {
         printf("partition erase fail\r\n");
-        return ;
+        return 0;
     }
     //写数据
     if(esp_partition_write(Wifi_res,wifiInfoAdress, &wifiSaveInfo, sizeof(WIFISAVEINFO))!=ESP_OK)
     {
         printf("wifiInfo write fail\r\n");
-        return ;
+        return 0;
     }
+    savedWifiSelection=wifiSaveInfo.selectWifiNow;
+    return 1;
 }
 
 void updateWifiTxt(void){
@@ -209,27 +248,32 @@ void updateWifiTxt(void){
 }
 
 
-void writeWIFIInfo(char* ssid, char* password){
-    printf("save new wifi start\n");
-    uint8_t i;
-    for(i=0;i<wifiSaveInfo.saveNumAll;i++){
-        if(strcmp(wifiSaveInfo.ssid[i], ssid) == 0){
-            //找到相同SSID，更新密码
-            strcpy(wifiSaveInfo.password[i], password);
-            printf("save new wifi 1:%s,%d\r\n",ssid,wifiSaveInfo.saveNumAll);
-            break;
-        }
+void rememberWIFISelection(u8 index){
+    if(index>=wifiSaveInfo.saveNumAll || index>=10) return;
+    wifiSaveInfo.selectWifiNow=index;
+    if(savedWifiSelection!=index) writeWifi();
+}
+
+u8 writeWIFIInfo(char* ssid,char* password){
+    const size_t ssidLength=ssid ? strnlen(ssid,33) : 0;
+    const size_t passwordLength=password ? strnlen(password,64) : 64;
+    if(!ssidLength || ssidLength>32 || passwordLength>63 || wifiSaveInfo.saveNumAll>10) return 0;
+    u8 index=0;
+    while(index<wifiSaveInfo.saveNumAll && strcmp(wifiSaveInfo.ssid[index],ssid)!=0) ++index;
+    if(index==wifiSaveInfo.saveNumAll){
+        if(index>=10) return 0; // Never discard an existing network to save an eleventh.
+        ++wifiSaveInfo.saveNumAll;
     }
-    
-    if(i==wifiSaveInfo.saveNumAll||i>=9){
-        //没有相同的SSID,新增保存
-        strcpy(wifiSaveInfo.ssid[wifiSaveInfo.saveNumAll],ssid);
-        strcpy(wifiSaveInfo.password[wifiSaveInfo.saveNumAll],password);
-        if(i<10)wifiSaveInfo.saveNumAll++;
-        printf("save new wifi 2:%s,%d\r\n",ssid,wifiSaveInfo.saveNumAll);
-    }
+    char ssidCopy[33]={0},passwordCopy[64]={0};
+    memcpy(ssidCopy,ssid,ssidLength);
+    memcpy(passwordCopy,password,passwordLength);
+    memset(wifiSaveInfo.ssid[index],0,sizeof(wifiSaveInfo.ssid[index]));
+    memset(wifiSaveInfo.password[index],0,sizeof(wifiSaveInfo.password[index]));
+    memcpy(wifiSaveInfo.ssid[index],ssidCopy,ssidLength);
+    memcpy(wifiSaveInfo.password[index],passwordCopy,passwordLength);
+    wifiSaveInfo.selectWifiNow=index;
     updateWifiTxt();
-    writeWifi();
+    return writeWifi();
 }
 
 void deleteSavedWIFI(u8 num){
@@ -240,6 +284,9 @@ void deleteSavedWIFI(u8 num){
         strcpy(wifiSaveInfo.password[i],wifiSaveInfo.password[i+1]);
     }
     wifiSaveInfo.saveNumAll -- ;
+    if(wifiSaveInfo.selectWifiNow>num) --wifiSaveInfo.selectWifiNow;
+    else if(wifiSaveInfo.selectWifiNow==num) wifiSaveInfo.selectWifiNow=0;
+    if(wifiSaveInfo.selectWifiNow>=wifiSaveInfo.saveNumAll) wifiSaveInfo.selectWifiNow=0;
     updateWifiTxt();
     writeWifi();
 }
@@ -301,10 +348,13 @@ void resetAllData(void){
     itemSaveInfo.shoesIndex = 0;
     itemSaveInfo.glovesIndex = 0;
     itemSaveInfo.bagIndex = 0;
+    itemSaveInfo.legacyRiderConfigVersion = LEGACY_RIDER_CONFIG_VERSION;
+    itemSaveInfo.legacyRiderIndex = 0;
 
     
     gardenSaveInfo.itemGarden = 1;
     gardenSaveInfo.gardenIndex = 0;
+    gardenSaveInfo.maxPlantNum = cloverMaxNum;
 
     dataSaveInfo.tempOffset = 0;
     dataSaveInfo.clockCountRing = 0;
@@ -315,6 +365,9 @@ void resetAllData(void){
     dataSaveInfo.homeBgmConfigVersion = HOME_BGM_CONFIG_VERSION;
     dataSaveInfo.homeBgmSelection = HOME_BGM_DEFAULT_SELECTION;
     dataSaveInfo.homeBgmPreferredSelection = HOME_BGM_DEFAULT_SELECTION;
+    dataSaveInfo.autoRotationConfigVersion = AUTO_ROTATION_CONFIG_VERSION;
+    dataSaveInfo.autoRotationEnabled = 1;
+    dataSaveInfo.homePlantHintConfig = HOME_PLANT_HINT_ON;
     
     for(u8 i=0;i<5;i++){
         dataSaveInfo.alarmClock[i] = 0;
@@ -363,6 +416,8 @@ void readData(void){
         if(dataSaveInfo.homeBgmPreferredSelection<1 ||
            dataSaveInfo.homeBgmPreferredSelection>HOME_BGM_TRACK_COUNT)
             dataSaveInfo.homeBgmPreferredSelection = HOME_BGM_DEFAULT_SELECTION;
+        migrateAutoRotationSetting();
+        migrateHomePlantHintSetting();
     }
     //读item数据
     if(esp_partition_read(Data_res,itemInfoAdress, &itemSaveInfo, sizeof(ITEMSAVEINFO))==ESP_OK)
@@ -374,18 +429,30 @@ void readData(void){
         printf("item partition read fail\r\n");
     }
 
+    migrateLegacyRiderSelection();
+    monsterSaveNeeded=shopRemoveRetiredMonster(&itemSaveInfo.itemMonster,&itemSaveInfo.monsterIndex);
+
     if(esp_partition_read(Data_res,gardenInfoAdress, &gardenSaveInfo, sizeof(GARDENSAVEINFO))!=ESP_OK)
     {
         printf("garden read fail\r\n");
         return ;
     }
+    gardenSaveInfo.maxPlantNum = cloverMaxNum;
 
 
     //读SSID数据
     if(esp_partition_read(Wifi_res,wifiInfoAdress, &wifiSaveInfo, sizeof(WIFISAVEINFO))==ESP_OK)
     {
-        //printf("wifiInfo read complete:%d\r\n",wifiSaveInfo.saveNumAll);
+        savedWifiSelection=wifiSaveInfo.selectWifiNow;
+        // Older firmware stored Chinese SSIDs as GB2312 screen text.
+        // Restore the original UTF-8 bytes for both display and reconnect.
+        bool upgraded=false;
+        if(wifiSaveInfo.saveNumAll<=10){
+            for(u8 i=0;i<wifiSaveInfo.saveNumAll;++i)
+                upgraded|=wifiSsidUpgradeLegacy(wifiSaveInfo.ssid[i]);
+        }
         updateWifiTxt();
+        if(upgraded) writeWifi();
     }
     else
     {
@@ -419,5 +486,5 @@ void romInit(void){
     initPartition();
     readData();
     gardenRestorePlants();
-    if(brightnessPresetSaveNeeded) writeData();
+    if(brightnessPresetSaveNeeded || autoRotationSaveNeeded || legacyRiderSaveNeeded || monsterSaveNeeded || homePlantHintSaveNeeded) writeData();
 }

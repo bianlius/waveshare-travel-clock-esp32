@@ -21,6 +21,7 @@ extern char *ssidTxt;//
 
 void wifi_scan(void);
 void wifi_Init(void);
+void wifiProcessSavedConnection(void);
 void resetWIFIConnectInfo(char *ssid,char *pass);
 void wifi_startConnect(void);
 void wifi_connect_default(void);

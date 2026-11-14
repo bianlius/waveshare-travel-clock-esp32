@@ -10,6 +10,7 @@
       "frames": 4,
       "frame_width": 18,
       "frame_height": 24,
+      "scale_percent": 140,
       "frame_ticks": 2,
       "flip_x": true,
       "credits": [
@@ -25,6 +26,7 @@
       "frames": 3,
       "frame_width": 22,
       "frame_height": 22,
+      "scale_percent": 140,
       "frame_ticks": 3,
       "flip_x": true,
       "credits": [
@@ -63,19 +65,954 @@
       ]
     },
     {
-      "file": "breloom_run.png",
-      "source_path": "project/pokemon/breloom_run.png",
-      "sha256": "5933fd38ebfcbb660b5f52f6275ce6098a813d341f6e8074c2262ffd4bf7b064",
-      "symbol": "followerBreloom",
+      "file": "taillow_fly.png",
+      "source_path": "project/pokemon/Custom _ Edited - Pokemon Customs - Third Generation - #0276 Taillow.png",
+      "sha256": "0f151b05833a5a35167ee0b21356f941bd6e6642207c44e9b7632b9b191598f6",
+      "symbol": "followerTaillow",
+      "frames": 4,
+      "frame_width": 40,
+      "frame_height": 40,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (source-sheet reference)"
+      ],
+      "upstream_ready_path": "project/pokemon/taillow_fly.png",
+      "upstream_ready_sha256": "4829789b287d0d648d82106178990692211e68d91ae74cbcaed6e3ec17cdcc74",
+      "sheet_extract": {
+        "file": "source_sheets/taillow.png",
+        "sha256": "cee2b9ff7f61e1b8e7ed21c00aa90662760b3e5b1d80f1986614b894a23f2937",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          8,
+          20
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              2,
+              34,
+              28
+            ],
+            "pivot": [
+              5,
+              19
+            ]
+          },
+          {
+            "box": [
+              36,
+              11,
+              66,
+              28
+            ],
+            "pivot": [
+              41,
+              19
+            ]
+          },
+          {
+            "box": [
+              67,
+              1,
+              98,
+              28
+            ],
+            "pivot": [
+              71,
+              9
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/Custom%20_%20Edited%20-%20Pokemon%20Customs%20-%20Third%20Generation%20-%20%230276%20Taillow.png",
+      "variant": "steady-flight",
+      "saved_id": 15,
+      "price": 100,
+      "approved_preview": {
+        "file": "steady-flight.gif",
+        "sha256": "c594756feca382c0cb6651808e49f939482409daa97f88d45bcd99aa6f74c8e6"
+      }
+    },
+    {
+      "file": "wingull_fly.png",
+      "source_path": "project/pokemon/Custom _ Edited - Pokemon Customs - Third Generation - #0278 Wingull.png",
+      "sha256": "1daacddfc4cc1c85eb33e5cdf7d56a66cc25d6d2ef8b2198853b32549d6b0fbd",
+      "symbol": "followerWingull",
       "frames": 10,
-      "frame_width": 60,
-      "frame_height": 74,
+      "frame_width": 64,
+      "frame_height": 56,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (source-sheet reference)"
+      ],
+      "upstream_ready_path": "project/pokemon/wingull_fly.png",
+      "upstream_ready_sha256": "23bc00b7bf41c1364fe88149c045e98e28cfe2bb4c0e968efae6b7da30d671b9",
+      "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/Custom%20_%20Edited%20-%20Pokemon%20Customs%20-%20Third%20Generation%20-%20%230278%20Wingull.png",
+      "sheet_extract": {
+        "file": "source_sheets/wingull.png",
+        "sha256": "4f7bcc0ef43555e023ffea7c39b979f391f36237b680b599bc38e5b2c153e705",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          20,
+          26
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              1,
+              42,
+              40
+            ],
+            "pivot": [
+              14,
+              21
+            ]
+          },
+          {
+            "box": [
+              43,
+              10,
+              87,
+              35
+            ],
+            "pivot": [
+              56,
+              24
+            ]
+          },
+          {
+            "box": [
+              88,
+              18,
+              141,
+              36
+            ],
+            "pivot": [
+              103,
+              26
+            ]
+          },
+          {
+            "box": [
+              142,
+              18,
+              195,
+              38
+            ],
+            "pivot": [
+              157,
+              26
+            ]
+          },
+          {
+            "box": [
+              196,
+              20,
+              240,
+              46
+            ],
+            "pivot": [
+              209,
+              28
+            ]
+          },
+          {
+            "box": [
+              241,
+              13,
+              282,
+              55
+            ],
+            "pivot": [
+              254,
+              30
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "variant": "steady-side-flight",
+      "saved_id": 16,
+      "price": 100,
+      "approved_preview": {
+        "file": "steady-side-flight.gif",
+        "sha256": "32769544150db4e01547f7ba7964a273951c4648d85f0329173721112f6bd1b3"
+      }
+    },
+    {
+      "file": "volbeat_fly.png",
+      "source_path": "project/pokemon/volbeat_fly.png",
+      "sha256": "2e2d37b38be74267e0ae642c53536ae116ba930a03a04a1722833f38aadc386c",
+      "symbol": "followerVolbeat",
+      "frames": 2,
+      "frame_width": 30,
+      "frame_height": 28,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "Nintendo / Game Freak",
+        "christt105 (extraction)"
+      ]
+    },
+    {
+      "file": "ninjask_fly.png",
+      "source_path": "project/pokemon/ninjask_fly.png",
+      "sha256": "eccc61a6165efadd3b83d272714b26c422c9170454334606c62e8189795dc159",
+      "symbol": "followerNinjask",
+      "frames": 2,
+      "frame_width": 34,
+      "frame_height": 29,
       "frame_ticks": 1,
       "flip_x": true,
       "credits": [
         "JoshR691",
         "christt105 (sheet extraction and alignment)"
       ]
+    },
+    {
+      "file": "tropius_fly.png",
+      "source_path": "project/pokemon/tropius_fly.png",
+      "sha256": "9d096105315130ebc494e3df90e2dda4991b8fc32979885c03639884f70faccf",
+      "symbol": "followerTropius",
+      "frames": 12,
+      "frame_width": 190,
+      "frame_height": 70,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (sheet extraction and alignment)"
+      ],
+      "variant": "fly-loop",
+      "saved_id": 19,
+      "name_zh": "热带龙",
+      "price": 1200,
+      "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/tropius_fly.png",
+      "approved_preview": {
+        "file": "fly.gif",
+        "sha256": "d0f9d46d4c9aaeae4e68f9eebd35c7defdfb7778847b19a5f289ebbd4d4680de"
+      }
+    },
+    {
+      "file": "meowth_run.png",
+      "source_path": "firmware-3.4-resources/02dc44.png",
+      "source_offset": "0x2dc44",
+      "source_firmware": "user-provided firmware 3.4 resource export",
+      "sha256": "7b5595e8df38061acd30cf9909b5b11e1c8daf366f709eadfeb1c9e66741452a",
+      "symbol": "followerMeowth",
+      "frames": 4,
+      "frame_width": 41,
+      "frame_height": 44,
+      "frame_dimensions": [
+        [
+          41,
+          43
+        ],
+        [
+          37,
+          42
+        ],
+        [
+          41,
+          42
+        ],
+        [
+          37,
+          44
+        ]
+      ],
+      "frame_offsets": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "depth": 13,
+      "frame_ticks": 2,
+      "flip_x": false,
+      "credits": [
+        "Nintendo / Game Freak",
+        "User-provided firmware 3.4 export; original sprite author not recorded"
+      ],
+      "saved_id": 20,
+      "name_zh": "喵喵",
+      "price": 100
+    },
+    {
+      "file": "lugia_fly.png",
+      "source_path": "firmware-3.4-resources/0386cc.png",
+      "source_offset": "0x386cc",
+      "source_firmware": "user-provided firmware 3.4 resource export",
+      "sha256": "1246c161443efc41bbc3d0d6d2d80f3b0c15806944f7bedc12ab869b0b469e31",
+      "symbol": "followerLugia",
+      "frames": 5,
+      "frame_width": 124,
+      "frame_height": 80,
+      "frame_dimensions": [
+        [
+          119,
+          66
+        ],
+        [
+          120,
+          64
+        ],
+        [
+          124,
+          48
+        ],
+        [
+          121,
+          80
+        ],
+        [
+          123,
+          59
+        ]
+      ],
+      "frame_offsets": [
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          0,
+          -25
+        ],
+        [
+          0,
+          -5
+        ]
+      ],
+      "depth": 13,
+      "frame_ticks": 2,
+      "flip_x": false,
+      "credits": [
+        "Nintendo / Game Freak",
+        "User-provided firmware 3.4 export; original sprite author not recorded"
+      ],
+      "saved_id": 21,
+      "name_zh": "洛奇亚",
+      "price": 5000
+    },
+    {
+      "file": "ho_oh_fly.png",
+      "source_path": "firmware-3.4-resources/05bb74.png",
+      "source_offset": "0x5bb74",
+      "source_firmware": "user-provided firmware 3.4 resource export",
+      "sha256": "55653d264d161f0b9a0da956dd49d3ba92fd3f3b9987808437101c5a31ab63e9",
+      "symbol": "followerHoOh",
+      "frames": 5,
+      "frame_width": 91,
+      "frame_height": 76,
+      "frame_dimensions": [
+        [
+          91,
+          76
+        ],
+        [
+          90,
+          55
+        ],
+        [
+          90,
+          73
+        ],
+        [
+          91,
+          55
+        ],
+        [
+          91,
+          47
+        ]
+      ],
+      "frame_offsets": [
+        [
+          0,
+          -16
+        ],
+        [
+          0,
+          -9
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          -1
+        ]
+      ],
+      "depth": 13,
+      "frame_ticks": 2,
+      "flip_x": false,
+      "credits": [
+        "Nintendo / Game Freak",
+        "User-provided firmware 3.4 export; original sprite author not recorded"
+      ],
+      "saved_id": 22,
+      "name_zh": "凤王",
+      "price": 5000
+    },
+    {
+      "file": "pidgeot_fly.png",
+      "source_path": "firmware-3.4-resources/06a74c.png",
+      "source_offset": "0x6a74c",
+      "source_firmware": "user-provided firmware 3.4 resource export",
+      "sha256": "e98b442568d268f1e75ff9db5d9691d55fb193080cd9af6f5eb1d047d1f62d06",
+      "symbol": "followerPidgeot",
+      "frames": 4,
+      "frame_width": 68,
+      "frame_height": 52,
+      "frame_dimensions": [
+        [
+          66,
+          43
+        ],
+        [
+          68,
+          25
+        ],
+        [
+          68,
+          52
+        ],
+        [
+          67,
+          34
+        ]
+      ],
+      "frame_offsets": [
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          -14
+        ],
+        [
+          0,
+          4
+        ]
+      ],
+      "depth": 13,
+      "frame_ticks": 2,
+      "flip_x": false,
+      "credits": [
+        "Nintendo / Game Freak",
+        "User-provided firmware 3.4 export; original sprite author not recorded"
+      ],
+      "saved_id": 23,
+      "name_zh": "比雕",
+      "price": 700
+    },
+    {
+      "file": "aron_run.png",
+      "source_path": "project/pokemon/Custom _ Edited - Pokemon Customs - Third Generation - #0304 Aron.png",
+      "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/Custom%20_%20Edited%20-%20Pokemon%20Customs%20-%20Third%20Generation%20-%20%230304%20Aron.png",
+      "sha256": "c3cf3e067654975f35ff91432d7d69de5d3a000af35ca6aff7c2803ad52ae5b2",
+      "symbol": "followerAron",
+      "frames": 5,
+      "frame_width": 36,
+      "frame_height": 34,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (source-sheet reference)"
+      ],
+      "saved_id": 24,
+      "name_zh": "可可多拉",
+      "price": 300,
+      "sheet_extract": {
+        "file": "source_sheets/aron.png",
+        "sha256": "07c1e5a354b5e1731db9fa447274e38e6e1563a2518a7b17735792b9f9374c5f",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          18,
+          33
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              67,
+              34,
+              100
+            ],
+            "pivot": [
+              17,
+              100
+            ]
+          },
+          {
+            "box": [
+              35,
+              68,
+              70,
+              95
+            ],
+            "pivot": [
+              52,
+              100
+            ]
+          },
+          {
+            "box": [
+              71,
+              73,
+              104,
+              101
+            ],
+            "pivot": [
+              87,
+              100
+            ]
+          },
+          {
+            "box": [
+              105,
+              73,
+              137,
+              101
+            ],
+            "pivot": [
+              121,
+              100
+            ]
+          },
+          {
+            "box": [
+              138,
+              70,
+              171,
+              101
+            ],
+            "pivot": [
+              154,
+              100
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "row": "running"
+      },
+      "variant": "run"
+    },
+    {
+      "file": "metang_hover.png",
+      "source_path": "project/pokemon/Custom _ Edited - Pokemon Customs - Third Generation - #0375 Metang.png",
+      "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/Custom%20_%20Edited%20-%20Pokemon%20Customs%20-%20Third%20Generation%20-%20%230375%20Metang.png",
+      "sha256": "efbf56b200e728828bc864959cd231e6ca0be046128241a195a8cbf80b06a16d",
+      "symbol": "followerMetang",
+      "frames": 12,
+      "frame_width": 84,
+      "frame_height": 76,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (source-sheet reference)"
+      ],
+      "saved_id": 25,
+      "name_zh": "金属怪",
+      "price": 2000,
+      "sheet_extract": {
+        "file": "source_sheets/metang.png",
+        "sha256": "c9d53b640d26788343ca93eb53bffbe9601a796b73f768bab5f73a52075b3bef",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          33,
+          16
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              136,
+              63,
+              200
+            ],
+            "pivot": [
+              31,
+              149
+            ]
+          },
+          {
+            "box": [
+              62,
+              136,
+              118,
+              205
+            ],
+            "pivot": [
+              86,
+              149
+            ]
+          },
+          {
+            "box": [
+              117,
+              136,
+              168,
+              201
+            ],
+            "pivot": [
+              135,
+              149
+            ]
+          },
+          {
+            "box": [
+              169,
+              136,
+              227,
+              198
+            ],
+            "pivot": [
+              187,
+              149
+            ]
+          },
+          {
+            "box": [
+              228,
+              136,
+              292,
+              191
+            ],
+            "pivot": [
+              246,
+              149
+            ]
+          },
+          {
+            "box": [
+              293,
+              136,
+              358,
+              185
+            ],
+            "pivot": [
+              311,
+              149
+            ]
+          },
+          {
+            "box": [
+              359,
+              135,
+              425,
+              179
+            ],
+            "pivot": [
+              377,
+              148
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1
+        ],
+        "row": 3
+      },
+      "variant": "third-row-arm-fold-flight"
+    },
+    {
+      "file": "swablu_fly.png",
+      "source_path": "project/pokemon/Custom _ Edited - Pokemon Customs - Third Generation - #0333 Swablu.png",
+      "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/Custom%20_%20Edited%20-%20Pokemon%20Customs%20-%20Third%20Generation%20-%20%230333%20Swablu.png",
+      "sha256": "5f02c10336b484605fd0a6e71f8fa9d90051e0a1d20d657ec19d32f96df84092",
+      "symbol": "followerSwablu",
+      "frames": 7,
+      "frame_width": 90,
+      "frame_height": 58,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (source-sheet reference)"
+      ],
+      "saved_id": 26,
+      "name_zh": "青绵鸟",
+      "price": 300,
+      "sheet_extract": {
+        "file": "source_sheets/swablu.png",
+        "sha256": "fe5e821f848b80677a552c2ee3ecb1458eaf22a633b73a74c996ed1152616fef",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          45,
+          29
+        ],
+        "poses": [
+          {
+            "box": [
+              2,
+              88,
+              84,
+              137
+            ],
+            "pivot": [
+              41,
+              110
+            ]
+          },
+          {
+            "box": [
+              85,
+              88,
+              164,
+              137
+            ],
+            "pivot": [
+              123,
+              112
+            ]
+          },
+          {
+            "box": [
+              165,
+              88,
+              237,
+              137
+            ],
+            "pivot": [
+              199,
+              114
+            ]
+          },
+          {
+            "box": [
+              238,
+              88,
+              302,
+              137
+            ],
+            "pivot": [
+              268,
+              116
+            ]
+          },
+          {
+            "box": [
+              303,
+              88,
+              387,
+              137
+            ],
+            "pivot": [
+              342,
+              108
+            ]
+          },
+          {
+            "box": [
+              388,
+              88,
+              471,
+              137
+            ],
+            "pivot": [
+              427,
+              105
+            ]
+          },
+          {
+            "box": [
+              472,
+              88,
+              553,
+              137
+            ],
+            "pivot": [
+              510,
+              103
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "file": "shedinja_hover.png",
+      "source_path": "project/pokemon/Custom _ Edited - Pokemon Customs - Third Generation - #0292 Shedinja.png",
+      "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/Custom%20_%20Edited%20-%20Pokemon%20Customs%20-%20Third%20Generation%20-%20%230292%20Shedinja.png",
+      "sha256": "8e24b587b5790001febf05d15015db226ee83bf0d170948ef2940c66a6f0c8ac",
+      "symbol": "followerShedinja",
+      "frames": 4,
+      "frame_width": 34,
+      "frame_height": 38,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691",
+        "christt105 (source-sheet reference)"
+      ],
+      "saved_id": 27,
+      "name_zh": "脱壳忍者",
+      "price": 1200,
+      "sheet_extract": {
+        "file": "source_sheets/shedinja.png",
+        "sha256": "19dcbf5ea21ea5e6f78026f58262621027db2f7cf0f24f73eaeb09567fd772c9",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          17,
+          19
+        ],
+        "poses": [
+          {
+            "box": [
+              0,
+              0,
+              32,
+              37
+            ],
+            "pivot": [
+              16,
+              19
+            ]
+          },
+          {
+            "box": [
+              31,
+              0,
+              63,
+              37
+            ],
+            "pivot": [
+              47,
+              19
+            ]
+          },
+          {
+            "box": [
+              62,
+              0,
+              94,
+              37
+            ],
+            "pivot": [
+              78,
+              19
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          0,
+          2
+        ]
+      }
     }
   ]
 }

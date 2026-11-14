@@ -31,6 +31,8 @@ static DisplayObject *homeBikeParts[HOME_BIKE_PARTS];
 static short homeBikeBaseX[HOME_BIKE_PARTS];
 static u8 homeBikePartCount;
 static uint32_t homeBikeFrame;
+static uint8_t homeWheelFrame,homeWheelTicks;
+static uint8_t homeRiderFrame,homeRiderTicks;
 static u8 fps=25;
 static int hour=12;
 static void AcGotoAndStop(DisObjAction *action,uint8_t frame){
@@ -50,6 +52,8 @@ int main(void){
     }
     int offsets[201], wheel_frames[201];
     int minimum=100,maximum=-100;
+    int forwardChanges=0,returnChanges=0;
+    int pedalChanges=0,previousPedal=0;
     for(int i=0;i<201;i++){
         moveHomeBike();
         int offset=parts[0].x-120;
@@ -58,9 +62,15 @@ int main(void){
         assert(parts[1].x-150==offset && parts[2].x-175==offset && parts[3].x-190==offset);
         assert(actions[0].currentFrame==actions[1].currentFrame);
         assert(actions[2].currentFrame==actions[3].currentFrame);
-        assert(actions[0].currentFrame==((offset+24)/3)%4);
+        if(i){
+            int step=(wheel_frames[i]-wheel_frames[i-1]+4)%4;
+            assert(step<=1); // Wheels never reverse when the rider freewheels.
+            if(i<50) forwardChanges+=step;
+            else if(i>=50 && i<150) returnChanges+=step;
+        }
+        if(i && i<50) pedalChanges+=(actions[2].currentFrame-previousPedal+4)%4;
+        previousPedal=actions[2].currentFrame;
         if(i>=50 && i<150) assert(actions[2].currentFrame==0); // Freewheel backward.
-        else assert(actions[2].currentFrame==actions[0].currentFrame);
         if(offset<minimum) minimum=offset;
         if(offset>maximum) maximum=offset;
     }
@@ -71,6 +81,10 @@ int main(void){
     for(int i=91;i<111;i++) mid_ride+=(offsets[i]!=offsets[i-1]);
     assert(mid_ride>near_turn); // Speed rises after the turn.
     assert(offsets[75]<offsets[50] && offsets[125]<offsets[100]);
+    assert(forwardChanges>0 && returnChanges>0 && forwardChanges*2>returnChanges);
+    assert(forwardChanges>=24 && forwardChanges<=25); // Previously 16 changes in this span.
+    assert(pedalChanges>=15 && pedalChanges<=17); // Original pedalling cadence.
+    assert(returnChanges>=16 && returnChanges<=17); // Original return wheel speed.
     int wheel_changed=0;
     for(int i=51;i<150;i++) wheel_changed|=wheel_frames[i]!=wheel_frames[i-1];
     assert(wheel_changed); // Wheels still roll while the feet stay fixed.
@@ -78,10 +92,12 @@ int main(void){
     moveHomeBike();
     assert(parts[0].x==120 && homeBikeFrame==0);
     assert(actions[2].currentFrame==0);
+    assert(actions[0].currentFrame==0 && homeWheelTicks==0);
+    assert(homeRiderFrame==0 && homeRiderTicks==0);
     hour=12;
     moveHomeBike();
     assert(parts[0].x==120); // Restart from centre after sleep.
-    puts("PASS: smooth bicycle motion, synchronized frames, and sleep reset");
+    puts("PASS: faster forward wheels, original pedal/return cadence, synchronized clothing, and sleep reset");
 }
 '''
 

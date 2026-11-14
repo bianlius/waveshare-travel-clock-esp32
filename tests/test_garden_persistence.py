@@ -1,8 +1,11 @@
 """Exercise the production garden NVS save, restore, and reset paths."""
 
 from pathlib import Path
+import re
 import subprocess
 import tempfile
+
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,7 +30,9 @@ spot_layout = garden[garden.index("typedef struct { short x,rootY; } GardenSpot;
 production = spot_layout + "\n" + "\n".join(function(signature) for signature in (
     "static void lockGarden(void){",
     "static void unlockGarden(void){",
+    "static bool validGardenPlants(const Clover *plants,u8 count){",
     "static bool validGardenSnapshot(const GardenSnapshot *snapshot){",
+    "static bool validGardenSnapshotV1(const GardenSnapshotV1 *snapshot){",
     "static void saveGardenPlantsLocked(void){",
     "void bubbleSortPointsByY(Clover* points,int size){",
     "static bool repairPlantPositionsLocked(void){",
@@ -46,7 +51,7 @@ prelude = r'''
 #include <string.h>
 typedef uint8_t u8;
 typedef uint16_t u16;
-enum { cloverMaxNum=20, gardenShopNum=0, portMAX_DELAY=1 };
+enum { cloverMaxNum=30, gardenShopNum=0, portMAX_DELAY=1 };
 typedef struct Clover { short x,y; u8 type; } Clover;
 static Clover cloverArr[cloverMaxNum];
 static u8 cloverNumNow, selectedPlant;
@@ -87,6 +92,7 @@ enum { ESP_OK=0, ESP_ERR_NVS_NOT_FOUND=1, ESP_FAIL=2,
 
 backend = r'''
 static GardenSnapshot stored;
+static size_t storedLength=sizeof(stored);
 static bool present;
 static int commits;
 static esp_err_t nvs_open(const char *name,int mode,nvs_handle_t *handle){
@@ -97,13 +103,15 @@ static esp_err_t nvs_open(const char *name,int mode,nvs_handle_t *handle){
 static esp_err_t nvs_set_blob(nvs_handle_t handle,const char *key,
                               const void *value,size_t length){
     assert(handle==1 && strcmp(key,"plants")==0 && length==sizeof(stored));
-    memcpy(&stored,value,length); present=true; return ESP_OK;
+    memcpy(&stored,value,length); storedLength=length; present=true; return ESP_OK;
 }
 static esp_err_t nvs_get_blob(nvs_handle_t handle,const char *key,
                               void *value,size_t *length){
-    assert(handle==1 && strcmp(key,"plants")==0 && *length==sizeof(stored));
+    assert(handle==1 && strcmp(key,"plants")==0);
     if(!present) return ESP_ERR_NVS_NOT_FOUND;
-    memcpy(value,&stored,sizeof(stored)); return ESP_OK;
+    if(!value){ *length=storedLength; return ESP_OK; }
+    assert(*length>=storedLength);
+    memcpy(value,&stored,storedLength); *length=storedLength; return ESP_OK;
 }
 static esp_err_t nvs_erase_key(nvs_handle_t handle,const char *key){
     assert(handle==1 && strcmp(key,"plants")==0);
@@ -134,11 +142,10 @@ static void checkGardenSpots(void){
 int main(void){
     for(int i=0;i<cloverMaxNum;i++){
         const int x=gardenSpots[i].x, y=gardenSpots[i].rootY;
-        const int dx=x-160, dy=y-157;
-        assert(dx*dx*28*28+dy*dy*82*82<=82*82*28*28);
+        assert(x>=70 && x<=244 && y>=130 && y<=200);
         for(int j=0;j<i;j++){
             int px=x-gardenSpots[j].x,py=y-gardenSpots[j].rootY;
-            assert(px*px+py*py>=20*20);
+            assert(px*px+py*py>=18*18);
         }
     }
     gardenRestorePlants();
@@ -158,6 +165,20 @@ int main(void){
            (cloverArr[0].type==8 && cloverArr[1].type==0));
     int stableCommits=commits;
     gardenRestorePlants(); assert(commits==stableCommits);
+    GardenSnapshotV1 previous={.magic=GARDEN_STORAGE_MAGIC,
+                               .version=GARDEN_PREVIOUS_STORAGE_VERSION,.count=2};
+    memcpy(previous.plants,cloverArr,2*sizeof(Clover));
+    Clover previousPlants[2]={cloverArr[0],cloverArr[1]};
+    memset(&stored,0,sizeof(stored));
+    memcpy(&stored,&previous,sizeof(previous));
+    storedLength=sizeof(previous);
+    cloverNumNow=0;
+    gardenRestorePlants();
+    assert(cloverNumNow==2 && commits==stableCommits+1);
+    assert(storedLength==sizeof(GardenSnapshot) && stored.version==GARDEN_STORAGE_VERSION);
+    assert(memcmp(cloverArr,previousPlants,sizeof(previousPlants))==0);
+    checkGardenSpots();
+    stableCommits=commits;
     stored.plants[1]=stored.plants[0];
     stored.plants[1].type=8;
     stored.plants[1].y+=plantRootOffset(stored.plants[0].type)-
@@ -209,9 +230,16 @@ int main(void){
     gardenRestorePlants();
     assert(cloverNumNow==count && commits==fullGardenCommits);
     checkGardenSpots();
-    puts("PASS: twenty fixed, separated garden spots; random arrival; restore and reset");
+    puts("PASS: thirty separated garden spots; v1 migration; random arrival; restore and reset");
 }
 '''
+
+floor = Image.open(ROOT / "assets/garden/floorPicWS.png").convert("RGBA")
+spots = [(int(x), int(y)) for x, y in re.findall(r"\{(\d+),(\d+)\}",
+         spot_layout.split("static const GardenSpot gardenSpots[] = {", 1)[1].split("};", 1)[0])]
+assert len(spots) == 30
+for x, y in spots:
+    assert floor.getpixel((x - 48, y - 115))[:3] in ((164, 202, 115), (180, 210, 148))
 
 with tempfile.TemporaryDirectory(prefix="gview-garden-persistence-") as folder:
     test = Path(folder) / "test.c"

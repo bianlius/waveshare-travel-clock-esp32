@@ -94,6 +94,7 @@ static int levels[6]={1,1,1,1,1,1};
 static int64_t fakeTime=1000000;
 static bool usbConnected;
 static bool touchPresent;
+static uint8_t LCD_GetRotation(void){ return 0; }
 static int touchX=120,touchY=120;
 static bool touch_point(int *x,int *y){ *x=touchX; *y=touchY; return touchPresent; }
 static int gpio_get_level(int pin){ return levels[pin]; }
@@ -127,6 +128,7 @@ static void wifiSavedOneInit(void){ entered=1; }
 static void wifiScanPageInit(void){ entered=2; }
 static void wifiSavedInit(void){ entered=3; }
 static void wifiConnectPageInit(void){}
+static void renderHomeInit(void){ entered=5; }
 static void inputPageInit(void (*callback)(void),int mode){
     (void)callback; (void)mode; entered=4;
 }
@@ -144,6 +146,7 @@ production = "\n".join([
     function(page, "u8 pageUIKeyEnabled("),
     function(page, "int pageUIKeyAction("),
     function(page, "void setPageUILongKeyText("),
+    function(page, "void setPageUIHoldPromotion("),
     function(page, "void drawPageReturnHint("),
     function(adc, "static int touch_key_at("),
     function(adc, "static int content_gesture_key("),
@@ -254,10 +257,13 @@ int main(void){
     for(int state=0;state<=4;++state){
         WifiConnectingStateOld=state;
         refreshWifiKeyHints();
-        expect("返回",state>=3 ? "返回首页" : "",state>=3 ? "返回首页" : "",3,4);
+        expect("返回",state>=3 ? "返回首页" : "","",3,-1);
+        footerDraws=0; drawPageReturnHint();
+        assert(footerDraws==0 && !*longKeyText[1]);
     }
     entered=0; tap(1); assert(entered==5);
 
+    holdPromotionEnabled[1]=1; // A new page resets the promotion policy.
     pageNow=PAGE_CITY; setPageUILongKeyText("返回","保存");
     cityProviceNow=0; proviceNow=0;
     refreshCityKeyHints(); expect("上一项","选城市","下一项",2,0);

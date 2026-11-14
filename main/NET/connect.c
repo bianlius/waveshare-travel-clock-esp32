@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdatomic.h>
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #include "connect.h"
@@ -6,6 +7,7 @@
 #include "../rom.h"
 #include "weather_forecast.h"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  5
+#define SAVED_WIFI_RETRIES 2
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -18,6 +20,8 @@ static EventGroupHandle_t s_wifi_event_group;
 
 static const char *TAG = "wifi station";
 
+static uint8_t s_configured;
+static _Atomic int s_connected_saved_slot=-1;
 static int s_retry_num = 0;//WIFI重连次数
 wifi_config_t wifi_config;
 
@@ -35,13 +39,17 @@ static void event_handler(void* arg, esp_event_base_t event_base,
          *返回值：任何值：在将指定事件位置 1 后的事件组值。
         */   
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        WifiConnectingState = 1;
-        esp_wifi_connect();
+        if(s_configured && WifiConnectingState) esp_wifi_connect();
         ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         //WIFI 断开事件
         IPAdressGet = 0;
-        // 多次连接
+        const wifi_event_sta_disconnected_t *event=event_data;
+        ESP_LOGW(TAG,"Wi-Fi disconnected: reason=%u, saved slot=%u",
+                 event ? event->reason : 0,wifiSaveInfo.selectWifiNow);
+        xEventGroupClearBits(s_wifi_event_group,WIFI_CONNECTED_BIT);
+        // An explicit scan/cancel must not immediately reconnect behind the UI.
+        if(!WifiConnectingState || ScaningHd) return;
         if(pageNow == PAGE_WIFI_CONNECT){//如果是配置密码连接
             if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY&&WifiConnectingState) {
                 WifiConnectingState = 2;
@@ -55,14 +63,21 @@ static void event_handler(void* arg, esp_event_base_t event_base,
                 ESP_LOGI(TAG, "4 WifiConnectingState %d",s_retry_num);
             }
         }else{
-            // if (wifiSaveInfo.selectWifiNow < wifiSaveInfo.saveNumAll-1) {
-            //     wifiSaveInfo.selectWifiNow ++;
-            // } else {
-            //     wifiSaveInfo.selectWifiNow = 0;
-            // }
-            wifi_connect_default();
-            WifiConnectingState = 2;
-            printf("REConnectWifi:%d\n",wifiSaveInfo.selectWifiNow);
+            if(!wifiSaveInfo.saveNumAll || wifiSaveInfo.saveNumAll>10){
+                WifiConnectingState=0;
+                return;
+            }
+            if(++s_retry_num>=SAVED_WIFI_RETRIES){
+                s_retry_num=0;
+                wifiSaveInfo.selectWifiNow=(wifiSaveInfo.selectWifiNow+1)%wifiSaveInfo.saveNumAll;
+                resetWIFIConnectInfo(wifiSaveInfo.ssid[wifiSaveInfo.selectWifiNow],
+                                     wifiSaveInfo.password[wifiSaveInfo.selectWifiNow]);
+                ESP_LOGI(TAG,"Trying saved Wi-Fi slot %u",wifiSaveInfo.selectWifiNow);
+            }
+            if(s_configured){
+                WifiConnectingState=2;
+                esp_wifi_connect();
+            }
         }
         ESP_LOGI(TAG,"connect to the AP fail");
         
@@ -74,6 +89,15 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
         WifiConnectingState = 3;
         s_retry_num = 0;
+        // Persist on the render task, together with other Wi-Fi save operations.
+        for(u8 i=0;i<wifiSaveInfo.saveNumAll && i<10;i++){
+            const size_t length=strnlen(wifiSaveInfo.ssid[i],33);
+            if(length<=32 && length==strnlen((char *)wifi_config.sta.ssid,32) &&
+               memcmp(wifiSaveInfo.ssid[i],wifi_config.sta.ssid,length)==0){
+                atomic_store(&s_connected_saved_slot,i);
+                break;
+            }
+        }
     }
 }
 
@@ -92,6 +116,8 @@ void wifi_init_sta(void)
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    // Credentials live in wifidata; retries should not rewrite driver NVS.
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
 
     esp_event_handler_instance_t instance_any_id;
     esp_event_handler_instance_t instance_got_ip;
@@ -112,7 +138,12 @@ void wifi_init_sta(void)
     
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
+    // Configure the remembered network before STA_START can request a connection.
+    if(wifiSaveInfo.saveNumAll && wifiSaveInfo.saveNumAll<=10){
+        resetWIFIConnectInfo(wifiSaveInfo.ssid[wifiSaveInfo.selectWifiNow],
+                             wifiSaveInfo.password[wifiSaveInfo.selectWifiNow]);
+        WifiConnectingState=s_configured ? 1 : 0;
+    }
     ESP_ERROR_CHECK(esp_wifi_start());
 
     esp_wifi_set_ps(WIFI_PS_MAX_MODEM);//省电模式
@@ -154,22 +185,29 @@ void wifi_scan(void)
 //----------------------搜索END---------------------------
 
 void resetWIFIConnectInfo(char *ssid,char *pass){
-    if(ssid[0]=='\0'||ssid[1]=='\0'||pass[0]=='\0'||pass[1]=='\0'){
-        printf("resetWIFI error: empty credentials\n");
+    s_configured=0;
+    const size_t ssidLength=ssid ? strnlen(ssid,33) : 0;
+    const size_t passwordLength=pass ? strnlen(pass,64) : 64;
+    if(!ssidLength || ssidLength>32 || passwordLength>63){
+        WifiConnectingState=4;
+        ESP_LOGW(TAG,"Invalid Wi-Fi credential lengths");
         return;
     }
-    uint8_t i;
-    for(i = 0; i<32; i++) {
-        wifi_config.sta.ssid[i] = ssid[i];
+    memset(wifi_config.sta.ssid,0,sizeof(wifi_config.sta.ssid));
+    memset(wifi_config.sta.password,0,sizeof(wifi_config.sta.password));
+    memcpy(wifi_config.sta.ssid,ssid,ssidLength);
+    memcpy(wifi_config.sta.password,pass,passwordLength);
+    const esp_err_t result=esp_wifi_set_config(WIFI_IF_STA,&wifi_config);
+    if(result!=ESP_OK){
+        WifiConnectingState=4;
+        ESP_LOGW(TAG,"Cannot configure Wi-Fi: %s",esp_err_to_name(result));
+        return;
     }
-    for(i = 0; i<64; i++) {
-        wifi_config.sta.password[i] = pass[i];
-    }
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
-    printf("resetWIFI:%s\n",ssid);
+    s_configured=1;
 }
 
 void wifi_startConnect(void){
+    if(!s_configured){ WifiConnectingState=4; return; }
     printf("start connect wifi\n");
     s_retry_num = 0;
     WifiConnectingState = 1;
@@ -178,7 +216,8 @@ void wifi_startConnect(void){
 
 //使用已记录的账号密码登录
 void wifi_connect_default(void){
-    if(!IPAdressGet){
+    if(!IPAdressGet && wifiSaveInfo.saveNumAll && wifiSaveInfo.saveNumAll<=10){
+        if(wifiSaveInfo.selectWifiNow>=wifiSaveInfo.saveNumAll) wifiSaveInfo.selectWifiNow=0;
         //初始化保存的WIFI SSID及密码
         resetWIFIConnectInfo(wifiSaveInfo.ssid[wifiSaveInfo.selectWifiNow],wifiSaveInfo.password[wifiSaveInfo.selectWifiNow]);
         //连接WIFI;
@@ -192,8 +231,14 @@ void wifi_connect_default(void){
 void wifi_Init(void)
 {
     WifiConnectingState = 0;
-    //初始化WIFI为STA模式
+    s_configured=0;
+    s_retry_num=0;
+    atomic_store(&s_connected_saved_slot,-1);
+    if(wifiSaveInfo.selectWifiNow>=wifiSaveInfo.saveNumAll) wifiSaveInfo.selectWifiNow=0;
     wifi_init_sta();
-    wifiSaveInfo.selectWifiNow = wifiSaveInfo.saveNumAll>0?wifiSaveInfo.saveNumAll-1:0;
-    wifi_connect_default();
+}
+void wifiProcessSavedConnection(void){
+    const int slot=atomic_exchange(&s_connected_saved_slot,-1);
+    if(slot>=0 && slot<wifiSaveInfo.saveNumAll && IPAdressGet)
+        rememberWIFISelection((u8)slot);
 }

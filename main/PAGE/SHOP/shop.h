@@ -3,6 +3,7 @@
 
 #include "../../config.h"
 #include "GVIEW/gview.h"
+#include "shop_model.h"
 #include "../pageDraw.h"
 
 #define shopListY 50
@@ -27,6 +28,7 @@ extern const u8* glovesListArr[];
 
 u16 getGardenPlantMoney(u8 type);
 u8 getShopListArrNum(u8 titleListNum);
+u8 shopMonsterAvailable(u8 index);
 u8 checkIsUnlock(uint64_t index,u8 listNum);
 #endif
 

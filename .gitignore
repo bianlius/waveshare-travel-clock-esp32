@@ -2,9 +2,15 @@ artifacts/
 build/
 .DS_Store
 __pycache__/
+.pytest_cache/
 *.pyc
+sdkconfig.old
 main/weather_config.local.h
 *.pem
 *.key
 .env
 .env.*
+
+# Local reference exports and editing history; active build assets live in assets/.
+emerald-restoration-handoff-2026-11-13-current/
+firmware-3.4-resources/

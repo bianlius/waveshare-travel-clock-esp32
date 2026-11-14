@@ -21,6 +21,8 @@ void checkDayTime(void);
 void refreshWeatherDisplay(void);
 void changeSceneColor(void);
 void addManBike(u8 deep,short $x,short $y,u8 bikeNum,u8 headNum,u8 shirtNum,u8 pantsNum,u8 shoesNum,u8 glovesNum,u8 bagNum);
+// May uses her complete restored outfit; the original keeps its saved wardrobe.
+void addSavedBike(u8 deep,short x,short y,u8 bikeNum);
 void setBikeColor(u8 num);
 extern char tempNetTxt[10] ;
 extern char weatherTxt[20];

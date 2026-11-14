@@ -32,13 +32,15 @@ production = "\n".join(function(signature) for signature in (
     "static void homeBgmNext(void){",
     "static void homeBgmPreviewToggle(void){",
     "static void homeBgmChoose(void){",
+    "void saveSystemSettingsIfDirty(void){",
+    "static void queueSystemSettingsSave(void){",
     "static void updateSystemSettings(void){",
     "static void systemPrevious(void){",
     "static void systemNext(void){",
     "static void systemConfirm(void){",
 ))
 assert 'drawPageUITxt("上一项","编辑","下一项")' in source
-assert 'drawPageUITxt("","编辑","")' in source
+assert 'newChar(12,"自动旋转"' in source
 
 harness = r'''
 #include <assert.h>
@@ -49,21 +51,30 @@ harness = r'''
 typedef uint8_t u8;
 #define SOUND_SET_COUNT 2
 #define SOUND_VOLUME_STEP 5
+#define SYSTEM_SET_COUNT 3
+#define HOME_PLANT_HINT_ON 0xD5
+#define HOME_PLANT_HINT_OFF 0xD4
+#define SYSTEM_SET_TOP 44
+#define SYSTEM_SET_PITCH 44
 #define HOME_BGM_SILENT 0
 #define HOME_BGM_TRACK_COUNT 10
 #define ORANGE 17
 static struct { u8 volumeNum, clockCountRing, clockCountTimes;
                 u8 homeBgmSelection, homeBgmPreferredSelection;
-                signed char tempOffset; } dataSaveInfo = {50, 3, 4, 8, 8, 0};
-typedef struct { int color; } DisplayObject;
-static DisplayObject systemValueStorage;
-static DisplayObject *systemValue=&systemValueStorage;
+                signed char tempOffset; u8 autoRotationEnabled,homePlantHintConfig; }
+    dataSaveInfo = {50, 3, 4, 8, 8, 0, 1, HOME_PLANT_HINT_ON};
+typedef struct { int color, y; } DisplayObject;
+static DisplayObject systemValueStorage[3], systemBGStorage;
+static DisplayObject *systemValues[3]={&systemValueStorage[0],&systemValueStorage[1],&systemValueStorage[2]};
+static DisplayObject *systemSetBGObj=&systemBGStorage;
 static char tempOffsetText[8];
+static char autoRotationText[8];
+static char homePlantHintText[8];
 static u8 soundSetSelect, soundSettingsEditing, homeBgmCursor;
 static int homeBgmHintPreview=-2, previewSlot=-1;
 static u8 homeBgmHintCursor=255;
 static DisplayObject *homeBgmList;
-static u8 systemEditing, systemDirty;
+static u8 systemSelect, systemEditing, systemDirty;
 static const char *hints[3];
 static const char *holdHints[2];
 static int moved, updated, soundVolume, queued, saved, entered, returned, written, delays;
@@ -90,7 +101,8 @@ static void showTips(const char *message,float seconds){
     (void)message; (void)seconds; ++previewErrors;
 }
 static void writeData(void){ ++written; }
-static void saveSystemSettingsIfDirty(void){}
+static int rotationEnabled=1;
+static void imuRotationSetEnabled(bool enabled){ rotationEnabled=enabled; }
 static void clearDelayFunction(void (*fn)(void)){ (void)fn; }
 static void DelayFunction(void (*fn)(void),float seconds){ (void)fn;(void)seconds;++delays; }
 __PRODUCTION__
@@ -163,21 +175,48 @@ int main(void){
     homeBgmChoose();
     assert(dataSaveInfo.homeBgmSelection==0 && dataSaveInfo.homeBgmPreferredSelection==2);
     updateSystemSettings();
-    expect("","编辑","");
+    expect("上一项","编辑","下一项");
+    assert(systemValues[0]->color==ORANGE && systemSetBGObj->y==SYSTEM_SET_TOP-6);
+    systemNext();
+    expect("上一项","切换","下一项");
+    assert(systemSelect==1 && systemValues[1]->color==ORANGE);
+    assert(systemSetBGObj->y==SYSTEM_SET_TOP-6+SYSTEM_SET_PITCH);
+    systemConfirm();
+    assert(dataSaveInfo.autoRotationEnabled==0 && rotationEnabled==0);
+    assert(strcmp(autoRotationText,"关闭")==0 && systemDirty && delays==1);
+    systemPrevious();
+    assert(systemSelect==0 && dataSaveInfo.tempOffset==0);
     systemConfirm();
     expect("减少","完成","增加");
     systemNext();
-    assert(dataSaveInfo.tempOffset==1 && systemDirty && delays==1);
+    assert(dataSaveInfo.tempOffset==1 && systemDirty && delays==2);
     systemPrevious();
-    assert(dataSaveInfo.tempOffset==0 && delays==2);
+    assert(dataSaveInfo.tempOffset==0 && delays==3);
     dataSaveInfo.tempOffset=5;
     updateSystemSettings();
     expect("减少","完成","");
     systemNext();
-    assert(dataSaveInfo.tempOffset==5 && delays==2);
+    assert(dataSaveInfo.tempOffset==5 && delays==3);
     systemConfirm();
-    expect("","编辑","");
-    puts("PASS: sound browse/edit, BGM preference, and temperature editing");
+    expect("上一项","编辑","下一项");
+    systemNext();
+    systemConfirm();
+    assert(dataSaveInfo.autoRotationEnabled==1 && rotationEnabled==1);
+    assert(strcmp(autoRotationText,"开启")==0 && delays==4);
+    systemNext();
+    assert(systemSelect==2 && systemValues[2]->color==ORANGE);
+    expect("上一项","切换","下一项");
+    systemConfirm();
+    assert(dataSaveInfo.homePlantHintConfig==HOME_PLANT_HINT_OFF && delays==5);
+    assert(dataSaveInfo.autoRotationEnabled==1 && strcmp(homePlantHintText,"关闭")==0);
+    systemConfirm();
+    assert(dataSaveInfo.homePlantHintConfig==HOME_PLANT_HINT_ON && delays==6);
+    assert(strcmp(homePlantHintText,"开启")==0);
+    systemNext();assert(systemSelect==0);systemPrevious();assert(systemSelect==2);
+    const int beforeSave=written;
+    saveSystemSettingsIfDirty();
+    assert(!systemDirty && written==beforeSave+1);
+    puts("PASS: sound, temperature editing, and persisted auto rotation toggle");
 }
 '''
 

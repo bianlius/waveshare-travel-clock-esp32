@@ -15,6 +15,11 @@
 #define HOME_BGM_TRACK_COUNT SOUND_TRACK_COUNT
 #define HOME_BGM_DEFAULT_SELECTION (SOUND_DEFAULT_HOME_TRACK + 1)
 #define HOME_BGM_SILENT 0
+#define AUTO_ROTATION_CONFIG_VERSION 0xA9
+#define HOME_PLANT_HINT_ON 0xD5
+#define HOME_PLANT_HINT_OFF 0xD4
+#define LEGACY_RIDER_CONFIG_VERSION 0xD3
+// The two removed character-selection bytes remain reserved in old saves.
 
 typedef struct DATASAVEINFO{
     uint8_t isInit;//是否已保存过数据
@@ -39,7 +44,14 @@ typedef struct DATASAVEINFO{
     u8 homeBgmConfigVersion;//首页背景音乐设置版本
     u8 homeBgmSelection;//0 静音, 1-10 为 MP3 曲目
     u8 homeBgmPreferredSelection;//快捷开关关闭时记住的曲目
+    u8 autoRotationConfigVersion;
+    u8 autoRotationEnabled;
+    u8 homePlantHintConfig; // Versioned on/off values occupy legacy tail padding.
 }DATASAVEINFO;
+_Static_assert(sizeof(DATASAVEINFO)==60 &&
+               offsetof(DATASAVEINFO,autoRotationConfigVersion)==57 &&
+               offsetof(DATASAVEINFO,homePlantHintConfig)==59,
+               "Saved settings layout must remain compatible");
 
 typedef struct ITEMSAVEINFO{
     uint64_t itemMonster;//已获得的怪物列表,二进制表示是否拥有
@@ -61,8 +73,15 @@ typedef struct ITEMSAVEINFO{
     u8 shoesIndex;
     u8 glovesIndex;
     u8 bagIndex;
-    
+    // Use legacy tail padding without shifting any wardrobe or ownership field.
+    u8 legacyRiderConfigVersion;
+    u8 legacyRiderIndex;
 }ITEMSAVEINFO;
+_Static_assert(sizeof(ITEMSAVEINFO)==88 &&
+               offsetof(ITEMSAVEINFO,bagIndex)==80 &&
+               offsetof(ITEMSAVEINFO,legacyRiderConfigVersion)==81 &&
+               offsetof(ITEMSAVEINFO,legacyRiderIndex)==82,
+               "Saved wardrobe layout must remain compatible");
 
 typedef struct GARDENSAVEINFO{
     u8 gardenLevel;//花园等级
@@ -92,7 +111,8 @@ extern GARDENSAVEINFO gardenSaveInfo;
 void romInit(void);
 void readData(void);
 void initPartition(void);
-void writeWIFIInfo(char* ssid, char* password);
+u8 writeWIFIInfo(char* ssid, char* password);
+void rememberWIFISelection(u8 index);
 void writeSetData(void);
 void deleteSavedWIFI(u8 num);
 void deleteAlarmClock(u8 num);

@@ -11029,7 +11029,7 @@ int usg_utf8_to_unicode_one(const unsigned char* pInput, unsigned long *Unic)
 {  
   assert(pInput != NULL && Unic != NULL);  
 
-  char b1, b2, b3, b4, b5, b6;  
+  unsigned char b1, b2, b3, b4, b5, b6;
 
   *Unic = 0x0; 
   int utfbytes = usg_get_utf8_size(*pInput);  
@@ -11119,26 +11119,27 @@ int usg_utf8_to_unicode_one(const unsigned char* pInput, unsigned long *Unic)
   */
 size_t utf8_to_gb2312(const uint8_t *utf8Data, size_t len, uint8_t *gb2312Data, size_t size)
 {
-    char Unic[8] = {0};
+    unsigned long unicode;
     uint16_t ptr1, ptr2;
     int ret;
     size_t offset = 0;
 
     while(len > 0)
     {
-        memset(Unic, 0, sizeof(Unic));
-        ret = usg_utf8_to_unicode_one((uint8_t *)utf8Data, (unsigned long *)Unic);
+        unicode = 0;
+        ret = usg_utf8_to_unicode_one(utf8Data, &unicode);
         if(ret > 0) {
             if(ret == 1)  {
+                if(offset+1>size) break;
                 gb2312Data[offset++] = *utf8Data;
             } else {
-                ptr1 = (Unic[1] << 8) | Unic[0];
+                ptr1 = (uint16_t)unicode;
                 ptr2 = usg_convert(ptr1, 0);
-                if(offset >= size) break;
+                if(offset+2>size) break;
                 gb2312Data[offset++] = (ptr2 >> 8) & 0xff ;
                 gb2312Data[offset++] = (ptr2 >> 0) & 0xff ;
             }
-            if( len < ret ) break;
+            if(len < (size_t)ret) break;
             len -= ret;
             utf8Data += ret;
         } else  {
@@ -11168,24 +11169,26 @@ size_t gb2312_to_utf8(const uint8_t *gb2312Data, size_t len, uint8_t *utf8Data, 
 
     while(len > 0)
     {
-        if(usg_get_utf8_size(*gb2312Data) == 0) {
+        if(*gb2312Data < 0x80) {
             gsize = 1;
             ptr1 = *gb2312Data;
         } else {
             gsize = 2;
+            if(len<2) break;
             ptr1 = gb2312Data[0] << 8 | gb2312Data[1];
         }
         ptr1 = usg_convert(ptr1, 1);
         memset(output, 0, sizeof(output));
         ret = usg_unicode_to_utf8_one(ptr1, output, sizeof(output));
         if(ret > 0) {
+            if(offset+(size_t)ret>size) break;
             gb2312Data += gsize;
             for(int i=0;i<ret;i++)
             {
                 utf8Data[offset+i] = output[i];
             }
             offset += ret;
-            if( len < gsize ) break;
+            if(len < (size_t)gsize) break;
             len -= gsize;
         } else  {
             break;

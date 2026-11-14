@@ -9,11 +9,13 @@ char costTxt[8];
 DisplayObject *costTxtSp;
 DisplayObject *shopListObj;
 
-const char* ShopListMonsterTxt[] = {"不跟随","喷火龙","风速狗","拉蒂奥斯","拉蒂亚斯","烈焰马","鬼斯","炎帝","沙漠蜻蜓","比卡丘","火稚鸡","水跃鱼","蛇纹熊","雷电兽","斗笠菇"};//可选择的怪物列表
-const u16 ShopListMonsterCost[] = {0,200,200,200,500,500,200,1000,800,1800,150,150,300,600,500};//可选择的怪物列表
-const u8* momsterListArr[] = {PHL_M,FSG_M,LDYS_M,pkm_ldys2,LYM_M,GS_M,YD_M,SMQT_M,BKQ_M,followerTorchic,followerMudkip,followerZigzagoon,followerManectric,followerBreloom};
+const char* ShopListMonsterTxt[] = {"不跟随","喷火龙","风速狗","拉蒂奥斯","拉蒂亚斯","烈焰马","鬼斯","炎帝","沙漠蜻蜓","比卡丘","火稚鸡","水跃鱼","蛇纹熊","雷电兽","","傲骨燕","长翅鸥","电萤虫","铁面忍者","热带龙","喵喵","洛奇亚","凤王","比雕","可可多拉","金属怪","青绵鸟","脱壳忍者"};//可选择的怪物列表
+// Rarity tiers: common 100, uncommon 300, evolved 700, rare 1200,
+// rare evolution 2000, legendary 3500, cover legendary 5000.
+const u16 ShopListMonsterCost[] = {0,2000,1200,3500,3500,700,300,3500,1200,300,1200,1200,100,700,0,100,100,300,700,1200,100,5000,5000,700,300,2000,300,1200};//可选择的怪物列表
+const u8* momsterListArr[] = {PHL_M,FSG_M,LDYS_M,pkm_ldys2,LYM_M,GS_M,YD_M,SMQT_M,BKQ_M,followerTorchic,followerMudkip,followerZigzagoon,followerManectric,NULL,followerTaillow,followerWingull,followerVolbeat,followerNinjask,followerTropius,followerMeowth,followerLugia,followerHoOh,followerPidgeot,followerAron,followerMetang,followerSwablu,followerShedinja};
 // Entries retain their saved IDs; price order is only a shop presentation.
-const u8 ShopListMonsterGround[] = {0,0,1,0,0,1,0,1,0,1,1,1,1,1,1};//可选择的怪物列表
+const u8 ShopListMonsterGround[] = {0,0,1,0,0,1,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0};//可选择的怪物列表
 const pkmProperty property[] = {
     {.pic = PHL_M,.maxX = 240,.minX = 60,.style = 1,.FrontBack = 1},//喷火龙
 };
@@ -50,6 +52,12 @@ const char* ShopListBagTxt[4] = {"无","普通背包","休闲背包","旅行背包"};
 const u16 ShopListBagCost[4] = {0,80,180,380};
 const u8* bagListArr[] = {Bag_A,Bag_B,Bag_C};
 
+enum {
+    SHOP_TENT_CATEGORY=1, SHOP_BIKE_CATEGORY,
+    SHOP_HEAD_CATEGORY, SHOP_SHIRT_CATEGORY, SHOP_PANTS_CATEGORY,
+    SHOP_SHOES_CATEGORY, SHOP_GLOVES_CATEGORY, SHOP_BAG_CATEGORY
+};
+
 #define COUNT(a) (sizeof(a)/sizeof((a)[0]))
 _Static_assert(COUNT(ShopListMonsterCost)==COUNT(ShopListMonsterTxt),"Monster prices must match names");
 _Static_assert(COUNT(momsterListArr)+1==COUNT(ShopListMonsterTxt),"Monster sprites must match names");
@@ -77,8 +85,9 @@ static const ShopCategory categories[] = {
 };
 static u8 categoryIndex, itemIndex;
 static u8 monsterOrder[COUNT(ShopListMonsterTxt)];
+static u8 monsterCount;
 static char categoryText[32], itemText[40], priceText[24], counterText[16];
-static DisplayObject *itemLabel;
+static DisplayObject *categoryLabel, *itemLabel;
 
 u8 getShopListArrNum(u8 category){
     return category < COUNT(categories) ? categories[category].count : 0;
@@ -87,9 +96,22 @@ u8 checkIsUnlock(uint64_t owned,u8 item){
     return item < 64 && (owned & (UINT64_C(1) << item)) != 0;
 }
 
+u8 shopMonsterAvailable(u8 index){
+    return index<COUNT(ShopListMonsterTxt) && (!index || momsterListArr[index-1]!=NULL);
+}
+static void buildMonsterOrder(void){
+    shopBuildPriceOrder(ShopListMonsterCost,COUNT(ShopListMonsterCost),monsterOrder);
+    monsterCount=0;
+    for(u8 i=0;i<COUNT(monsterOrder);i++)
+        if(shopMonsterAvailable(monsterOrder[i])) monsterOrder[monsterCount++]=monsterOrder[i];
+}
+static u8 shopItemCount(void){
+    return categoryIndex==0 ? monsterCount : categories[categoryIndex].count;
+}
+
 static u8 itemDisplayPosition(void){
     if(categoryIndex!=0) return itemIndex;
-    for(u8 position=0;position<COUNT(monsterOrder);++position)
+    for(u8 position=0;position<monsterCount;++position)
         if(monsterOrder[position]==itemIndex) return position;
     return 0;
 }
@@ -103,48 +125,54 @@ static void refreshShop(void){
     const int equipped = *category->equipped == itemIndex;
     hideTips();
     removeAllLayerChild(5);
-    snprintf(categoryText,sizeof(categoryText),"%s %u/%u",category->title,categoryIndex+1,(unsigned)COUNT(categories));
-    snprintf(counterText,sizeof(counterText),"%u/%u",itemDisplayPosition()+1,category->count);
+    snprintf(categoryText,sizeof(categoryText),"分类:%s",category->title);
+    snprintf(counterText,sizeof(counterText),"%u/%u",itemDisplayPosition()+1,shopItemCount());
+    // Native text reserves pairs of 8px columns, including the ASCII colon.
+    const unsigned categoryColumns=(getTxtLength(categoryText)+1u)&~1u;
+    categoryLabel->x = WS_UI_RIGHT - 4 - categoryColumns * 8;
     snprintf(itemText,sizeof(itemText),"%s",category->names[itemIndex]);
     snprintf(priceText,sizeof(priceText),owned ? (equipped ? "使用中" : "已解锁") : "花费 %u",category->costs[itemIndex]);
     itemLabel->x = 160-getTxtLength(itemText)*4;
     moneyTxtSp->num = dataSaveInfo.money;
     drawPageUITxt("上一项",!owned ? (dataSaveInfo.money>=category->costs[itemIndex] ? "解锁" : "") : equipped ? "" : categoryIndex == 0 ? "跟随" : "使用","下一项");
     if(categoryIndex == 0){
-        if(itemIndex){
+        if(itemIndex && shopMonsterAvailable(itemIndex)){
             DisplayObject *preview = getNewMvAction(momsterListArr[itemIndex-1],0,0);
             placePixelPreview(preview,48,74,224,120);
             addChild(5,preview);
         }
-    }else if(categoryIndex == 1){
+    }else if(categoryIndex == SHOP_TENT_CATEGORY){
         DisplayObject *preview = newPic(tentListArr[itemIndex],0,0);
         placePixelPreview(preview,48,74,224,120);
         addChild(5,preview);
+    }else if(categoryIndex==SHOP_BIKE_CATEGORY){
+        addSavedBike(5,145,134,itemIndex);
     }else{
         addManBike(5,145,134,
-            categoryIndex==2?itemIndex:itemSaveInfo.bikeIndex,
-            categoryIndex==3?itemIndex:itemSaveInfo.headIndex,
-            categoryIndex==4?itemIndex:itemSaveInfo.shirtIndex,
-            categoryIndex==5?itemIndex:itemSaveInfo.pantsIndex,
-            categoryIndex==6?itemIndex:itemSaveInfo.shoesIndex,
-            categoryIndex==7?itemIndex:itemSaveInfo.glovesIndex,
-            categoryIndex==8?itemIndex:itemSaveInfo.bagIndex);
+            itemSaveInfo.bikeIndex,
+            categoryIndex==SHOP_HEAD_CATEGORY?itemIndex:itemSaveInfo.headIndex,
+            categoryIndex==SHOP_SHIRT_CATEGORY?itemIndex:itemSaveInfo.shirtIndex,
+            categoryIndex==SHOP_PANTS_CATEGORY?itemIndex:itemSaveInfo.pantsIndex,
+            categoryIndex==SHOP_SHOES_CATEGORY?itemIndex:itemSaveInfo.shoesIndex,
+            categoryIndex==SHOP_GLOVES_CATEGORY?itemIndex:itemSaveInfo.glovesIndex,
+            categoryIndex==SHOP_BAG_CATEGORY?itemIndex:itemSaveInfo.bagIndex);
     }
 }
 
 static void previousItem(void){
-    u8 count = categories[categoryIndex].count;
+    u8 count = shopItemCount();
     itemIndex = itemAtDisplayPosition((itemDisplayPosition()+count-1)%count);
     refreshShop();
 }
 static void nextItem(void){
-    itemIndex = itemAtDisplayPosition((itemDisplayPosition()+1)%categories[categoryIndex].count);
+    itemIndex = itemAtDisplayPosition((itemDisplayPosition()+1)%shopItemCount());
     refreshShop();
 }
 static void nextCategory(void){
     categoryIndex = (categoryIndex+1)%COUNT(categories);
     const ShopCategory *category = &categories[categoryIndex];
     itemIndex = *category->equipped < category->count ? *category->equipped : 0;
+    if(categoryIndex==0 && !shopMonsterAvailable(itemIndex)) itemIndex=0;
     refreshShop();
 }
 static void confirmItem(void){
@@ -174,11 +202,12 @@ void renderShopInit(void){
     BGColor = 0xFFFF;
     resetPageView(&shopEx);
     setPageUILongKeyText("返回","分类");
-    shopBuildPriceOrder(ShopListMonsterCost,COUNT(ShopListMonsterCost),monsterOrder);
+    buildMonsterOrder();
     categoryIndex = 0;
-    itemIndex = itemSaveInfo.monsterIndex < categories[0].count ? itemSaveInfo.monsterIndex : 0;
-    addChild(1,newChar(12,categoryText,0,48,30));
-    addChild(1,newChar(12,counterText,GRAY,232,30));
+    itemIndex = shopMonsterAvailable(itemSaveInfo.monsterIndex) ? itemSaveInfo.monsterIndex : 0;
+    categoryLabel = newChar(12,categoryText,GRAY,0,30);
+    addChild(1,categoryLabel);
+    addChild(1,newChar(12,counterText,0,48,30));
     addChild(1,newPic(&money,48,53));
     moneyTxtSp = newNumber(12,dataSaveInfo.money,0,0,68,52);
     addChild(1,moneyTxtSp);
