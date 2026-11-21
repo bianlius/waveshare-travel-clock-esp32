@@ -4,7 +4,10 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-source = (Path(__file__).resolve().parents[1] / "ports/waveshare/sound.c").read_text()
+ROOT = Path(__file__).resolve().parents[1]
+source = (ROOT / "ports/waveshare/sound.c").read_text()
+policy = "\n".join(line for line in (ROOT / "main/audio_policy.c").read_text().splitlines()
+                   if not line.startswith("#include"))
 
 
 def function(signature):
@@ -18,7 +21,7 @@ def function(signature):
     return source[start:end] + "\n"
 
 
-production = "\n".join(function(signature) for signature in (
+production = policy + "\n" + "\n".join(function(signature) for signature in (
     "static void stopPlaybackLocked(void)",
     "static bool startTrackLocked(u8 slot, bool loop)",
     "void soundStopAll(void)",
@@ -40,6 +43,7 @@ harness = r'''
 #include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
+#include "audio_policy.h"
 typedef uint8_t u8;
 typedef uint16_t u16;
 #define SOUND_TRACK_COUNT 10
@@ -178,5 +182,6 @@ with tempfile.TemporaryDirectory(prefix="gview-mp3-policy-") as directory:
     binary = Path(directory) / "test"
     test.write_text(harness.replace("__PRODUCTION__", production), encoding="utf-8")
     subprocess.run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
-                    "-fsanitize=address,undefined", str(test), "-o", str(binary)], check=True)
+                    "-fsanitize=address,undefined", "-I" + str(ROOT / "main"),
+                    str(test), "-o", str(binary)], check=True)
     subprocess.run([str(binary)], check=True)

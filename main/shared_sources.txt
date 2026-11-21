@@ -3,6 +3,9 @@
 # network: production ESP networking; the desktop provides host services.
 # renderer / viewport: shared engine components, independent of board drivers.
 app main/app_runtime.c
+app main/app_input.c
+app main/audio_policy.c
+app main/backlight_schedule.c
 app main/pic_data/picGroup.c
 app main/rom.c
 app main/wifi_ssid.c

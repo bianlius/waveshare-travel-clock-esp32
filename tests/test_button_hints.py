@@ -24,6 +24,7 @@ def function(text, signature):
 page = source("main/PAGE/pageDraw.c")
 wifi = source("main/PAGE/WIFI/wifiScanPage.c")
 adc = source("ports/waveshare/adc.c")
+app_input = source("main/app_input.c")
 swipe_constants = next(
     line for line in adc.splitlines() if line.startswith("enum { MAIN_SWIPE_NEXT=")
 )
@@ -148,6 +149,8 @@ production = "\n".join([
     function(page, "void setPageUILongKeyText("),
     function(page, "void setPageUIHoldPromotion("),
     function(page, "void drawPageReturnHint("),
+    function(app_input, "int appInputAction("),
+    function(app_input, "bool appInputBegin("),
     function(adc, "static int touch_key_at("),
     function(adc, "static int content_gesture_key("),
     function(adc, "void keyCheckC("),

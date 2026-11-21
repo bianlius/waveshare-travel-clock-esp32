@@ -1,4 +1,5 @@
 #include "sound.h"
+#include "audio_policy.h"
 #include "rom.h"
 #include "sound_catalog.h"
 #include "mp3_player.h"
@@ -40,17 +41,11 @@ void soundStopAll(void){atomic_store(&preview,-1);atomic_fetch_add(&stop_generat
 void homeBgmSuspend(void){atomic_store(&home_allowed,false);}
 void homeBgmResume(void){atomic_store(&home_allowed,true);}
 bool soundPreviewStart(u8 slot){
-    if(!ready || !soundCatalogReady() || slot>=SOUND_TRACK_COUNT || !dataSaveInfo.volumeNum)return false;
+    if(!soundPreviewCanStart(slot,ready))return false;
     atomic_store(&preview,slot);return true;
 }
 void soundPreviewStop(void){atomic_store(&preview,-1);}
 int soundPreviewSelection(void){return atomic_load(&preview);}
-static int alarm_slot(void){
-    if(alarmClockNow>200)return alarmClockNow==201?dataSaveInfo.tomatoRestRing:dataSaveInfo.tomatoWorkRing;
-    if(alarmClockNow>100)return dataSaveInfo.clockCountRing;
-    if(alarmClockNow<5)return (dataSaveInfo.alarmClock[alarmClockNow]&15)-1;
-    return -1;
-}
 static void close_track(void){mp3_player_stop();soundCatalogClose();atomic_store(&playing_slot,-1);}
 void passport_audio_prepare_sleep(void){
     atomic_store(&sleep_requested,true);
@@ -68,14 +63,9 @@ void soundTask(void *argument){
         if(ready && gain!=old_volume){bsp_audio_set_volume(gain);old_volume=gain;}
         unsigned next_generation=atomic_load(&stop_generation);
         if(generation!=next_generation){close_track();mode=0;slot=-1;generation=next_generation;}
-        int wanted=-1,wanted_mode=0;
-        if(ready && gain && soundCatalogReady()){
-            if(aClockTimes){wanted=alarm_slot();wanted_mode=3;}
-            else if(pageNow==PAGE_BGM_SET && atomic_load(&preview)>=0){wanted=atomic_load(&preview);wanted_mode=2;}
-            else if(pageNow==PAGE_HOME && atomic_load(&home_allowed) && dataSaveInfo.homeBgmSelection){
-                wanted=dataSaveInfo.homeBgmSelection-1;wanted_mode=1;
-            }
-        }
+        const SoundPlayback request=soundPlaybackSelect(ready,gain,
+            atomic_load(&home_allowed),atomic_load(&preview));
+        const int wanted=request.slot,wanted_mode=request.mode;
         if(wanted<0 || wanted>=SOUND_TRACK_COUNT){
             if(mode)close_track();mode=0;slot=-1;vTaskDelay(pdMS_TO_TICKS(20));continue;
         }
@@ -89,11 +79,11 @@ void soundTask(void *argument){
             }
             slot=wanted;mode=wanted_mode;
             atomic_store(&playing_slot,slot);
-            if(mode==3)aClockTimes=passport_alarm_started(aClockTimes);
+            if(mode==3)aClockTimes=soundAlarmStarted(aClockTimes);
         }
         if(!mp3_player_is_active()){
             if(mode==2){int expected=slot;atomic_compare_exchange_strong(&preview,&expected,-1);}
-            if(mode==3)aClockTimes=passport_alarm_finished(aClockTimes);
+            if(mode==3)aClockTimes=soundAlarmFinished(aClockTimes);
             close_track();slot=-1;mode=0;continue;
         }
         uint64_t decode_start=esp_timer_get_time();

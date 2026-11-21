@@ -23,7 +23,7 @@ def function(body, signature):
     return body[start:end] + "\n"
 
 
-backlight = source("ports/waveshare/backlight.c")
+backlight = source("main/backlight_schedule.c")
 rom = source("main/rom.c")
 assert "backLightIdleTick" not in backlight
 assert "backLightNoteActivity" not in backlight
@@ -97,6 +97,13 @@ int main(void){
     assert(dataSaveInfo.brightnessInfo[0]==BRIGHTNESS_SLOT(7,5));
     resetBackLightVal();
     assert(backLightNum==8);
+    int unsorted[5]={23*60,7*60,17*60,9*60,19*60};
+    assert(findLastAlarmBeforeCurrent(0,unsorted)==0);
+    assert(findLastAlarmBeforeCurrent(7*60,unsorted)==1);
+    assert(findLastAlarmBeforeCurrent(18*60,unsorted)==2);
+    int repeated[5]={12*60,12*60,12*60,12*60,12*60};
+    assert(findLastAlarmBeforeCurrent(0,repeated)==0);
+    assert(findLastAlarmBeforeCurrent(12*60,repeated)==0);
     puts("PASS: brightness schedule boundaries, night wrap, preview, and legacy migration");
 }
 '''

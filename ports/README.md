@@ -10,6 +10,9 @@ copies of the game pages, shop rules or saved-data model.
 | --- | --- |
 | `main/PAGE/` | Shared screens, companion behavior, shop, garden and settings |
 | `main/app_runtime.c` | Shared application state, home navigation, autosave and alarm checks |
+| `main/app_input.c` | Shared left/middle/right actions, hold dispatch and alarm cancellation |
+| `main/backlight_schedule.c` | Shared daily brightness selection, midnight wrap and editing preview rules |
+| `main/audio_policy.c`, `audio_policy.h` | Shared playback priority, ringtone selection, preview validation and repeat counts |
 | `main/rom.c`, `wifi_ssid.c`, `sound_catalog.c`, `pinyin.c` | Shared models and services |
 | `main/NET/` | Networking used by both firmware targets |
 | `main/pic_data/`, `main/assets/` | Shared source art and music |
@@ -22,6 +25,16 @@ Shared service headers remain under `main/`. Each device supplies the relevant
 implementation, so differences in GPIO, I2S, decoder, frame buffers and screen
 direction do not require duplicated application pages. A target's layout or
 capability differences may be selected in the common page implementation.
+
+Text layout, clipping and glyph scanning live in
+`components/GVIEW/native_text_raster.h`. The Waveshare adapter owns its indexed
+text buffer; the Passport adapter writes directly into the current RGB565 strip.
+The shared loop is inlined at compile time, without a full-screen allocation or
+per-pixel callback.
+
+Devices retain key sampling, debounce, hold timing and orientation conversion,
+then use the shared action mapping. Audio adapters retain synchronization,
+decoding and physical output; common policy selects tracks and priorities.
 
 Wi-Fi geometry is provided separately by
 [`ai-passport/include/wifi_layout_profile.h`](ai-passport/include/wifi_layout_profile.h)

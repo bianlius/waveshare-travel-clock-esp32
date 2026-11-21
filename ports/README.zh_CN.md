@@ -9,6 +9,9 @@
 | --- | --- |
 | `main/PAGE/` | 共用界面、伙伴行为、商店、花园和设置 |
 | `main/app_runtime.c` | 共用应用状态、返回首页、自动保存和闹钟检查 |
+| `main/app_input.c` | 共用左右中键动作映射、长按分发及响铃取消 |
+| `main/backlight_schedule.c` | 共用每日亮度时段选择、跨日处理及编辑预览规则 |
+| `main/audio_policy.c`、`audio_policy.h` | 共用播放优先级、铃声选择、试听检查及重复次数规则 |
 | `main/rom.c`、`wifi_ssid.c`、`sound_catalog.c`、`pinyin.c` | 共用数据模型与服务 |
 | `main/NET/` | 两种固件共用的网络逻辑 |
 | `main/pic_data/`、`main/assets/` | 共用原始图片和音乐 |
@@ -20,6 +23,13 @@
 共用服务的接口头文件仍在 `main/`，由各设备提供对应实现。GPIO、I2S、解码器、
 帧缓冲和屏幕方向等差异无需复制应用页面；布局或硬件能力差异可在共用页面中按
 构建目标选择。
+
+文字排版、裁剪和字形扫描统一放在 `components/GVIEW/native_text_raster.h`。
+微雪适配负责调色板文字缓冲，Passport 适配直接写入当前 RGB565 分条缓冲；
+公共循环在编译时内联，不增加全屏缓冲或逐像素回调。
+
+设备继续负责按键采样、去抖、长按计时和方向转换，再使用共用动作映射。
+音频适配继续负责线程同步、解码与实际输出，曲目及优先级由公共策略选择。
 
 Wi-Fi 页面已将布局参数分到
 [`ai-passport/include/wifi_layout_profile.h`](ai-passport/include/wifi_layout_profile.h)

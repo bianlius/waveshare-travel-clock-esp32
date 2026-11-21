@@ -1,3 +1,4 @@
+#include "app_input.h"
 #include "PAGE/INPUTTXT/inputtxt.h"
 #include "sdkconfig.h"
 #include <stdio.h>
@@ -267,13 +268,13 @@ void keyCheckC(void)
         }
         if (!left_long_handled && now - left_press_us >= 650000) {
             left_long_handled = true;
-            left_action = 3;
+            left_action = appInputAction(0,true);
             input_trace_record("BOOT_LONG", now, left_down, usb_connected);
         }
     } else if (left_press_us) {
         if (!left_long_handled)
             left_action = left_main_press && main_view ? 2 :
-                          softKeyHeaderVisible ? pageUIKeyAction(0) : 2;
+                          appInputAction(0,false);
         left_press_us = 0;
     }
     if (right_down) {
@@ -284,12 +285,12 @@ void keyCheckC(void)
         }
         if (!right_long_handled && now - right_press_us >= 650000) {
             right_long_handled = true;
-            right_action = 4;
+            right_action = appInputAction(2,true);
         }
     } else if (right_press_us) {
         if (!right_long_handled)
             right_action = right_main_press && main_view ? 0 :
-                           softKeyHeaderVisible ? pageUIKeyAction(2) : 0;
+                           appInputAction(2,false);
         right_press_us = 0;
     }
     if (!gpio_get_level(GPIO_NUM_5)) {
@@ -337,15 +338,7 @@ void keyCheckC(void)
     if (keyState & (1 << (3 * 2)))
         input_trace_record("KML_DISPATCH", now, left_down, usb_connected);
     input_trace_dump(now, left_down, usb_connected);
-    if (keyState) {
-        backHomeTime = 120;
-        if (aClockTimes) {
-            aClockTimes = 0;
-            hideTips();
-            keyState = 0;
-            soundStopAll();
-        }
-    }
+    if (keyState && !appInputBegin()) keyState = 0;
 }
 
 void adcInit(void)

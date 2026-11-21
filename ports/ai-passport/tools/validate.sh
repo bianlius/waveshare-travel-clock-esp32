@@ -29,7 +29,7 @@ PY
     "${host_dir}/keyboard"
     "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -I"${project_root}/components/GVIEW" -I"${project_root}/main/pic_data/pic_default" "${project_root}/tests/test_scale_1bit.c" -o "${host_dir}/scale"
     "${host_dir}/scale"
-    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -I"${port_root}/include" "${port_root}/tests/test_audio_policy.c" -o "${host_dir}/audio-policy"
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -I"${project_root}/main" "${port_root}/tests/test_audio_policy.c" -o "${host_dir}/audio-policy"
     "${host_dir}/audio-policy"
     rm -rf -- "${host_dir}"
 }

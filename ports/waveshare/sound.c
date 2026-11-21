@@ -1,4 +1,5 @@
 #include "sound.h"
+#include "audio_policy.h"
 
 #include <stdio.h>
 #include <stdatomic.h>
@@ -91,8 +92,7 @@ void homeBgmResume(void)
 
 bool soundPreviewStart(u8 slot)
 {
-    if (slot >= SOUND_TRACK_COUNT || dataSaveInfo.volumeNum == 0 ||
-        !soundCatalogReady()) return false;
+    if (!soundPreviewCanStart(slot, true)) return false;
     atomic_store(&previewRequest, slot);
     return true;
 }
@@ -109,17 +109,10 @@ int soundPreviewSelection(void)
 
 static bool alarmTrack(u8 *slot)
 {
-    if (alarmClockNow > 200) {
-        *slot = alarmClockNow == 201 ? dataSaveInfo.tomatoRestRing :
-                                       dataSaveInfo.tomatoWorkRing;
-    } else if (alarmClockNow > 100) {
-        *slot = dataSaveInfo.clockCountRing;
-    } else if (alarmClockNow < 5) {
-        u8 selected = dataSaveInfo.alarmClock[alarmClockNow] & 0x0f;
-        if (!selected) return false;
-        *slot = selected - 1;
-    } else return false;
-    return *slot < SOUND_TRACK_COUNT;
+    const int selected = soundAlarmSlot();
+    if (selected < 0) return false;
+    *slot = (u8)selected;
+    return true;
 }
 
 static void serviceAlarmLocked(void)
@@ -129,8 +122,8 @@ static void serviceAlarmLocked(void)
     if (alarmPlaying) {
         if (mp3_player_is_active()) return;
         stopPlaybackLocked();
-        if (aClockTimes == 1) {
-            aClockTimes = 0;
+        aClockTimes = soundAlarmFinished(aClockTimes);
+        if (!aClockTimes) {
             hideTips();
             return;
         }
@@ -142,19 +135,21 @@ static void serviceAlarmLocked(void)
         return;
     }
     alarmPlaying = true;
-    if (aClockTimes <= 100) --aClockTimes;
+    aClockTimes = soundAlarmStarted(aClockTimes);
 }
 
 static void servicePreviewLocked(void)
 {
     const int requested=atomic_load(&previewRequest);
+    const SoundPlayback wanted = soundPlaybackSelect(true, dataSaveInfo.volumeNum,
+                                                     atomic_load(&homeBgmAllowed), requested);
     if (pageNow != PAGE_BGM_SET || dataSaveInfo.volumeNum == 0 ||
         !soundCatalogReady()) {
         if (requested >= 0) atomic_store(&previewRequest, -1);
         if (previewPlaying) stopPlaybackLocked();
         return;
     }
-    if (requested < 0 || requested >= SOUND_TRACK_COUNT) {
+    if (wanted.mode != SOUND_MODE_PREVIEW) {
         if (previewPlaying) stopPlaybackLocked();
         return;
     }
@@ -177,14 +172,13 @@ static void servicePreviewLocked(void)
 
 static void serviceHomeBgmLocked(void)
 {
-    const u8 selected = dataSaveInfo.homeBgmSelection;
-    if (!atomic_load(&homeBgmAllowed) || pageNow != PAGE_HOME ||
-        dataSaveInfo.volumeNum == 0 ||
-        selected == HOME_BGM_SILENT || selected > SOUND_TRACK_COUNT ||
-        !soundCatalogReady()) {
+    const SoundPlayback wanted = soundPlaybackSelect(true, dataSaveInfo.volumeNum,
+        atomic_load(&homeBgmAllowed), atomic_load(&previewRequest));
+    if (wanted.mode != SOUND_MODE_HOME) {
         if (bgmPlaying) stopPlaybackLocked();
         return;
     }
+    const u8 selected = (u8)(wanted.slot + 1);
     if (bgmPlaying && bgmSelection == selected && mp3_player_is_active())
         return;
     if (bgmPlaying || previewPlaying) stopPlaybackLocked();

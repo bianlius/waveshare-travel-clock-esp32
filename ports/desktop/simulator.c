@@ -86,6 +86,7 @@ extern const u16 ShopListMonsterCost[];
 extern const char *ShopListMonsterTxt[];
 extern void (*keyFun[])(void);
 #include "app_runtime.h"
+#include "app_input.h"
 
 static void gb(char *to,size_t size,const char *from){
     memset(to,0,size);
@@ -163,8 +164,6 @@ void nvs_close(nvs_handle_t h){(void)h;}
 void setBackLightVal(u8 n){backLightNum=n;}
 void updateBackLight(u8 n){setBackLightVal(n);}
 void backLightInit(void){}
-void resetBackLightVal(void){backLightNum=8;}
-void backLightScheduleTick(void){}
 void imuRotationSetEnabled(bool enabled){(void)enabled;}
 void soundStopAll(void){desktop_audio_stop();preview_slot=-1;}
 void setSoundVal(u8 volume){desktop_audio_volume(volume/100.0f);}
@@ -283,17 +282,7 @@ void desktop_open(int page){
     update_rtc_Txt();update();
 }
 void desktop_key(int button,int held){
-#if defined(CONFIG_GVIEW_AI_PASSPORT)
-    passport_dispatch(button+(held?3:0));return;
-#endif
-    backHomeTime=120;
-    if(aClockTimes){aClockTimes=0;soundStopAll();hideTips();return;}
-    if(button==1 && held){renderPowerMenuInit();return;}
-    int action=button==0?2:button==2?0:1;
-    if(held)action=button==0?3:4;
-    else if(softKeyHeaderVisible && button!=1)action=pageUIKeyAction(button);
-    static const KeyName actions[]={KM1,KM2,KM3,KML,KMR};
-    if(action>=0 && action<5)doKeyFun(actions[action]);
+    appInputDispatch(button,held!=0);
 }
 void desktop_touch(int x,int y,int end_x,int end_y){
     backHomeTime=120;

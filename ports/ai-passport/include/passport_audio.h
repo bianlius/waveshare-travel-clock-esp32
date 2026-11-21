@@ -8,8 +8,3 @@ typedef struct {
     unsigned volume;
 } PassportAudioStats;
 PassportAudioStats passport_audio_take_stats(void);
-// Stored ring counts use the same extra sentinel as the Waveshare runtime.
-static inline uint16_t passport_alarm_started(uint16_t count){
-    return count && count<=100 ? count-1 : count;
-}
-static inline uint16_t passport_alarm_finished(uint16_t count){return count==1?0:count;}
