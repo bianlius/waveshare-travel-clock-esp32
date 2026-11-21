@@ -10,6 +10,10 @@
 #define WS_UI_HEADER_HEIGHT 24
 #define WS_UI_FOOTER_TOP 220
 #define WS_UI_KEY_WIDTH (WS_UI_WIDTH / 3)
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+#include "passport_layout.h"
+#endif
+#include "page_layout.h"
 extern const char stra_z[26][2];
 extern const char strA_Z[26][2];
 extern const char strFH[28][2];

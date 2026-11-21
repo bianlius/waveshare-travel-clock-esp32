@@ -8,6 +8,8 @@
 
 #include <string.h>
 #include "wifiScanPage.h"
+#include "wifi_layout.h"
+#include "GVIEW/viewport.h"
 #include "GVIEW/gview.h"
 #include "../../NET/connect.h"
 #include "GVIEW/utf8_gb2312_switch.h"
@@ -27,8 +29,7 @@ u8 wifiMenuListNum = 0;//当前选择
 //=============搜索页面变量======================
 
 u8 WifiConnectingStateOld;//wifi连接状态
-#define WS_WIFI_ROW_MIN 28
-#define WS_WIFI_LIST_TOP 32
+static u8 wifiDetailOld,wifiFailureOld,wifiSaveOld;
 static short wifiScanRowTop[DEFAULT_SCAN_LIST_SIZE+1];
 struct DisplayObject *seleteBg;//SSID选择框
 uint8_t WIFI_seleteNum;//当前选择的wifi ssid 编号
@@ -75,7 +76,7 @@ static void refreshWifiKeyHints(void){
             setPageUILongKeyText("返回",ScaningHd ? "" : "刷新");
             break;
         case PAGE_WIFI_CONNECT:
-            if(WifiConnectingStateOld>=3) middle="返回首页";
+            middle=WifiConnectingStateOld>=3 ? "返回首页" : "后台连接";
             setPageUILongKeyText("返回","");
             break;
         default:
@@ -149,7 +150,7 @@ static void KeyDownM2(void){
             inputPageInit(wifiConnectPageInit,0);
     }
     else if(pageNow==PAGE_WIFI_CONNECT){
-        if (WifiConnectingStateOld >= 3) renderHomeInit();
+        renderHomeInit();
     }
 }
 //右
@@ -205,7 +206,6 @@ static void KeyDownML(void){
         if(WifiConnectingStateOld == 4 && !backPageFlag){
             inputPageInit(wifiConnectPageInit,0);
         }else{
-            if (WifiConnectingStateOld < 3) esp_wifi_disconnect();
             wifiHomePageInit();
         }
     }
@@ -218,6 +218,7 @@ static void KeyDownMR(void){
         //删除已保存WIFI
         if(Wifi_delectBtn->color == sleeteBGColor){
             //删除WIFI
+            wifi_forgetSaved(wifiSaveInfo.ssid[wifiMenuListNum]);
             deleteSavedWIFI(wifiMenuListNum);
             wifiSavedInit();
         }else{
@@ -226,9 +227,8 @@ static void KeyDownMR(void){
             wifiConnectPageInit_save();
             //确认连接WIFI
             //断开连接
-            esp_wifi_disconnect();
+            // Preferred saved network changes only after obtaining an address.
             //设置密码
-            wifiSaveInfo.selectWifiNow = wifiMenuListNum;
             resetWIFIConnectInfo(wifiSaveInfo.ssid[wifiMenuListNum],wifiSaveInfo.password[wifiMenuListNum]);
             //开始连接
             wifi_startConnect();
@@ -266,16 +266,16 @@ void resetScanView(void){
     while(stage.movieclipArr[0].length>1){
         removeChildAt(0,1);
     }
-    if(!wifiListNum) addChild(0,newChar(12,"未发现可用的Wi-Fi",GRAY,48,20));
+    if(!wifiListNum) addChild(0,newChar(12,WifiScanFailed ? "搜索失败,请长按右键重试" : "未发现可用的Wi-Fi",GRAY,WIFI_TEXT_LEFT,20));
     for(u8 i=0;i<wifiListNum;i++){
         char converted[66] = {0};
         utf8_to_gb2312((u8*)ap_info[i].ssid, strlen((char*)ap_info[i].ssid), (u8*)converted, sizeof(converted));
-        unsigned lines=wrapPageText(ssidNameTemp[i],sizeof(ssidNameTemp[i]),converted,28);
+        unsigned lines=wrapPageText(ssidNameTemp[i],sizeof(ssidNameTemp[i]),converted,WIFI_TEXT_COLUMNS);
         short textHeight=16+(lines-1)*20;
         short rowHeight=textHeight+8;
         if(rowHeight<WS_WIFI_ROW_MIN) rowHeight=WS_WIFI_ROW_MIN;
         wifiScanRowTop[i+1]=wifiScanRowTop[i]+rowHeight;
-        addChild(0,newChar(12,ssidNameTemp[i],0,48,
+        addChild(0,newChar(12,ssidNameTemp[i],0,WIFI_SCAN_TEXT_LEFT,
                            wifiScanRowTop[i]+(rowHeight-textHeight)/2));
     }
     updateScanSelection();
@@ -303,23 +303,26 @@ void wifiSavedOneInit(void){
     pageNow = PAGE_WIFI_SAVED_ONE;
     BGColor = 0xFFFF;
     resetPageView(&wifiSavedOneEx);
+    LCD_SetPageViewport(&pageNow,pageNow,WS_UI_LEFT,0,WS_UI_WIDTH,240);
     
     //-----按钮及标题---------
     drawPageUITxt("切换", "连接", "切换");    
     
     char converted[66] = {0};
     wifiSsidToDisplay(wifiSaveInfo.ssid[wifiMenuListNum],converted,sizeof(converted));
-    wrapPageText(savedSsidText,sizeof(savedSsidText),converted,26);
-    wrapPageText(savedPasswordText,sizeof(savedPasswordText),wifiSaveInfo.password[wifiMenuListNum],26);
-    addChild(0,newChar(12,savedSsidText,0,48,34));
-    addChild(0,newChar(12,"密码",GRAY,48,88));
-    addChild(0,newChar(12,savedPasswordText,0,48,112));
-    Wifi_connectBtn = newRoundRectDisObj(sleeteBGColor,94,28,48,192,8,1);
-    Wifi_delectBtn = newRoundRectDisObj(defaultBGColor,94,28,176,192,8,1);
+    wrapPageText(savedSsidText,sizeof(savedSsidText),converted,WIFI_SAVED_COLUMNS);
+    wrapPageText(savedPasswordText,sizeof(savedPasswordText),wifiSaveInfo.password[wifiMenuListNum],WIFI_SAVED_COLUMNS);
+    if(WIFI_SSID_TITLE_Y>=0)
+        addChild(0,newChar(12,"网络名称",GRAY,WIFI_TEXT_LEFT,WIFI_SSID_TITLE_Y));
+    addChild(0,newChar(12,savedSsidText,0,WIFI_TEXT_LEFT,WIFI_SSID_TOP));
+    addChild(0,newChar(12,"密码",GRAY,WIFI_TEXT_LEFT,WIFI_PASSWORD_TITLE_Y));
+    addChild(0,newChar(12,savedPasswordText,0,WIFI_TEXT_LEFT,WIFI_PASSWORD_TOP));
+    Wifi_connectBtn = newRoundRectDisObj(sleeteBGColor,WIFI_BUTTON_WIDTH,WIFI_BUTTON_HEIGHT,WIFI_CONNECT_LEFT,WIFI_BUTTON_TOP,8,1);
+    Wifi_delectBtn = newRoundRectDisObj(defaultBGColor,WIFI_BUTTON_WIDTH,WIFI_BUTTON_HEIGHT,WIFI_DELETE_LEFT,WIFI_BUTTON_TOP,8,1);
     addChild(1,Wifi_connectBtn);
     addChild(1,Wifi_delectBtn);
-    addChild(2,newChar(12,"连接",0xFFFF,78,198));
-    addChild(2,newChar(12,"删除",0xFFFF,206,198));
+    addChild(2,newChar(12,"连接",0xFFFF,WIFI_CONNECT_LEFT+WIFI_BUTTON_LABEL_INSET,WIFI_BUTTON_LABEL_TOP));
+    addChild(2,newChar(12,"删除",0xFFFF,WIFI_DELETE_LEFT+WIFI_BUTTON_LABEL_INSET,WIFI_BUTTON_LABEL_TOP));
     addWIFIPageKey();
 }
 
@@ -334,6 +337,7 @@ void wifiSavedInit(void){
     pageNow = PAGE_WIFI_SAVED;
     BGColor = 0xFFFF;
     resetPageView(&wifiSavedEx);
+    LCD_SetPageViewport(&pageNow,pageNow,WS_UI_LEFT,0,WS_UI_WIDTH,240);
     wifiMenuListNum = 0;
     //-----按钮及标题---------
     drawPageUITxt("", "", "");    
@@ -342,13 +346,13 @@ void wifiSavedInit(void){
     for(u8 i=0;i<wifiSaveInfo.saveNumAll;i++){
         char converted[66] = {0};
         wifiSsidToDisplay(wifiSaveInfo.ssid[i],converted,sizeof(converted));
-        wrapPageText(savedListText[i],sizeof(savedListText[i]),converted,26);
+        wrapPageText(savedListText[i],sizeof(savedListText[i]),converted,WIFI_SAVED_COLUMNS);
         wifiList[i] = savedListText[i];
     }
-    wifiMenuListObj = addMenuList((const char* const*)wifiList,12,0xFFFF,0x04BE,wifiSaveInfo.saveNumAll,220,48,220,2);
-    if (wifiMenuListObj) wifiMenuListObj->parent->x = 48;
+    wifiMenuListObj = addMenuList((const char* const*)wifiList,12,0xFFFF,0x04BE,wifiSaveInfo.saveNumAll,WIFI_MENU_WIDTH,WIFI_MENU_TOP,WS_UI_FOOTER_TOP,2);
+    if (wifiMenuListObj) wifiMenuListObj->parent->x = WIFI_MENU_LEFT;
     //printf("ssid:%s,%s,%s,%d\n",wifiSaveInfo.ssid[0],wifiSaveInfo.ssid[1],wifiSaveInfo.ssid[2],wifiSaveInfo.saveNumAll);
-    if(!wifiSaveInfo.saveNumAll) addChild(1,newChar(12,"暂无已保存的Wi-Fi",GRAY,48,64));
+    if(!wifiSaveInfo.saveNumAll) addChild(1,newChar(12,"暂无已保存的Wi-Fi",GRAY,WIFI_TEXT_LEFT,64));
     addWIFIPageKey();
 }
 
@@ -362,12 +366,13 @@ void wifiHomePageInit(void){
     pageNow = PAGE_WIFI_HOME;
     BGColor = 0xFFFF;
     resetPageView(&wifiHomeEx);
+    LCD_SetPageViewport(&pageNow,pageNow,WS_UI_LEFT,0,WS_UI_WIDTH,240);
     wifiMenuListNum = 0;
     //-----按钮及标题---------
     drawPageUITxt("上一项", "进入", "下一项");    
 
-    wifiMenuListObj = addMenuList((const char* const*)wifiHomeList,12,0xFFFF,0x04BE,wifiHomeListAll,220,48,220,2);
-    if (wifiMenuListObj) wifiMenuListObj->parent->x = 48;
+    wifiMenuListObj = addMenuList((const char* const*)wifiHomeList,12,0xFFFF,0x04BE,wifiHomeListAll,WIFI_MENU_WIDTH,WIFI_MENU_TOP,WS_UI_FOOTER_TOP,2);
+    if (wifiMenuListObj) wifiMenuListObj->parent->x = WIFI_MENU_LEFT;
 
     addWIFIPageKey();
 }
@@ -401,8 +406,9 @@ void wifiScanPageInit(void){
     refrushScanHd = 0;
     BGColor = 0xFFFF;
     resetPageView(&scaneEx);
+    LCD_SetPageViewport(&pageNow,pageNow,WS_UI_LEFT,0,WS_UI_WIDTH,240);
     
-    seleteBg = newRect(0xBDD7,232,WS_WIFI_ROW_MIN,44,0);
+    seleteBg = newRect(0xBDD7,WIFI_SCAN_WIDTH,WS_WIFI_ROW_MIN,WIFI_SCAN_LEFT,0);
     addChild(0,seleteBg);
     seleteBg->visible = 0;
 
@@ -414,7 +420,7 @@ void wifiScanPageInit(void){
     
     memset(inputTxtTemp,0,sizeof(inputTxtTemp));
 
-    stage.movieclipArr[0].Mask = getRect(44,WS_WIFI_LIST_TOP,232,WS_UI_FOOTER_TOP-WS_WIFI_LIST_TOP);
+    stage.movieclipArr[0].Mask = getRect(WIFI_SCAN_LEFT,WS_WIFI_LIST_TOP,WIFI_SCAN_WIDTH,WS_UI_FOOTER_TOP-WS_WIFI_LIST_TOP);
 
     showTips("正在搜索中...",0);    
     rendWin(0,0,winW,winH,BGColor); 
@@ -436,30 +442,32 @@ void wifiScanPageInit(void){
 
 
 void connectingEx(void){
-    //0 就绪 1开始连接 2重连 3连接成功 4连接失败
-    if(WifiConnectingStateOld!=WifiConnectingState){
+    if(WifiConnectingStateOld!=WifiConnectingState || wifiDetailOld!=WifiConnectionDetail ||
+       wifiFailureOld!=WifiConnectionFailure || wifiSaveOld!=WifiSaveState){
         switch(WifiConnectingState){
             case 1:
-            showTips("开始连接WIFI...",0);    
-            WifiConnectingStateOld = 1;
-            break;
             case 2:
-            showTips("正在努力中,稍等...",0);    
-            WifiConnectingStateOld = 2;
-            break;
+                if(WifiConnectionDetail==WIFI_DETAIL_DHCP)showTips("正在获取网络地址...",0);
+                else if(WifiConnectionDetail==WIFI_DETAIL_RETRY)showTips("正在重试连接...",0);
+                else showTips("正在连接WIFI...",0);
+                break;
             case 3:
-            if (!backPageFlag && !writeWIFIInfo((char*)ap_info[WIFI_seleteNum].ssid,inputTxtTemp)) {
-                showTips(wifiSaveInfo.saveNumAll>=10 ? "已连接,网络列表已满" : "已连接,但保存失败",0);
-            }else{
-                showTips("WIFI连接成功...",0);
-            }
-            WifiConnectingStateOld = 3;       
-            break;
+                if(WifiSaveState==WIFI_SAVE_FULL)showTips("已连接,网络列表已满",0);
+                else if(WifiSaveState==WIFI_SAVE_ERROR)showTips("已连接,但保存失败",0);
+                else showTips("WIFI连接成功...",0);
+                break;
             case 4:
-            showTips("WIFI连接失败...",0);    
-            WifiConnectingStateOld = 4;
-            break;
+                if(WifiConnectionFailure==WIFI_FAILURE_AUTH)showTips("认证失败,请检查密码",0);
+                else if(WifiConnectionFailure==WIFI_FAILURE_NOT_FOUND)showTips("未找到网络,请重试",0);
+                else if(WifiConnectionFailure==WIFI_FAILURE_DHCP)showTips("获取地址超时,请重试",0);
+                else if(WifiConnectionFailure==WIFI_FAILURE_TIMEOUT)showTips("连接超时,请重试",0);
+                else showTips("WIFI连接失败,请重试",0);
+                break;
         }
+        WifiConnectingStateOld=WifiConnectingState;
+        wifiDetailOld=WifiConnectionDetail;
+        wifiFailureOld=WifiConnectionFailure;
+        wifiSaveOld=WifiSaveState;
     }
     refreshWifiKeyHints();
     rendWin(0,0,winW,winH,BGColor);
@@ -468,10 +476,11 @@ void connectingEx(void){
 //连接WIFI界面
 static void wifiConnectViewInit(void){
     pageNow = PAGE_WIFI_CONNECT;
-    WifiConnectingState = 0;
-    WifiConnectingStateOld = 0;
+    WifiConnectingStateOld = 255;
+    wifiDetailOld=wifiFailureOld=wifiSaveOld=255;
     BGColor = 0xFFFF;
     resetPageView(&connectingEx);
+    LCD_SetPageViewport(&pageNow,pageNow,WS_UI_LEFT,0,WS_UI_WIDTH,240);
 
      
     drawPageUITxt("", "", "");
@@ -501,7 +510,6 @@ void wifiConnectPageInit_save(void){
 void wifiConnectPageInit(void){
     wifiConnectViewInit();
     backPageFlag = 0;
-    esp_wifi_disconnect();
     resetWIFIConnectInfo((char*)ap_info[WIFI_seleteNum].ssid,inputTxtTemp);
     wifi_startConnect();
 }

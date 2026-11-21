@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+set(IDF_TARGET esp32c3)
+add_compile_definitions(CONFIG_GVIEW_AI_PASSPORT=1)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(FoloToy-AI-Passport)

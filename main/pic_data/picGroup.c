@@ -7,6 +7,7 @@
 #include "home/floorPicWS.h"
 #include "home/garden_hint.h"
 #include "home/alarm_hint.h"
+#include "home/power_hint.h"
 #include "home/grass.h"
 #include "home/grassB0.h"
 #include "home/grassF0.h"

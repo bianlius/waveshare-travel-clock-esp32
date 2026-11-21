@@ -1,4 +1,4 @@
-#include "LCD/viewport.h"
+#include "GVIEW/viewport.h"
 
 #include "tclock.h"
 #include "../../rom.h"
@@ -158,9 +158,6 @@ void updateTTime(u32 $time){
     setWSTimerDigit(TNumS2, getTimeNumPic(sec/10));
     setWSTimerDigit(TNumS1, getTimeNumPic(sec%10));
 
-    if(pageNow == PAGE_CLOCK){
-        TNumM->visible = !TNumM->visible;
-    }
 }
 
 void TClockShowMc0(void){
@@ -368,29 +365,29 @@ void tomatoPageSet(void){
 
     drawPageUITxt("上一项","编辑","下一项");
 
-    tomatoSetBGObj = newRoundRectDisObj(0x9efc,164,20,(320-164)/2,44,8,1);
+    tomatoSetBGObj = newRoundRectDisObj(0x9efc,PAGE_FORM_WIDTH,20,PAGE_FORM_LEFT,44,8,1);
     addChild(0,tomatoSetBGObj);
 
-    addChild(0,newChar(12,"专注",0,80,sy));
-    addChild(0,newChar(12,"分钟",0,207,sy));
-    tomatoSetNumObj1 = newChar(12,tomatoSetNumTxt1,0,164,sy);
+    addChild(0,newChar(12,"专注",0,PAGE_FORM_LABEL_LEFT,sy));
+    addChild(0,newChar(12,"分钟",0,PAGE_FORM_UNIT_LEFT,sy));
+    tomatoSetNumObj1 = newChar(12,tomatoSetNumTxt1,0,PAGE_FORM_NUMBER_LEFT,sy);
     addChild(0,tomatoSetNumObj1);
 
-    addChild(0,newChar(12,"休息",0,80,sy+sh*1));
-    addChild(0,newChar(12,"分钟",0,207,sy+sh*1));
-    tomatoSetNumObj2 = newChar(12,tomatoSetNumTxt2,0,164,sy+sh*1);
+    addChild(0,newChar(12,"休息",0,PAGE_FORM_LABEL_LEFT,sy+sh*1));
+    addChild(0,newChar(12,"分钟",0,PAGE_FORM_UNIT_LEFT,sy+sh*1));
+    tomatoSetNumObj2 = newChar(12,tomatoSetNumTxt2,0,PAGE_FORM_NUMBER_LEFT,sy+sh*1);
     addChild(0,tomatoSetNumObj2);
 
-    addChild(0,newChar(12,"循环",0,80,sy+sh*2));
-    addChild(0,newChar(12,"次",0,207,sy+sh*2));
-    tomatoSetNumObj3 = newChar(12,tomatoSetNumTxt3,0,164,sy+sh*2);
+    addChild(0,newChar(12,"循环",0,PAGE_FORM_LABEL_LEFT,sy+sh*2));
+    addChild(0,newChar(12,"次",0,PAGE_FORM_UNIT_LEFT,sy+sh*2));
+    tomatoSetNumObj3 = newChar(12,tomatoSetNumTxt3,0,PAGE_FORM_NUMBER_LEFT,sy+sh*2);
     addChild(0,tomatoSetNumObj3);
 
-    addChild(0,newChar(12,"休息铃声",0,80,sy+sh*3));
-    tomatoSetNumObj4 = newChar(12,restLinkTxt,0,164,sy+sh*3);
+    addChild(0,newChar(12,"休息铃声",0,PAGE_FORM_LABEL_LEFT,sy+sh*3));
+    tomatoSetNumObj4 = newChar(12,restLinkTxt,0,PAGE_FORM_NUMBER_LEFT,sy+sh*3);
     addChild(0,tomatoSetNumObj4);
-    addChild(0,newChar(12,"专注铃声",0,80,sy+sh*4));
-    tomatoSetNumObj5 = newChar(12,workLinkTxt,0,164,sy+sh*4);
+    addChild(0,newChar(12,"专注铃声",0,PAGE_FORM_LABEL_LEFT,sy+sh*4));
+    tomatoSetNumObj5 = newChar(12,workLinkTxt,0,PAGE_FORM_NUMBER_LEFT,sy+sh*4);
     addChild(0,tomatoSetNumObj5);
 
 
@@ -487,7 +484,7 @@ void tomatoPageInit(void){
 
     // addChild(0,newRoundRectDisObj(0xc638,90,24,160-45,2,9,1));
 
-    addChild(0,newNativePic(&tmtPic,48,28));
+    addChild(0,newNativePic(&tmtPic,PAGE_CONTENT_LEFT,28));
     //addChild(0,newChar(16,"番",RED,160-32,6));
     //addChild(0,newChar(16,"茄",GREEN,160-16,6));
 
@@ -511,7 +508,7 @@ void tomatoPageInit(void){
     addChild(TOMATO_TIME_LAYER,TNumS1);
     TNumM->visible = 1;
 
-    TClockTiptObj = newChar(12,"休息中",GRAY,78,28);
+    TClockTiptObj = newChar(12,"休息中",GRAY,PAGE_CONTENT_LEFT+30,28);
     addChild(0,TClockTiptObj);
 
 
@@ -523,59 +520,6 @@ void tomatoPageInit(void){
     setKeyFun(KM3,KeyDownM3);//拨轮右
     setKeyFun(KML,KeyDownML);//左肩键
     setKeyFun(KMR,KeyDownMR);//右肩键
-}
-
-//-------------时钟界面----------------
-
-void CLOCK_KeyDownM1(void){
-    weatherInit();
-}
-void CLOCK_KeyDownM3(void){
-    renderCalendarInit();
-}
-u32 clockOneSecTime = 0;
-void clockEx(void){
-    refreshWeatherDisplay();
-    rendWin(0,0,winW,winH,BGColor);
-}
-
-//纯数字时钟模式
-void clockPageInit(void){
-    homeState = 2;
-    pageNow = PAGE_CLOCK;
-    BGColor = 0;
-    resetPageView(&clockEx);
-    LCD_SetPageViewport(&pageNow, PAGE_CLOCK, 40, 0, 240, 240);
-
-    // Scale this clock's 60x90 digits to 48x72, leaving room for
-    // the original 14x46 pixel colon between the hour and minute pairs.
-    TNumM2 = newWSCompactDigit(&FN0,WS_UI_MID-84,124);
-    TNumM1 = newWSCompactDigit(&FN0,WS_UI_MID-34,124);
-    TNumS2 = newWSCompactDigit(&FN0,WS_UI_MID+34,124);
-    TNumS1 = newWSCompactDigit(&FN0,WS_UI_MID+84,124);
-    TNumM = newPicSingle(&FNM,0xFFFF,WS_UI_MID-7,101);
-
-    //------------按钮底和文字---------
-
-    addChild(4,TNumM2);
-    addChild(4,TNumM1);
-    addChild(4,TNumM);
-    addChild(4,TNumS2);
-    addChild(4,TNumS1);
-
-    setTClockColor(0xFFFF);
-
-    addTompBottomTxt();
-
-    update_rtc_Txt();
-    
-
-    setKeyFun(KM1,mainViewOpenGarden);
-    setKeyFun(KM3,mainViewOpenShop);
-    setKeyFun(KML,CLOCK_KeyDownM3);
-    setKeyFun(KMR,CLOCK_KeyDownM1);
-    setKeyFun(KMU1,CLOCK_KeyDownM1);
-    setKeyFun(KMU3,CLOCK_KeyDownM3);
 }
 
 //------------计时界面---------------------
@@ -742,15 +686,15 @@ static void clockCountSettingsInit(void){
     timerSoundEditing=0;
     timerSoundDirty=0;
     updateTimerSoundValues();
-    timerSoundBgObj=newRoundRectDisObj(0x9efc,164,20,78,TIMER_SOUND_SET_TOP,8,1);
+    timerSoundBgObj=newRoundRectDisObj(0x9efc,PAGE_FORM_WIDTH,20,PAGE_FORM_LEFT,TIMER_SOUND_SET_TOP,8,1);
     addChild(0,timerSoundBgObj);
     drawPageUITxt("上一项","编辑","下一项");
     const char *labels[TIMER_SOUND_SET_COUNT]={"计时器铃声","计时器循环"};
     char *values[TIMER_SOUND_SET_COUNT]={timerRingText,timerRepeatText};
     for(u8 i=0;i<TIMER_SOUND_SET_COUNT;++i){
         short y=TIMER_SOUND_SET_TOP+i*TIMER_SOUND_SET_PITCH;
-        addChild(0,newChar(12,labels[i],0,80,y));
-        timerSoundValues[i]=newChar(12,values[i],0,177,y);
+        addChild(0,newChar(12,labels[i],0,PAGE_FORM_LABEL_LEFT,y));
+        timerSoundValues[i]=newChar(12,values[i],0,PAGE_FORM_VALUE_LEFT,y);
         addChild(0,timerSoundValues[i]);
     }
     moveTimerSoundSelect();
@@ -827,8 +771,8 @@ void clockCountPageInit(void){
     addChild(4,TNumS2);
     addChild(4,TNumS1);
     TNumM->visible = 0;
-    addChild(1,newChar(12,"分",GRAY,70,72));
-    addChild(1,newChar(12,"秒",GRAY,70,170));
+    addChild(1,newChar(12,"分",GRAY,PAGE_TIMER_LABEL_LEFT,72));
+    addChild(1,newChar(12,"秒",GRAY,PAGE_TIMER_LABEL_LEFT,170));
 
     setTClockColor(0);
 

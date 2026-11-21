@@ -1,0 +1,72 @@
+{
+  "status": "retired",
+  "saved_id": 38,
+  "reuse_saved_id": false,
+  "animation": {
+    "file": "regice_static.png",
+    "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0378 Regice.png",
+    "source_kind": "user-provided download",
+    "sha256": "b886c3e48b0347674ac8d2fd29b936ff92a7b071ed898f7f90683f541c0899c5",
+    "symbol": "followerRegice",
+    "frames": 1,
+    "frame_width": 74,
+    "frame_height": 65,
+    "frame_ticks": 3,
+    "flip_x": true,
+    "credits": [
+      "King Kirby (sprite artwork)",
+      "Nintendo / Game Freak (character design)"
+    ],
+    "variant": "static_first_frame",
+    "name_zh": "雷吉艾斯",
+    "pokedex_id": 378,
+    "ground": false,
+    "price": 3500,
+    "uniform_cadence": true,
+    "deduplicate_frames": true,
+    "sheet_extract": {
+      "file": "source_sheets/regice.png",
+      "sha256": "532de760d7f0bed521c10dee90b7e324da9d6d4d858228009944f4c9004a90ab",
+      "background": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "origin": [
+        25,
+        21
+      ],
+      "poses": [
+        {
+          "box": [
+            3,
+            76,
+            68,
+            137
+          ],
+          "pivot": [
+            26,
+            95
+          ]
+        }
+      ],
+      "sequence": [
+        0
+      ]
+    },
+    "saved_id": 38
+  },
+  "pricing": {
+    "saved_id": 38,
+    "name_zh": "雷吉艾斯",
+    "symbol": "followerRegice",
+    "pokedex_id": 378,
+    "rarity": "legendary",
+    "evolution_path": [
+      378
+    ],
+    "evolution_stage": 0
+  },
+  "source_sheet_preserved": "source_sheets/regice.png"
+}

@@ -24,8 +24,8 @@ void changeCityRefrush(u8 provice){
         if(china_cities[provice][i] == NULL){
             break;
         }else{
-            DisplayObject* disObj = newChar(12,china_cities[provice][i],0x0000,170,(i-1)*24-24);  
-            disObj->width = 100;          
+            DisplayObject* disObj = newChar(12,china_cities[provice][i],0x0000,PAGE_CITY_CITY_LEFT+6,(i-1)*24-24);
+            disObj->width = PAGE_CITY_TEXT_WIDTH;
             disObj->dir = alignMiddle;
             reTxtframeAlign(disObj,NULL);
             addChild(3,disObj);
@@ -54,7 +54,7 @@ static void KeyDownM2(void){
     //拨轮中
     cityProviceNow = !cityProviceNow;
     setPageUIMiddleText(cityProviceNow ? "选省份" : "选城市");
-    Tween(&cityProviceBg->x,.3,cityProviceNow?164:46,0,fs_Sine_EaseOut);
+    Tween(&cityProviceBg->x,.3,cityProviceNow?PAGE_CITY_CITY_LEFT:PAGE_CITY_PROVINCE_LEFT,0,fs_Sine_EaseOut);
 }
 
 static void KeyDownM1(void){
@@ -109,22 +109,22 @@ void CitySelectInit(void){
     drawPageUITxt("上一项", "选城市", "下一项");
     setPageUILongKeyText("返回","保存");
     //添加省份城市选择背景
-    addChild(1,newRoundRectDisObj(0x667f,110,22,46,102,4,0));
-    addChild(1,newRoundRectDisObj(0x667f,110,22,164,102,4,0));
-    cityProviceBg = newRoundRectDisObj(0x667f,110,22,46,102,4,1);
+    addChild(1,newRoundRectDisObj(0x667f,PAGE_CITY_COLUMN_WIDTH,22,PAGE_CITY_PROVINCE_LEFT,102,4,0));
+    addChild(1,newRoundRectDisObj(0x667f,PAGE_CITY_COLUMN_WIDTH,22,PAGE_CITY_CITY_LEFT,102,4,0));
+    cityProviceBg = newRoundRectDisObj(0x667f,PAGE_CITY_COLUMN_WIDTH,22,PAGE_CITY_PROVINCE_LEFT,102,4,1);
     addChild(1,cityProviceBg);
 
     //城市选择文字
     for(u8 i=0;i<CITY_PROVINCE_COUNT;i++){
-        DisplayObject* disObj = newChar(12,china_cities[i][0],0x0000,52,i*24-24);
-        disObj->width = 100;
+        DisplayObject* disObj = newChar(12,china_cities[i][0],0x0000,PAGE_CITY_PROVINCE_LEFT+6,i*24-24);
+        disObj->width = PAGE_CITY_TEXT_WIDTH;
         disObj->dir = alignMiddle;
         reTxtframeAlign(disObj,NULL);
         addChild(2,disObj);
-        stage.movieclipArr[2].Mask = getRect(46,30,110,184);
+        stage.movieclipArr[2].Mask = getRect(PAGE_CITY_PROVINCE_LEFT,30,PAGE_CITY_COLUMN_WIDTH,184);
     }
 
-    stage.movieclipArr[3].Mask = getRect(164,30,110,184);
+    stage.movieclipArr[3].Mask = getRect(PAGE_CITY_CITY_LEFT,30,PAGE_CITY_COLUMN_WIDTH,184);
 
     changeCityRefrush(proviceNow);//初始显示第10个省份的城市列表
     cityNow = dataSaveInfo.city < cityLen ? dataSaveInfo.city : 0;

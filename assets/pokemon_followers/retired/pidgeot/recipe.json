@@ -1,0 +1,75 @@
+{
+  "status": "retired",
+  "saved_id": 23,
+  "reuse_saved_id": false,
+  "animation": {
+    "file": "pidgeot_fly.png",
+    "source_path": "firmware-3.4-resources/06a74c.png",
+    "source_offset": "0x6a74c",
+    "source_firmware": "user-provided firmware 3.4 resource export",
+    "sha256": "e98b442568d268f1e75ff9db5d9691d55fb193080cd9af6f5eb1d047d1f62d06",
+    "symbol": "followerPidgeot",
+    "frames": 4,
+    "frame_width": 68,
+    "frame_height": 52,
+    "frame_dimensions": [
+      [
+        66,
+        43
+      ],
+      [
+        68,
+        25
+      ],
+      [
+        68,
+        52
+      ],
+      [
+        67,
+        34
+      ]
+    ],
+    "frame_offsets": [
+      [
+        0,
+        8
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        -14
+      ],
+      [
+        0,
+        4
+      ]
+    ],
+    "depth": 13,
+    "frame_ticks": 2,
+    "flip_x": false,
+    "credits": [
+      "Nintendo / Game Freak",
+      "User-provided firmware 3.4 export; original sprite author not recorded"
+    ],
+    "saved_id": 23,
+    "name_zh": "比雕",
+    "price": 500
+  },
+  "pricing": {
+    "saved_id": 23,
+    "name_zh": "比雕",
+    "symbol": "followerPidgeot",
+    "pokedex_id": 18,
+    "rarity": "common",
+    "evolution_path": [
+      16,
+      17,
+      18
+    ],
+    "evolution_stage": 2
+  }
+}

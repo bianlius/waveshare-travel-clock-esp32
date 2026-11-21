@@ -301,7 +301,7 @@ static const char *numStr[5] = {"闹钟1","闹钟2","闹钟3","闹钟4","闹钟5"};
 static const char *numLStr[7] = {"1","2","3","4","5","6","7"};
 static const char *numCStr[7] = {"一","二","三","四","五","六","日"};
 static void addRowNumber(u8 num,short y){
-    DisplayObject *number=newChar(12,numLStr[num],0xFFFF,60,y);
+    DisplayObject *number=newChar(12,numLStr[num],0xFFFF,PAGE_CLOCK_NUMBER_LEFT,y);
     addChildToObj(number,newRoundRectDisObj(ORANGE,16,18,-4,-1,3,1));
     addChild(0,number);
 }
@@ -320,20 +320,20 @@ void addNewClock(u16 $time,u8 $num){
     addRowNumber($num,rowTop+(ALARM_ROW_HEIGHT-CLOCK_TEXT_HEIGHT)/2);
     // addChild(0,newChar(16,numStr[$num],0x0,4,cy));
     setClockRingtoneText($num,swHd);
-    clockSWBtn[$num] = newChar(12,clockSWTxt[$num],0,177,cy);
+    clockSWBtn[$num] = newChar(12,clockSWTxt[$num],0,PAGE_CLOCK_RING_LEFT,cy);
     addChild(0,clockSWBtn[$num]);
 
     sprintf(clockListtime[$num][0],"%02d",tHour);
     sprintf(clockListtime[$num][1],"%02d",tMin);
-    clockHourBtn[$num] = newChar(12,clockListtime[$num][0],0,105,cy);
-    clockMinBtn[$num] = newChar(12,clockListtime[$num][1],0,130,cy);
-    addChild(0,newChar(12,":",0,123,cy));
+    clockHourBtn[$num] = newChar(12,clockListtime[$num][0],0,PAGE_CLOCK_HOUR_LEFT,cy);
+    clockMinBtn[$num] = newChar(12,clockListtime[$num][1],0,PAGE_CLOCK_MINUTE_LEFT,cy);
+    addChild(0,newChar(12,":",0,PAGE_CLOCK_COLON_LEFT,cy));
     addChild(0,clockHourBtn[$num]);
     addChild(0,clockMinBtn[$num]);
 
     for(u8 i=0;i<7;i++){
         u8 hd = (dataSaveInfo.alarmClockWeek[$num] >> i) & 0x01;
-        DisplayObject *weekday=newChar(12,numCStr[i],0xFFFF,84+i*22,cy+17);
+        DisplayObject *weekday=newChar(12,numCStr[i],0xFFFF,PAGE_CLOCK_WEEK_LEFT+i*PAGE_CLOCK_WEEK_PITCH,cy+17);
         addChildToObj(weekday,newRoundRectDisObj(hd?ORANGE:GRAY,18,18,-1,-1,3,1));
         addChild(1,weekday);
     }
@@ -354,16 +354,16 @@ void addNewLight(u16 $time,u8 $num){
     addRowNumber($num,cy);
     
     sprintf(clockSWTxt[$num],"亮度:%d",swHd);
-    clockSWBtn[$num] = newChar(12,clockSWTxt[$num],0,180,cy);
+    clockSWBtn[$num] = newChar(12,clockSWTxt[$num],0,PAGE_CLOCK_LIGHT_LEFT,cy);
     addChild(0,clockSWBtn[$num]);
 
     //时间
     sprintf(clockListtime[$num][0],"%02d",tHour);
     sprintf(clockListtime[$num][1],"%02d",tMin);
-    clockHourBtn[$num] = newChar(12,clockListtime[$num][0],0,105,cy);
-    clockMinBtn[$num] = newChar(12,clockListtime[$num][1],0,130,cy);
+    clockHourBtn[$num] = newChar(12,clockListtime[$num][0],0,PAGE_CLOCK_HOUR_LEFT,cy);
+    clockMinBtn[$num] = newChar(12,clockListtime[$num][1],0,PAGE_CLOCK_MINUTE_LEFT,cy);
     addChild(0,clockHourBtn[$num]);
-    addChild(0,newChar(12,":",0,123,cy));
+    addChild(0,newChar(12,":",0,PAGE_CLOCK_COLON_LEFT,cy));
     addChild(0,clockMinBtn[$num]);
 }
 

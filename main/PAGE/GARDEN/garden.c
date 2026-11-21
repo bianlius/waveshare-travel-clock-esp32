@@ -382,14 +382,14 @@ void renderGardenInit(void){
     selectedPlant=0;
     drawPageUITxt("","收获","");
     setPageUILongKeyText("返回","商店");
-    addChild(1,newPic(&money,48,32));
-    moneyTxtSp=newNumber(12,dataSaveInfo.money,0,0,68,31);
+    addChild(1,newPic(&money,PAGE_CONTENT_LEFT,32));
+    moneyTxtSp=newNumber(12,dataSaveInfo.money,0,0,PAGE_CONTENT_LEFT+20,31);
     addChild(1,moneyTxtSp);
     // The complete original-style lawn is packed at its displayed size; no runtime scaling.
     addChild(0,newNativePic(floorPicWS,WS_UI_MID-GARDEN_FLOOR_WIDTH/2,GARDEN_FLOOR_TOP));
     selection=newRoundRectDisObj(ORANGE,48,4,0,0,2,1);
     addChild(4,selection);
-    addChild(8,newChar(12,plantInfo,0,48,54));
+    addChild(8,newChar(12,plantInfo,0,PAGE_CONTENT_LEFT,54));
     refrushClover();
     setKeyFun(KM3,&previousPlant);
     setKeyFun(KM2,&harvestPlant);

@@ -1,0 +1,33 @@
+{
+  "status": "retired",
+  "saved_id": 12,
+  "reuse_saved_id": false,
+  "animation": {
+    "file": "zigzagoon_run.png",
+    "source_path": "project/pokemon/zigzagoon_run.png",
+    "sha256": "0fa3f0f47e85c5df16e47a8f29ad28f51b2b57293eb5c1d7976a49fa9389978d",
+    "symbol": "followerZigzagoon",
+    "frames": 7,
+    "frame_width": 68,
+    "frame_height": 47,
+    "frame_ticks": 1,
+    "flip_x": true,
+    "credits": [
+      "JoshR691",
+      "christt105 (sheet extraction and alignment)"
+    ],
+    "saved_id": 12,
+    "price": 100
+  },
+  "pricing": {
+    "saved_id": 12,
+    "name_zh": "蛇纹熊",
+    "symbol": "followerZigzagoon",
+    "pokedex_id": 263,
+    "rarity": "common",
+    "evolution_path": [
+      263
+    ],
+    "evolution_stage": 0
+  }
+}

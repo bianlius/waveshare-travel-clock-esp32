@@ -6,17 +6,18 @@
 #include "./home.h"
 #include "../SHOP/shop.h"
 #include "../../rom.h"
-#include "LCD/viewport.h"
+#include "../../power_status.h"
+#include "GVIEW/viewport.h"
 #include "../../NET/weather_forecast.h"
 #include "../GARDEN/garden.h"
 
-#define WS_HOME_LEFT 40
+#define WS_HOME_LEFT WS_UI_LEFT
 #define WS_HOME_TOP 0
-#define WS_HOME_SIZE 240
+#define WS_HOME_SIZE WS_UI_WIDTH
 #define WS_HOME_TOP_LEFT_INSET 6
 #define HOME_STATUS_ICON_Y 12
 #define WS_HOME_RIGHT (WS_HOME_LEFT + WS_HOME_SIZE)
-#define WS_HOME_BOTTOM (WS_HOME_TOP + WS_HOME_SIZE)
+#define WS_HOME_BOTTOM (WS_HOME_TOP + 240)
 #define WS_HOME_GROUND_OFFSET 70
 #define WS_HOME_CLOUD_OFFSET WS_HOME_GROUND_OFFSET
 #define WS_HOME_BASE_FPS 20
@@ -127,6 +128,7 @@ static DisplayObject *weatherDescriptionObj;
 DisplayObject* tempNetObj;
 static DisplayObject *tempDegreeObj;
 static DisplayObject *homeBatteryObj;
+static DisplayObject *homeChargeHintObj,*homeUsbHintObj;
 static DisplayObject *homePlantHintObj;
 static DisplayObject *homePlantCountObj;
 static char homePlantCountText[4];
@@ -349,7 +351,6 @@ static void KeyDownM1(void){
     // }
     // printf("Key M1 Down\n");
 
-    // clockPageInit();
     // DayTime ++;
     // if(DayTime>6)DayTime = 0;
     // changeSceneColor();
@@ -371,6 +372,16 @@ void mainViewOpenGarden(void){
     renderGardenInit();
 }
 
+void mainViewBindKeys(void (*previous)(void),void (*next)(void)){
+    setKeyFun(KM1,mainViewOpenGarden);
+    setKeyFun(KM2,next);
+    setKeyFun(KM3,mainViewOpenShop);
+    setKeyFun(KML,NULL);
+    setKeyFun(KMR,NULL);
+    setKeyFun(KMU1,next);     // Swipe left: next main view.
+    setKeyFun(KMU3,previous); // Swipe right: previous main view.
+}
+
 
 
 // Match the existing battery icon's 3.4V empty / 4.2V full range.
@@ -382,11 +393,25 @@ static void positionHomeBattery(void){
     // Native text needs complete column pairs, including a trailing percent sign.
     const unsigned columns=(getTxtLength(homeBatteryText)+1u)&~1u;
     homeBatteryObj->x = WS_HOME_RIGHT - WS_HOME_TOP_LEFT_INSET - columns*8;
+    short left=homeBatteryObj->x;
+    if(homeChargeHintObj && homeUsbHintObj){
+        homeChargeHintObj->x=homeUsbHintObj->x=left-homeChargeHintObj->width-4;
+        homeChargeHintObj->y=homeUsbHintObj->y=homeBatteryObj->y+1;
+        if(homeChargeHintObj->visible || homeUsbHintObj->visible)
+            left=homeChargeHintObj->x;
+    }
     if(homePlantHintObj && homePlantCountObj){
-        homePlantCountObj->x = homeBatteryObj->x
+        homePlantCountObj->x = left
             - getTxtLength(homePlantCountText) * 8 - 4;
         homePlantHintObj->x = homePlantCountObj->x - homePlantHintObj->width - 2;
     }
+}
+static void refreshHomePowerHint(void){
+    if(!homeChargeHintObj || !homeUsbHintObj) return;
+    const PowerStatus power=powerStatusGet();
+    homeChargeHintObj->visible=pageNow==PAGE_HOME && power==POWER_STATUS_CHARGING;
+    homeUsbHintObj->visible=pageNow==PAGE_HOME && power==POWER_STATUS_USB_POWERED;
+    positionHomeBattery();
 }
 static void refreshHomePlantHint(void){
     if(!homePlantHintObj || !homePlantCountObj) return;
@@ -409,6 +434,11 @@ static u8 enabledHomeAlarmCount(void){
 }
 static void refreshHomeAlarmHint(void){
     if(!homeAlarmHintObj || !homeAlarmCountObj) return;
+    // Native size-18 time uses 11px columns and a 22px height at y=8.
+    homeAlarmHintObj->x=WS_HOME_LEFT+WS_HOME_TOP_LEFT_INSET+getTxtLength(timeString)*11+6;
+    homeAlarmHintObj->y=11;
+    homeAlarmCountObj->x=homeAlarmHintObj->x+homeAlarmHintObj->width+2;
+    homeAlarmCountObj->y=homeAlarmHintObj->y;
     const u8 count=enabledHomeAlarmCount();
     snprintf(homeAlarmCountText,sizeof(homeAlarmCountText),"%u",count);
     homeAlarmHintObj->visible=homeAlarmCountObj->visible=pageNow==PAGE_HOME && count>0;
@@ -416,6 +446,13 @@ static void refreshHomeAlarmHint(void){
 
 static void refreshHomeBatteryText(void){
     const unsigned voltageMv = VoltageVal;
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+    extern int passportBatteryPercent;
+    if(passportBatteryPercent>=0)
+        snprintf(homeBatteryText,sizeof(homeBatteryText),"电量 %d%%",passportBatteryPercent);
+    else snprintf(homeBatteryText,sizeof(homeBatteryText),"电量 --%%");
+    positionHomeBattery();homeBatteryLastRefreshUs=esp_timer_get_time();return;
+#endif
     if(!voltageMv){
         snprintf(homeBatteryText,sizeof(homeBatteryText),"电量 --%%");
         positionHomeBattery();
@@ -446,6 +483,7 @@ void doUIfor1S(void){
     }else{
         wifiSp->visible = wifiSp->visible?0:1;
     }
+    refreshHomePowerHint();
     // Keep the plant count and icon together as they blink.
     refreshHomePlantHint();
     refreshHomeAlarmHint();
@@ -617,20 +655,13 @@ float cloud2ObjX;
 
 u16 skyColorTemp = 0;
 static void positionWeatherDescription(void){
-    if(!weatherDescriptionObj || !weatherObj) return;
-    weatherObj->x = (pageNow == PAGE_HOME ? WS_HOME_RIGHT : WS_UI_RIGHT - 6)
-        - weatherObj->width;
-    if(pageNow == PAGE_HOME){
-        // Match the date's 12px white text directly below it.
-        weatherDescriptionObj->x = WS_HOME_LEFT + WS_HOME_TOP_LEFT_INSET;
-        weatherDescriptionObj->y = 52;
-    }else if(pageNow == PAGE_CLOCK && tempNetObj){
-        // Match the bottom temperature and keep an 8px gap before it.
-        weatherDescriptionObj->x = tempNetObj->x - 8
-            - getTxtLength(weatherTxt) * 8;
-        weatherDescriptionObj->y = tempNetObj->y;
-    }
+    if(pageNow != PAGE_HOME || !weatherDescriptionObj || !weatherObj) return;
+    weatherObj->x = WS_HOME_RIGHT - weatherObj->width;
+    // Match the date's 12px white text directly below it.
+    weatherDescriptionObj->x = WS_HOME_LEFT + WS_HOME_TOP_LEFT_INSET;
+    weatherDescriptionObj->y = 52;
 }
+
 void refreshWeatherDisplay(void){
     static uint32_t shownVersion = UINT32_MAX;
     static u8 shownCode = 255;
@@ -669,7 +700,7 @@ void homeEx(void){
     moveHomeBike();
     driftHomeScene();
 
-    // Draw only the 240x240 area sent to the LCD; forest sprites are costly.
+    // Draw the active device viewport; forest sprites are costly.
     rendWin(WS_HOME_LEFT,WS_HOME_TOP,WS_HOME_RIGHT,WS_HOME_BOTTOM,skyColorTemp);
 
     // pkmMovieEx(0);//精灵动画处理
@@ -960,25 +991,17 @@ void homeEx(void){
 
 // Keep the temperature and degree glyph together as weather data changes.
 void resetHomeTempX(void){
-    if(!tempNetObj) return;
-    if(pageNow == PAGE_HOME){
-        const u8 captionVisible = weatherDescriptionObj && weatherDescriptionObj->visible;
-        tempNetObj->x = WS_HOME_LEFT + WS_HOME_TOP_LEFT_INSET
-            + (captionVisible ? getTxtLength(weatherTxt) * 8 + 8 : 0);
-        tempNetObj->y = 52;
-        // Hide the startup placeholder until a numeric temperature arrives.
-        const char *number = tempNetTxt[0] == '-' ? tempNetTxt + 1 : tempNetTxt;
-        tempNetObj->visible = *number >= '0' && *number <= '9';
-    }else if(pageNow == PAGE_CLOCK){
-        tempNetObj->x = WS_UI_RIGHT - 20 - getTxtLength(tempNetTxt) * 8 - 2;
-        tempNetObj->y = 221;
-        tempNetObj->visible = 1;
-    }
+    if(pageNow != PAGE_HOME || !tempNetObj) return;
+    const u8 captionVisible = weatherDescriptionObj && weatherDescriptionObj->visible;
+    tempNetObj->x = WS_HOME_LEFT + WS_HOME_TOP_LEFT_INSET
+        + (captionVisible ? getTxtLength(weatherTxt) * 8 + 8 : 0);
+    tempNetObj->y = 52;
+    // Hide the startup placeholder until a numeric temperature arrives.
+    const char *number = tempNetTxt[0] == '-' ? tempNetTxt + 1 : tempNetTxt;
+    tempNetObj->visible = *number >= '0' && *number <= '9';
     if(tempDegreeObj){
-        tempDegreeObj->x = pageNow == PAGE_HOME
-            ? tempNetObj->x + getTxtLength(tempNetTxt) * 8 + 2
-            : WS_UI_RIGHT - 20;
-        tempDegreeObj->y = pageNow == PAGE_HOME ? 54 : 219;
+        tempDegreeObj->x = tempNetObj->x + getTxtLength(tempNetTxt) * 8 + 2;
+        tempDegreeObj->y = 54;
         tempDegreeObj->visible = tempNetObj->visible;
     }
 }
@@ -988,6 +1011,7 @@ void addTompBottomTxt(void){
     homePlantCountObj=NULL;
     homeAlarmHintObj=homeAlarmCountObj=NULL;
     homeBatteryObj=NULL;
+    homeChargeHintObj=homeUsbHintObj=NULL;
     tempDegreeObj=NULL;
     char *cityNameTemp = getCityTxt(dataSaveInfo.provice,dataSaveInfo.city+1);
     if(pageNow == PAGE_HOME){
@@ -1012,7 +1036,6 @@ void addTompBottomTxt(void){
     weatherObj = newNativePic(weatherArr[weatherCode],
         pageNow == PAGE_HOME ? WS_HOME_RIGHT-24 : 202,
         pageNow == PAGE_HOME ? HOME_STATUS_ICON_Y : 4);
-    if(pageNow == PAGE_CLOCK) weatherObj->y = 8;
     tempNetObj = newChar(12,tempNetTxt,0xffff,105,
         pageNow == PAGE_HOME ? 52 : 221);
     addChild(moveClipMaxNum - 1,weatherObj);
@@ -1026,6 +1049,12 @@ void addTompBottomTxt(void){
         pageNow == PAGE_HOME ? ducHome : duc,0xFFFF,0,0);
     addChild(moveClipMaxNum - 1,tempDegreeObj);
     if(pageNow == PAGE_HOME){
+        homeChargeHintObj=newNativePicSingle(homeChargeHint,0xFFE0,0,0);
+        homeUsbHintObj=newNativePicSingle(homeUsbHint,0xFFFF,0,0);
+        homeChargeHintObj->visible=homeUsbHintObj->visible=0;
+        addChild(moveClipMaxNum - 1,homeChargeHintObj);
+        addChild(moveClipMaxNum - 1,homeUsbHintObj);
+        refreshHomePowerHint();
         // Keep the plant cue beside the battery in the bottom-right corner.
         homePlantHintObj=newNativePic(gardenHint,0,homeBatteryObj->y-3);
         snprintf(homePlantCountText,sizeof(homePlantCountText),"%u",cloverNumNow);
@@ -1034,8 +1063,8 @@ void addTompBottomTxt(void){
         addChild(moveClipMaxNum - 1,homePlantHintObj);
         addChild(moveClipMaxNum - 1,homePlantCountObj);
         refreshHomePlantHint();
-        homeAlarmHintObj=newNativePic(alarmHint,WS_HOME_RIGHT-58,HOME_STATUS_ICON_Y);
-        homeAlarmCountObj=newChar(12,homeAlarmCountText,0xFFFF,WS_HOME_RIGHT-38,HOME_STATUS_ICON_Y);
+        homeAlarmHintObj=newNativePicSingle(alarmHint,0xFFFF,0,0);
+        homeAlarmCountObj=newChar(12,homeAlarmCountText,0xFFFF,0,0);
         addChild(moveClipMaxNum - 1,homeAlarmHintObj);
         addChild(moveClipMaxNum - 1,homeAlarmCountObj);
         refreshHomeAlarmHint();
@@ -1189,7 +1218,7 @@ void renderHomeInit(void){
     skyColorTemp = skyColor[DayTime];
     pageNow = PAGE_HOME;
     LCD_SetPageViewport(&pageNow,PAGE_HOME,
-        WS_HOME_LEFT,WS_HOME_TOP,WS_HOME_SIZE,WS_HOME_SIZE);
+        WS_HOME_LEFT,WS_HOME_TOP,WS_HOME_SIZE,WS_HOME_BOTTOM-WS_HOME_TOP);
     
     // Overdraw the right edge through the full leftward scene drift.
     sunObj = newPic(&sun,0,0);
@@ -1341,12 +1370,7 @@ void renderHomeInit(void){
     //添加精灵
 
     //按键事件
-    setKeyFun(KM1,mainViewOpenGarden);
-    setKeyFun(KM3,mainViewOpenShop);
-    setKeyFun(KML,KeyDownM3);
-    setKeyFun(KMR,KeyDownM1);
-    setKeyFun(KMU1,KeyDownM1); // Swipe left: next main view.
-    setKeyFun(KMU3,KeyDownM3); // Swipe right: previous main view.
+    mainViewBindKeys(KeyDownM3,KeyDownM1);
 
     checkDayTime();
     changeSceneColor();

@@ -111,15 +111,15 @@ void setSoundInit(void){
     soundSetSelect=0;
     soundSettingsDirty=0;
     soundSettingsEditing=0;
-    soundSetBGObj=newRoundRectDisObj(0x9efc,164,20,78,SOUND_SET_TOP,8,1);
+    soundSetBGObj=newRoundRectDisObj(0x9efc,PAGE_FORM_WIDTH,20,PAGE_FORM_LEFT,SOUND_SET_TOP,8,1);
     addChild(0,soundSetBGObj);
     drawPageUITxt("上一项","编辑","下一项");
     const char *labels[SOUND_SET_COUNT]={"音量设置","首页音乐"};
     char *values[SOUND_SET_COUNT]={volumeText,homeBgmSummary};
     for(u8 i=0;i<SOUND_SET_COUNT;++i){
         short y=SOUND_SET_TOP+i*SOUND_SET_PITCH;
-        addChild(0,newChar(12,labels[i],0,80,y));
-        soundSetValues[i]=newChar(12,values[i],0,177,y);
+        addChild(0,newChar(12,labels[i],0,PAGE_FORM_LABEL_LEFT,y));
+        soundSetValues[i]=newChar(12,values[i],0,PAGE_FORM_VALUE_LEFT,y);
         addChild(0,soundSetValues[i]);
     }
     updateSoundValues();
@@ -209,10 +209,10 @@ static void renderHomeBgmSettingsInit(void){
     snprintf(homeBgmCurrent,sizeof(homeBgmCurrent),"当前: %s",
              homeBgmCursor==HOME_BGM_SILENT ? "静音" :
              soundTrackTitle(homeBgmCursor-1));
-    addChild(0,newChar(12,homeBgmCurrent,0,52,34));
+    addChild(0,newChar(12,homeBgmCurrent,0,PAGE_CONTENT_LEFT+4,34));
     homeBgmList=addMenuList(homeBgmChoices,12,0xFFFF,0x04BE,
-                            HOME_BGM_TRACK_COUNT+1,220,54,WS_UI_FOOTER_TOP,1);
-    homeBgmList->parent->x=48;
+                            HOME_BGM_TRACK_COUNT+1,PAGE_LIST_WIDTH,54,WS_UI_FOOTER_TOP,1);
+    homeBgmList->parent->x=PAGE_LIST_LEFT;
     setMenuListY(homeBgmList,homeBgmCursor);
     updateHomeBgmPreviewHint();
     setKeyFun(KML,&returnFromHomeBgmSettings);
@@ -246,7 +246,11 @@ static void updateSystemSettings(void){
     signed char value=dataSaveInfo.tempOffset;
     snprintf(tempOffsetText,sizeof(tempOffsetText),"%s%d",value>0?"+":"",value);
     snprintf(autoRotationText,sizeof(autoRotationText),"%s",
+             #if defined(CONFIG_GVIEW_AI_PASSPORT)
+             dataSaveInfo.autoRotationEnabled ? "正向" : "反向");
+#else
              dataSaveInfo.autoRotationEnabled ? "开启" : "关闭");
+#endif
     snprintf(homePlantHintText,sizeof(homePlantHintText),"%s",
              dataSaveInfo.homePlantHintConfig==HOME_PLANT_HINT_ON ? "开启" : "关闭");
     for(u8 i=0;i<SYSTEM_SET_COUNT;++i)
@@ -309,19 +313,23 @@ void setSystemInit(void){
     systemEditing=0;
     systemDirty=0;
     drawPageUITxt("上一项","编辑","下一项");
-    systemSetBGObj=newRoundRectDisObj(0x9efc,224,32,48,SYSTEM_SET_TOP-6,8,1);
+    systemSetBGObj=newRoundRectDisObj(0x9efc,PAGE_CONTENT_WIDTH,32,PAGE_CONTENT_LEFT,SYSTEM_SET_TOP-6,8,1);
     addChild(0,systemSetBGObj);
-    addChild(0,newChar(12,"温度补偿",0,54,SYSTEM_SET_TOP));
-    systemValues[0]=newChar(12,tempOffsetText,0,208,SYSTEM_SET_TOP);
+    addChild(0,newChar(12,"温度补偿",0,PAGE_LABEL_LEFT,SYSTEM_SET_TOP));
+    systemValues[0]=newChar(12,tempOffsetText,0,PAGE_SYSTEM_VALUE_LEFT,SYSTEM_SET_TOP);
     addChild(0,systemValues[0]);
-    addChild(moveClipMaxNum-1,newNativePicSingle(&duc,0,242,SYSTEM_SET_TOP));
-    addChild(0,newChar(12,"自动旋转",0,54,SYSTEM_SET_TOP+SYSTEM_SET_PITCH));
-    systemValues[1]=newChar(12,autoRotationText,0,208,SYSTEM_SET_TOP+SYSTEM_SET_PITCH);
+    addChild(moveClipMaxNum-1,newNativePicSingle(&duc,0,PAGE_SYSTEM_DEGREE_LEFT,SYSTEM_SET_TOP));
+    #if defined(CONFIG_GVIEW_AI_PASSPORT)
+    addChild(0,newChar(12,"屏幕方向",0,PAGE_LABEL_LEFT,SYSTEM_SET_TOP+SYSTEM_SET_PITCH));
+#else
+    addChild(0,newChar(12,"自动旋转",0,PAGE_LABEL_LEFT,SYSTEM_SET_TOP+SYSTEM_SET_PITCH));
+#endif
+    systemValues[1]=newChar(12,autoRotationText,0,PAGE_SYSTEM_VALUE_LEFT,SYSTEM_SET_TOP+SYSTEM_SET_PITCH);
     addChild(0,systemValues[1]);
-    addChild(0,newChar(12,"首页植物提示",0,54,SYSTEM_SET_TOP+2*SYSTEM_SET_PITCH));
-    systemValues[2]=newChar(12,homePlantHintText,0,208,SYSTEM_SET_TOP+2*SYSTEM_SET_PITCH);
+    addChild(0,newChar(12,"首页植物提示",0,PAGE_LABEL_LEFT,SYSTEM_SET_TOP+2*SYSTEM_SET_PITCH));
+    systemValues[2]=newChar(12,homePlantHintText,0,PAGE_SYSTEM_VALUE_LEFT,SYSTEM_SET_TOP+2*SYSTEM_SET_PITCH);
     addChild(0,systemValues[2]);
-    addChild(0,newChar(12,"系统版本 v2.4",0,54,184));
+    addChild(0,newChar(12,"系统版本 v2.4",0,PAGE_LABEL_LEFT,184));
     updateSystemSettings();
     setKeyFun(KML,&leaveSystemSettings);
     setKeyFun(KMR,&systemNext);

@@ -27,7 +27,7 @@ typedef enum{
     PAGE_WIFIHOME,
     PAGE_HOME,
     PAGE_WEATHER,
-    PAGE_CLOCK,
+    PAGE_CLOCK, // Reserved identifier: the digital home view was removed.
     PAGE_CALENDAR,
     
     PAGE_TCLCK,
@@ -82,7 +82,6 @@ extern void leaveSystemSettings(void);
 extern void leaveClockSettings(void);
 extern void setBGLightInit(void);
 extern void setBGLightScheduleInit(void);
-extern void clockPageInit(void);
 extern void tomatoPageInit(void);
 extern void addTompBottomTxt(void);
 extern void wifiHomePageInit(void);

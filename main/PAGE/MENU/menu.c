@@ -194,11 +194,26 @@ void renderMenuInit(void){
 }
 
 // Hold PWR to open the action menu.
+enum {
+    POWER_MENU_SETTINGS,
+#if !defined(CONFIG_GVIEW_AI_PASSPORT)
+    POWER_MENU_SHUTDOWN,
+#endif
+    POWER_MENU_HOME,
+    POWER_MENU_MUSIC,
+    POWER_MENU_COUNT
+};
 static u8 powerMenuSelection;
-static DisplayObject *powerMenuBg[4];
-static DisplayObject *powerMenuText[4];
+static DisplayObject *powerMenuBg[POWER_MENU_COUNT];
+static DisplayObject *powerMenuText[POWER_MENU_COUNT];
 static char powerMenuMusicText[24];
-static char *powerMenuLabels[4] = {"设置", "关机", "返回主界面", powerMenuMusicText};
+static char *powerMenuLabels[POWER_MENU_COUNT] = {
+    "设置",
+#if !defined(CONFIG_GVIEW_AI_PASSPORT)
+    "关机",
+#endif
+    "返回主界面", powerMenuMusicText
+};
 
 static void powerMenuEx(void){
     rendWin(0,0,winW,winH,BGColor);
@@ -207,28 +222,30 @@ static void powerMenuEx(void){
 static void powerMenuRefresh(void){
     snprintf(powerMenuMusicText,sizeof(powerMenuMusicText),"首页音乐：%s",
              dataSaveInfo.homeBgmSelection ? "开" : "关");
-    powerMenuText[3]->x=WS_UI_MID-getTxtLength(powerMenuMusicText)*4;
-    for(u8 i=0;i<4;i++){
+    powerMenuText[POWER_MENU_MUSIC]->x=WS_UI_MID-getTxtLength(powerMenuMusicText)*4;
+    for(u8 i=0;i<POWER_MENU_COUNT;i++){
         powerMenuBg[i]->color = i == powerMenuSelection ? 0x0635 : 0xE71C;
         powerMenuText[i]->color = i == powerMenuSelection ? 0xFFFF : 0x0000;
     }
 }
 static void powerMenuPrevious(void){
-    powerMenuSelection = (powerMenuSelection + 3) % 4;
+    powerMenuSelection = (powerMenuSelection + POWER_MENU_COUNT - 1) % POWER_MENU_COUNT;
     powerMenuRefresh();
 }
 
 static void powerMenuNext(void){
-    powerMenuSelection = (powerMenuSelection + 1) % 4;
+    powerMenuSelection = (powerMenuSelection + 1) % POWER_MENU_COUNT;
     powerMenuRefresh();
 }
 
 static void powerMenuConfirm(void){
     switch(powerMenuSelection){
-        case 0: renderMenuInit(); break;
-        case 1: requestPowerOff(); break;
-        case 2: backToHomePage(); break;
-        case 3:
+        case POWER_MENU_SETTINGS: renderMenuInit(); break;
+#if !defined(CONFIG_GVIEW_AI_PASSPORT)
+        case POWER_MENU_SHUTDOWN: requestPowerOff(); break;
+#endif
+        case POWER_MENU_HOME: backToHomePage(); break;
+        case POWER_MENU_MUSIC:
             if(dataSaveInfo.homeBgmSelection){
                 dataSaveInfo.homeBgmPreferredSelection=dataSaveInfo.homeBgmSelection;
                 dataSaveInfo.homeBgmSelection=HOME_BGM_SILENT;
@@ -250,7 +267,7 @@ void renderPowerMenuInit(void){
     BGColor = 0xFFFF;
     resetPageView(&powerMenuEx);
     powerMenuSelection = 0;
-    const short panelWidth = 162, panelHeight = 185;
+    const short panelWidth = 162, panelHeight = 49 + POWER_MENU_COUNT * 34;
     const short panelTop = (winH-panelHeight)/2;
     const short buttonWidth = 144, buttonHeight = 28;
     const short textHeight = 16; // Logical size 12 renders as 16-pixel glyphs.
@@ -259,7 +276,7 @@ void renderPowerMenuInit(void){
                                  WS_UI_MID-panelWidth/2,panelTop,12,1));
     addChild(1,newChar(12,title,0x0000,
                        WS_UI_MID-getTxtLength(title)*textHeight/4,panelTop+11));
-    for(u8 i=0;i<4;i++){
+    for(u8 i=0;i<POWER_MENU_COUNT;i++){
         short y = panelTop+38+i*34;
         powerMenuBg[i] = newRoundRectDisObj(0xE71C,buttonWidth,buttonHeight,
                                           WS_UI_MID-buttonWidth/2,y,8,1);

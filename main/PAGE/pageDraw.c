@@ -1,5 +1,5 @@
 #include "LCD/lcd_init.h"
-#include "LCD/viewport.h"
+#include "GVIEW/viewport.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -174,14 +174,14 @@ void drawPageReturnHint(void){
     char text[40];
     if(*left){
         snprintf(text,sizeof(text),"长按左键%s",left);
-        LCD_NativeTextDraw(text,WS_UI_LEFT+4,WS_UI_FOOTER_TOP+2,GRAY,12,
+        LCD_NativeTextDraw(text,WS_UI_LEFT+4,WS_UI_FOOTER_TOP+2,BLACK,12,
                            WS_UI_LEFT,WS_UI_FOOTER_TOP,WS_UI_RIGHT,240);
     }
     if(*right){
         snprintf(text,sizeof(text),"长按右键%s",right);
         // Size 12 uses 8 pixels per ASCII byte or 16 per GB2312 character.
         short x=WS_UI_RIGHT-4-getTxtLength(text)*8;
-        LCD_NativeTextDraw(text,x,WS_UI_FOOTER_TOP+2,GRAY,12,
+        LCD_NativeTextDraw(text,x,WS_UI_FOOTER_TOP+2,BLACK,12,
                            WS_UI_LEFT,WS_UI_FOOTER_TOP,WS_UI_RIGHT,240);
     }
 }
@@ -194,7 +194,8 @@ void showTips(const char* txt,float time){
     const LCDViewport viewport = LCD_GetViewport();
     // Native size 12 maps the 16x16/8x16 font bitmaps to LCD pixels 1:1.
     // All transient notices share this path, including Wi-Fi and shop results.
-    unsigned rows = wrapPageText(wrapped,sizeof(wrapped),txt,28);
+    const unsigned columns=viewport.width>16 ? (viewport.width-16)/8 : 2;
+    unsigned rows = wrapPageText(wrapped,sizeof(wrapped),txt,columns);
     const int glyphHeight=16, linePitch=20, padding=8;
     const int height=(rows-1)*linePitch+glyphHeight+padding*2;
     const int sourceHeight=(height*viewport.height+239)/240;
@@ -211,7 +212,7 @@ void showTips(const char* txt,float time){
         char *next=strchr(line,'\n');
         if(next) *next++=0;
         const int width=getTxtLength(line)*8;
-        const int textX=viewport.left+(viewport.width-width*viewport.width/240)/2;
+        const int textX=viewport.left+(viewport.width-width)/2;
         const int textY=top+(padding+row*linePitch)*viewport.height/240;
         addChildToObj(tipsTxt,newChar(12,line,0xFFFF,textX,textY));
         line=next;

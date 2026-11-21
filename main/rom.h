@@ -19,6 +19,7 @@
 #define HOME_PLANT_HINT_ON 0xD5
 #define HOME_PLANT_HINT_OFF 0xD4
 #define LEGACY_RIDER_CONFIG_VERSION 0xD3
+#define MONSTER_OWNERSHIP_CONFIG_VERSION 0x504B4D32u
 // The two removed character-selection bytes remain reserved in old saves.
 
 typedef struct DATASAVEINFO{
@@ -76,11 +77,16 @@ typedef struct ITEMSAVEINFO{
     // Use legacy tail padding without shifting any wardrobe or ownership field.
     u8 legacyRiderConfigVersion;
     u8 legacyRiderIndex;
+    // Version uses legacy padding; new ownership bits follow the old 88 bytes.
+    uint32_t monsterOwnershipVersion;
+    uint64_t itemMonsterExtra;
 }ITEMSAVEINFO;
-_Static_assert(sizeof(ITEMSAVEINFO)==88 &&
+_Static_assert(sizeof(ITEMSAVEINFO)==96 &&
                offsetof(ITEMSAVEINFO,bagIndex)==80 &&
                offsetof(ITEMSAVEINFO,legacyRiderConfigVersion)==81 &&
-               offsetof(ITEMSAVEINFO,legacyRiderIndex)==82,
+               offsetof(ITEMSAVEINFO,legacyRiderIndex)==82 &&
+               offsetof(ITEMSAVEINFO,monsterOwnershipVersion)==84 &&
+               offsetof(ITEMSAVEINFO,itemMonsterExtra)==88,
                "Saved wardrobe layout must remain compatible");
 
 typedef struct GARDENSAVEINFO{

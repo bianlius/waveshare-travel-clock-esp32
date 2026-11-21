@@ -1,0 +1,73 @@
+{
+  "status": "retired",
+  "saved_id": 20,
+  "reuse_saved_id": false,
+  "animation": {
+    "file": "meowth_run.png",
+    "source_path": "firmware-3.4-resources/02dc44.png",
+    "source_offset": "0x2dc44",
+    "source_firmware": "user-provided firmware 3.4 resource export",
+    "sha256": "7b5595e8df38061acd30cf9909b5b11e1c8daf366f709eadfeb1c9e66741452a",
+    "symbol": "followerMeowth",
+    "frames": 4,
+    "frame_width": 41,
+    "frame_height": 44,
+    "frame_dimensions": [
+      [
+        41,
+        43
+      ],
+      [
+        37,
+        42
+      ],
+      [
+        41,
+        42
+      ],
+      [
+        37,
+        44
+      ]
+    ],
+    "frame_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "depth": 13,
+    "frame_ticks": 2,
+    "flip_x": false,
+    "credits": [
+      "Nintendo / Game Freak",
+      "User-provided firmware 3.4 export; original sprite author not recorded"
+    ],
+    "saved_id": 20,
+    "name_zh": "喵喵",
+    "price": 100
+  },
+  "pricing": {
+    "saved_id": 20,
+    "name_zh": "喵喵",
+    "symbol": "followerMeowth",
+    "pokedex_id": 52,
+    "rarity": "common",
+    "evolution_path": [
+      52
+    ],
+    "evolution_stage": 0
+  }
+}

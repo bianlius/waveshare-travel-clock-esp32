@@ -5,6 +5,7 @@ and native LCD text. Button chrome is stubbed; category text uses real glyphs.
 """
 
 from pathlib import Path
+import json
 import re
 import subprocess
 import tempfile
@@ -35,7 +36,7 @@ records = "\n".join(re.search(rf"typedef struct {name}\{{.*?\}}{name};", header,
                     for name in ("DATASAVEINFO", "ITEMSAVEINFO", "GARDENSAVEINFO"))
 definitions = "\n".join(line for line in header.splitlines()
                         if line.startswith(("#define LEGACY_RIDER_",
-                        "#define HOME_PLANT_HINT_",
+                        "#define HOME_PLANT_HINT_", "#define MONSTER_OWNERSHIP_",
                                             "#define dataInfoAdress", "#define itemInfoAdress",
                                             "#define gardenInfoAdress")))
 definitions += "\n" + re.search(r"^#define HOME_STATUS_ICON_Y .+$", home, re.M).group()
@@ -60,7 +61,7 @@ harness = r'''
 #include "main/pic_data/picGroup.h"
 #include "main/PAGE/SHOP/shop_model.h"
 #include "lcd_init.h"
-#include "LCD/viewport.h"
+#include "GVIEW/viewport.h"
 extern DisplayObject *displayMc;
 extern TweenS *TweenArr;
 extern uint8_t *picCacheTemp;
@@ -109,10 +110,14 @@ __RENDERER__
 
 typedef struct { char *name; const u8 *pic; short maxX,minX; u8 style,FrontBack; } pkmProperty;
 #define WS_UI_RIGHT 280
+#define WS_UI_LEFT 40
+#define WS_UI_MID ((WS_UI_LEFT+WS_UI_RIGHT)/2)
+#include "main/PAGE/page_layout.h"
 #define PAGE_SHOP 1
 #define PAGE_SYSTEM_SET 2
 #define PAGE_HOME 3
 #define WS_HOME_RIGHT 280
+#define WS_HOME_LEFT 40
 #define WS_HOME_TOP_LEFT_INSET 6
 #define SOUND_TRACK_COUNT 10
 static u8 pageNow;
@@ -141,7 +146,9 @@ __HOME_FOLLOWER__
 __SETTINGS__
 static DisplayObject *homeBatteryObj,*homePlantHintObj,*homePlantCountObj;
 static DisplayObject *homeAlarmHintObj,*homeAlarmCountObj;
+static DisplayObject *homeChargeHintObj,*homeUsbHintObj;
 static char homeBatteryText[24],homePlantCountText[4],homeAlarmCountText[4];
+static char timeString[10]="12:30";
 static u8 cloverNumNow;
 __INDICATORS__
 
@@ -177,7 +184,8 @@ static void reload(void){
 }
 int main(int argc,char **argv){
     assert(argc==2);
-    assert(sizeof(ITEMSAVEINFO)==88 && offsetof(ITEMSAVEINFO,bagIndex)==80);
+    assert(sizeof(ITEMSAVEINFO)==96 && offsetof(ITEMSAVEINFO,bagIndex)==80);
+    assert(offsetof(ITEMSAVEINFO,monsterOwnershipVersion)==84 && offsetof(ITEMSAVEINFO,itemMonsterExtra)==88);
     assert(offsetof(ITEMSAVEINFO,legacyRiderConfigVersion)==81 && offsetof(ITEMSAVEINFO,legacyRiderIndex)==82);
     // Exercise the old serialized record, including unknown former padding.
     for(unsigned padding=0;padding<256;padding++){
@@ -189,6 +197,11 @@ int main(int argc,char **argv){
         migrateLegacyRiderSelection();
         assert(itemSaveInfo.legacyRiderIndex==0 && legacyRiderSaveNeeded);
         assert(memcmp(before,&itemSaveInfo,sizeof(before))==0);
+        assert(migrateMonsterOwnership());
+        assert(itemSaveInfo.monsterOwnershipVersion==MONSTER_OWNERSHIP_CONFIG_VERSION);
+        assert(itemSaveInfo.itemMonsterExtra==0);
+        assert(memcmp(before,&itemSaveInfo,sizeof(before))==0);
+        assert(!migrateMonsterOwnership());
     }
     memset(&itemSaveInfo,0,sizeof(itemSaveInfo));
     itemSaveInfo.itemHead=7; itemSaveInfo.itemShirt=3;
@@ -226,13 +239,14 @@ int main(int argc,char **argv){
     doKeyFun(KML);assert(returned==1);
 
     // Render every new companion frame with the real GVIEW decoder and text.
-    const char *followerNames[]={"taillow","wingull","volbeat","ninjask","tropius",
-                               "meowth","lugia","ho-oh","pidgeot",
-                               "aron","metang","swablu","shedinja"};
-    for(u8 id=15;id<28;id++){
+    const char *followerNames[]={"taillow","wingull","retired","ninjask","tropius",
+                               "retired","retired","retired","retired",
+                               "aron","metang","swablu","shedinja",__IMPORTED_NAMES__};
+    for(u8 id=15;id<getShopListArrNum(0);id++){
+        if(!shopMonsterAvailable(id))continue;
         itemSaveInfo.monsterIndex=id;
         renderShopInit();
-        assert(itemIndex==id && shopItemCount()==27);
+        assert(itemIndex==id && shopItemCount()==62);
         assert(stage.movieclipArr[5].disObj.childrenNum==1);
         DisplayObject *preview=getChildAt(&stage.movieclipArr[5].disObj,0);
         assert(preview && preview->ac && preview->ac->p==momsterListArr[id-1]);
@@ -253,7 +267,13 @@ int main(int argc,char **argv){
     }
 
     // Newly appended IDs unlock and equip through real callbacks and raw saves.
-    itemSaveInfo.itemMonster|=(UINT64_C(1)<<9)|(UINT64_C(1)<<22);
+    for(u8 id=1;id<getShopListArrNum(0);++id){
+        if(!shopIsRetiredMonster(id))continue;
+        itemSaveInfo.monsterIndex=id;renderShopInit();
+        assert(itemIndex==0 && shopItemCount()==62);
+        assert(stage.movieclipArr[5].disObj.childrenNum==0);
+    }
+    itemSaveInfo.itemMonster|=(UINT64_C(1)<<9)|(UINT64_C(1)<<18);
     for(u8 id=24;id<28;id++){
         const uint64_t previous=itemSaveInfo.itemMonster;
         itemSaveInfo.monsterIndex=9;
@@ -269,7 +289,22 @@ int main(int argc,char **argv){
         doKeyFun(KM2);assert(dataSaveInfo.money==37);
     }
 
-    for(u8 id=19;id<28;id++){
+    // Every upper-word ID, including all five Rotom forms, survives real callbacks and saves.
+    for(u8 id=64;id<getShopListArrNum(0);++id){
+        const uint64_t previousLow=itemSaveInfo.itemMonster;
+        const uint64_t previousExtra=itemSaveInfo.itemMonsterExtra;
+        itemSaveInfo.monsterIndex=9;dataSaveInfo.money=ShopListMonsterCost[id]+37;
+        renderShopInit();itemIndex=id;refreshShop();
+        doKeyFun(KM2);assert(itemSaveInfo.monsterIndex==9 && dataSaveInfo.money==37);
+        assert(itemSaveInfo.itemMonster==previousLow);
+        assert(itemSaveInfo.itemMonsterExtra==(previousExtra|(UINT64_C(1)<<(id-64))));
+        doKeyFun(KM2);reload();assert(itemSaveInfo.monsterIndex==id);
+        assert(shopHasItem(itemSaveInfo.itemMonster,itemSaveInfo.itemMonsterExtra,id));
+        assert(itemSaveInfo.itemMonster==previousLow && dataSaveInfo.money==37);
+    }
+
+    for(u8 id=19;id<getShopListArrNum(0);id++){
+        if(!shopMonsterAvailable(id))continue;
         resetPageView(NULL);addSavedBike(6,140,175,0);
         phlPkm=getNewMvAction(momsterListArr[id-1],-100,116);
         placeHomeFollower(id);
@@ -284,7 +319,8 @@ int main(int argc,char **argv){
 
     // Exercise both follower scan directions, including odd and >32767 offsets.
     uint16_t reference[320*240];
-    for(u8 id=19;id<28;id++){
+    for(u8 id=19;id<getShopListArrNum(0);id++){
+        if(!shopMonsterAvailable(id))continue;
         resetPageView(NULL);
         DisplayObject *sprite=getNewMvAction(momsterListArr[id-1],160,120);
         addChild(5,sprite);
@@ -295,8 +331,11 @@ int main(int argc,char **argv){
             const u8 *desc=sprite->ac->p+2+frame*7;
             int left=160-sprite->width/2+(int)desc[4]-127;
             int top=120-sprite->height/2+(int)desc[5]-127;
-            for(int y=0;y<sprite->height;y++) for(int x=0;x<sprite->width;x++)
+            for(int y=0;y<sprite->height;y++) for(int x=0;x<sprite->width;x++){
+                if(picCache[(top+y)*320+left+x]!=reference[(top+y)*320+left+sprite->width-1-x])
+                    fprintf(stderr,"mirror mismatch: id=%u frame=%u depth=%u size=%dx%d x=%d y=%d\n",id,frame,sprite->p[0],sprite->width,sprite->height,x,y);
                 assert(picCache[(top+y)*320+left+x]==reference[(top+y)*320+left+sprite->width-1-x]);
+            }
         }
     }
 
@@ -311,8 +350,8 @@ int main(int argc,char **argv){
     addChild(9,newChar(18,"12:30",0xFFFF,46,8));
     addChild(9,newChar(12,"11-13 Fri",0xFFFF,46,32));
     addChild(9,newNativePic(weather0,256,HOME_STATUS_ICON_Y));
-    homeAlarmHintObj=newNativePic(alarmHint,WS_HOME_RIGHT-58,HOME_STATUS_ICON_Y);
-    homeAlarmCountObj=newChar(12,homeAlarmCountText,0xFFFF,WS_HOME_RIGHT-38,HOME_STATUS_ICON_Y);
+    homeAlarmHintObj=newNativePicSingle(alarmHint,0xFFFF,0,0);
+    homeAlarmCountObj=newChar(12,homeAlarmCountText,0xFFFF,0,0);
     addChild(9,homeAlarmHintObj);addChild(9,homeAlarmCountObj);
     snprintf(homeBatteryText,sizeof(homeBatteryText),"电量 100%%");
     homeBatteryObj=newChar(12,homeBatteryText,0xFFFF,0,221);addChild(9,homeBatteryObj);
@@ -373,7 +412,7 @@ int main(int argc,char **argv){
 for placeholder, value in {
     "__DEFINITIONS__": definitions,
     "__RECORDS__": records,
-    "__MIGRATION__": function(rom, "static void migrateLegacyRiderSelection("),
+    "__MIGRATION__": function(rom, "static void migrateLegacyRiderSelection(") + function(rom, "static u8 migrateMonsterOwnership("),
     "__WRITE_DATA__": function(rom, "void writeData("),
     "__PALETTES__": palettes,
     "__RENDERER__": production,
@@ -385,6 +424,11 @@ for placeholder, value in {
 }.items():
     harness = harness.replace(placeholder, value)
 
+manifest = json.loads((ROOT / "assets/pokemon_followers/manifest.json").read_text())
+new_entries = sorted((e for e in manifest["assets"] if e.get("saved_id", 0) >= 28),
+                     key=lambda e: e["saved_id"])
+by_id = {e["saved_id"]: e for e in new_entries}
+harness = harness.replace("__IMPORTED_NAMES__", ",".join('"' + (Path(by_id[i]["file"]).stem.rsplit("_", 1)[0] if i in by_id else "retired") + '"' for i in range(28,max(by_id)+1)))
 with tempfile.TemporaryDirectory(prefix="gview-player-") as directory:
     directory = Path(directory)
     source, binary = directory / "test.c", directory / "test"
@@ -406,7 +450,7 @@ const uint16_t *LCD_NativeTextPalette(void);
 static inline void *heap_caps_malloc(size_t size,int caps){ (void)caps; return malloc(size); }
 ''')
     native_text = directory / "native_text.c"
-    native_text.write_bytes((ROOT / "components/LCD/native_text.c").read_bytes())
+    native_text.write_bytes((ROOT / "ports/waveshare/components/LCD/native_text.c").read_bytes())
     # Mach-O has no ESP32 IRAM section; remove only that placement annotation.
     engine = directory / "gview.c"
     engine.write_bytes((ROOT / "components/GVIEW/gview.c").read_bytes().replace(
@@ -419,7 +463,8 @@ static inline void *heap_caps_malloc(size_t size,int caps){ (void)caps; return m
         "-Wno-parentheses-equality", "-Wno-constant-conversion",
         "-Wno-deprecated-declarations", "-Wno-nonportable-include-path",
         "-I", str(directory), "-I", str(ROOT), "-I", str(ROOT / "components"),
-        "-I", str(ROOT / "components/LCD"),
+        "-I", str(ROOT / "ports/waveshare/include"),
+        "-I", str(ROOT / "components/GVIEW"),
         "-I", str(ROOT / "components/GVIEW"), str(source), str(engine),
         str(native_text),
         str(ROOT / "components/GVIEW/utf8_gb2312_switch.c"),
@@ -432,8 +477,8 @@ frames = []
 for name in ("original", *(f"original-frame-{frame}" for frame in range(4)),
              "shop-bike", "shop-headgear",
              "system-plant-on", "system-plant-off", "home-hints-on", "home-plant-off", "home-no-alarms",
-             *(p.stem for p in sorted(OUT.glob("shop-*-frame-*.rgb565"))),
-             *(p.stem for p in sorted(OUT.glob("home-*-frame-*.rgb565")))):
+             *(p.stem for p in sorted(p for p in OUT.glob("shop-*-frame-*.rgb565") if "lucario" not in p.stem)),
+             *(p.stem for p in sorted(p for p in OUT.glob("home-*-frame-*.rgb565") if "lucario" not in p.stem))):
     data = (OUT / f"{name}.rgb565").read_bytes()
     image = Image.new("RGB", (320, 240))
     image.putdata([(((color >> 11) & 31) * 255 // 31,
@@ -449,7 +494,7 @@ for column, frame in enumerate(frames):
     sheet.paste(frame, (column * 285, 24))
 sheet.save(OUT / "characters.png")
 followers = Image.new("RGB", (240 * 5, 240), "white")
-for column, name in enumerate(("taillow", "wingull", "volbeat", "ninjask", "tropius")):
+for column, name in enumerate(("taillow", "wingull", "aron", "ninjask", "tropius")):
     followers.paste(Image.open(OUT / f"shop-{name}-frame-0.png"), (column * 240, 0))
 followers.save(OUT / "new-followers.png")
 hud = Image.new("RGB", (240*5, 240), "white")

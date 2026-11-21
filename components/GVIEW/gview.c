@@ -12,6 +12,33 @@
 #include <assert.h>
 #include <stdlib.h>
 
+static uint16_t stripRows;
+static uint16_t renderFrameBottom,renderFrameHeight;
+static uint8_t advanceRenderActions=1;
+static GVIEWStripSink stripSink;
+static void (*stripCompletion)(void);
+typedef struct {
+    DisplayObject *object;
+    int16_t x, y, top, bottom;
+    uint8_t layer, bounded;
+    char number[20];
+} RenderCommand;
+static RenderCommand *renderCommands, *activeCommand;
+static uint16_t renderCommandCount;
+static uint8_t renderCommandsActive;
+static GVIEWRenderStats renderStats;
+static uint8_t collectingRenderStats;
+GVIEWRenderStats gviewGetRenderStats(void){return renderStats;}
+void gviewSetStripCompletion(void (*complete)(void)){
+    assert(!picCache && "configure strip completion before gviewInit");
+    stripCompletion=complete;
+}
+static void (*stripOverlay)(void);
+void gviewSetStripRenderer(uint16_t rows,GVIEWStripSink sink,void (*overlay)(void)){
+    assert(!picCache && "configure strip rendering before gviewInit");
+    assert(!rows || sink);
+    stripRows=rows;stripSink=sink;stripOverlay=overlay;
+}
 static GVIEWNativeTextBegin nativeTextBegin;
 static GVIEWNativeTextDraw nativeTextDraw;
 static GVIEWNativeIconBegin nativeIconBegin;
@@ -33,10 +60,24 @@ void gviewSetNativeTextHooks(GVIEWNativeTextBegin begin, GVIEWNativeTextDraw dra
 
 // 快速内联函数
 #define INLINE static inline __attribute__((always_inline))
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+#define FAST_CODE // Keep internal RAM available for Wi-Fi/TLS and audio on C3.
+#else
 #define FAST_CODE __attribute__((section(".iram1")))
+#endif
 
 //图片数据基础偏移
 #define basicOffset 7
+// Only the packed-pixel loops live in IRAM on C3; keep the rest in Flash.
+#if defined(CONFIG_GVIEW_AI_PASSPORT) && defined(ESP_PLATFORM)
+#define RENDER_HOT __attribute__((section(".iram1"),noinline))
+#else
+#define RENDER_HOT FAST_CODE
+#endif
+// Packed sprite headers are nine bytes; resource pixels need not be aligned.
+static inline uint16_t read_le16(const uint8_t *p){return (uint16_t)p[0]|((uint16_t)p[1]<<8);}
+static inline void write_le16(uint8_t *p,uint16_t color){p[0]=color;p[1]=color>>8;}
+
 
 // 256色转RGB565查找表 - 修改为254个元素以匹配头文件声明
 static const uint16_t COLOR256_16[254] = { 
@@ -83,6 +124,13 @@ Stage stage = {NULL};
 DisplayObject* displayMc = NULL;
 TweenS* TweenArr = NULL;
 DisObjAction* Action = NULL;
+static uint8_t gviewReady;
+uint8_t gviewIsReady(void){return gviewReady;}
+uint16_t gviewUsedObjectCount(void){
+    uint16_t count=0;
+    if(gviewReady)for(uint16_t i=0;i<displayObjMaxNum;i++)if(displayMc[i].type)++count;
+    return count;
+}
 
 // 渲染区域
 uint16_t rendSX, rendSY, rendEX, rendEY, rendW, rendH;
@@ -530,7 +578,7 @@ static FAST_CODE void render_16bit_image(DisplayObject* disObj, int16_t mcx, int
                                         disObj->width, disObj->height, mcNum);
     if (!clip.valid) return;
     
-    uint16_t *img_data = (uint16_t *)(disObj->p + disObj->frameOffset);
+    const uint8_t *img_data = disObj->p + disObj->frameOffset;
     uint16_t img_width = disObj->width;
     uint32_t img_height = disObj->height;  // 改为uint32_t
     
@@ -542,6 +590,7 @@ static FAST_CODE void render_16bit_image(DisplayObject* disObj, int16_t mcx, int
     uint8_t alpha = disObj->alpha;
     uint16_t solid_color = disObj->color;
     uint8_t use_solid = (solid_color != COLORNONE);
+    const uint8_t flip_x = (disObj->dir & 0x0F) != 0;
     
     // 验证数据有效性
     if (!img_data || img_width == 0 || img_height == 0) return;
@@ -550,11 +599,11 @@ static FAST_CODE void render_16bit_image(DisplayObject* disObj, int16_t mcx, int
         uint16_t y_pos = clip.top + (ry - start_y);
         uint32_t row_index = (uint32_t)ry * img_width;
         for (int16_t rx = start_x; rx < end_x; rx++) {
-            uint32_t pixel_index = row_index + rx;
+            uint32_t pixel_index = row_index + (flip_x ? img_width - 1 - rx : rx);
             
             // 检查索引是否在有效范围内
             if (pixel_index < (uint32_t)img_width * img_height) {
-                uint16_t color = img_data[pixel_index];
+                uint16_t color = read_le16(img_data+pixel_index*2);
                 
                 if (color != 0x0001) {  // 跳过透明色
                     if (use_solid) {
@@ -601,7 +650,7 @@ static FAST_CODE void render_8bit_image(DisplayObject* disObj, int16_t mcx, int1
     }
 }
 
-static FAST_CODE void render_2bit_image(DisplayObject* disObj,int16_t mcx,int16_t mcy,uint8_t mcNum)
+static RENDER_HOT void render_2bit_image(DisplayObject* disObj,int16_t mcx,int16_t mcy,uint8_t mcNum)
 {
     if(!disObj->visible||disObj->alpha==0)
         return;
@@ -1044,11 +1093,14 @@ typedef struct {
     uint16_t *pixels;
     uint32_t *row_start;
     Fast4Span *spans;
+    uint16_t colors[16];
 } Fast4Cache;
 
 #define FAST4_CACHE_SLOTS 4
 static Fast4Cache fast4_caches[FAST4_CACHE_SLOTS];
 static uint8_t fast4_cache_count;
+static size_t fast4_compact_bytes;
+#define FAST4_COMPACT_BUDGET 4096
 
 static inline uint8_t fast4_index(const uint8_t *pixels, uint32_t index){
     return (pixels[index >> 1] >> ((index & 1) * 4)) & 15;
@@ -1064,6 +1116,26 @@ void gviewPrepareFast4BitSprite(const DisplayObject *sprite){
     const uint32_t pixel_count = (uint32_t)width * height;
     const uint8_t *palette = sprite->p + sprite->frameOffset;
     const uint8_t *packed = palette + 30;
+    if(stripRows){
+        // Keep only each row's nontransparent bounds and the small palette.
+        // Four 240-row trees fit in 4 KB, without decoded RGB565 images.
+        const size_t bytes=(size_t)height*sizeof(Fast4Span)+sizeof(fast4_caches[0].colors);
+        if(bytes>FAST4_COMPACT_BUDGET-fast4_compact_bytes)return;
+        Fast4Span *rows=malloc((size_t)height*sizeof(*rows));
+        if(!rows)return;
+        for(uint16_t y=0;y<height;++y){
+            uint16_t left=0,right=width;
+            while(left<right && fast4_index(packed,(uint32_t)y*width+left)==15)++left;
+            while(right>left && fast4_index(packed,(uint32_t)y*width+right-1)==15)--right;
+            rows[y]=(Fast4Span){left,(uint16_t)(right-left)};
+        }
+        Fast4Cache *cache=&fast4_caches[fast4_cache_count++];
+        *cache=(Fast4Cache){.source=sprite->p,.width=width,.height=height,.spans=rows};
+        for(unsigned i=0;i<15;++i)
+            cache->colors[i]=((uint16_t)palette[i*2+1]<<8)|palette[i*2];
+        fast4_compact_bytes+=bytes;
+        return;
+    }
     uint32_t span_count = 0;
     for(uint16_t y=0; y<height; ++y){
         uint16_t x=0;
@@ -1110,7 +1182,7 @@ void gviewPrepareFast4BitSprite(const DisplayObject *sprite){
     };
 }
 
-static FAST_CODE uint8_t render_fast4_image(DisplayObject *sprite, int16_t mcx,
+static RENDER_HOT uint8_t render_fast4_image(DisplayObject *sprite, int16_t mcx,
                                               int16_t mcy, uint8_t mcNum){
     if(sprite->alpha != 15 || sprite->color != COLORNONE || (sprite->dir & 0x0f))
         return 0;
@@ -1127,6 +1199,34 @@ static FAST_CODE uint8_t render_fast4_image(DisplayObject *sprite, int16_t mcx,
     if(!clip.valid) return 1;
     const int16_t src_left = clip.left - origin_x;
     const int16_t src_right = clip.right - origin_x;
+    if(!cache->pixels){
+        const uint8_t *packed=sprite->p+sprite->frameOffset+30;
+        for(int16_t y=clip.top;y<clip.bottom;++y){
+            const uint16_t src_y=y-origin_y;
+            const Fast4Span row=cache->spans[src_y];
+            int16_t left=row.x>src_left?row.x:src_left;
+            const int16_t right=row.x+row.length<src_right?row.x+row.length:src_right;
+            if(left>=right)continue;
+            uint16_t *dst=&picCache[(y-rendSY)*rendW+origin_x+left-rendSX];
+            uint32_t index=(uint32_t)src_y*cache->width+left;
+            if(index&1){
+                uint8_t id=fast4_index(packed,index++);
+                if(id!=15)*dst=cache->colors[id];
+                ++dst;++left;
+            }
+            while(left+1<right){
+                const uint8_t pair=packed[index>>1];
+                if((pair&15)!=15)dst[0]=cache->colors[pair&15];
+                if((pair>>4)!=15)dst[1]=cache->colors[pair>>4];
+                dst+=2;index+=2;left+=2;
+            }
+            if(left<right){
+                uint8_t id=fast4_index(packed,index);
+                if(id!=15)*dst=cache->colors[id];
+            }
+        }
+        return 1;
+    }
     for(int16_t y=clip.top; y<clip.bottom; ++y){
         const uint16_t src_y = y - origin_y;
         uint16_t *dst = &picCache[(y-rendSY)*rendW + clip.left-rendSX];
@@ -1143,7 +1243,7 @@ static FAST_CODE uint8_t render_fast4_image(DisplayObject *sprite, int16_t mcx,
     return 1;
 }
 
-static FAST_CODE void render_4bit_image(DisplayObject* disObj,int16_t mcx,int16_t mcy,uint8_t mcNum)
+static RENDER_HOT void render_4bit_image(DisplayObject* disObj,int16_t mcx,int16_t mcy,uint8_t mcNum)
 {
     if(!disObj->visible||disObj->alpha==0)
         return;
@@ -1512,7 +1612,7 @@ static FAST_CODE void render_4bit_image(DisplayObject* disObj,int16_t mcx,int16_
 
 
 
-static FAST_CODE void render_1bit_image(DisplayObject* disObj,int16_t mcx,int16_t mcy,uint8_t mcNum)
+static RENDER_HOT void render_1bit_image(DisplayObject* disObj,int16_t mcx,int16_t mcy,uint8_t mcNum)
 {
     if(!disObj->visible||disObj->alpha==0)
         return;
@@ -2061,7 +2161,7 @@ void refrushImgRotate(DisObjAction* action)
     dstH = srcW*fabs(si)+srcH*fabs(co);  
     dstW = srcW*fabs(co)+srcH*fabs(si);  
 
-    uint16_t picLength = 0;
+    size_t picLength = 0;
     if(action->p[0] == 16){
         picLength = dstW*dstH*2*sizeof(unsigned char)+14;
     }else if(action->p[0] == 13){  // 新增
@@ -2075,15 +2175,17 @@ void refrushImgRotate(DisObjAction* action)
     }
     my_free(action->disObj->p);//释放原图内存
     unsigned char* pDst = (unsigned char*)my_malloc(picLength);  //用完需要释放
+    if(!pDst){
+        action->disObj->p=action->p;action->disObj->width=srcW;action->disObj->height=srcH;
+        action->disObj->frameOffset=action->frameOffset;action->angle=0;return;
+    }
     memset(pDst,0xFF,picLength);  
     pDst[0] = action->p[0];//类型
     pDst[1] = 1;//帧数
-    pDst[2] = dstW;//宽
-    pDst[3] = dstH;//高
-    pDst[4] = 0x7f;//偏移
-    pDst[5] = 0x7f;//偏移
-    pDst[6] = 1;//下一帧间隔（帧）
-    
+    pDst[2] = dstW>>8; pDst[3] = dstW;
+    pDst[4] = dstH>>8; pDst[5] = dstH;
+    pDst[6] = pDst[7] = 0x7f; pDst[8] = 1;
+
     action->disObj->p = pDst;    
     action->disObj->frameOffset = basicOffset + 2;
     //计算偏移  
@@ -2091,9 +2193,9 @@ void refrushImgRotate(DisObjAction* action)
     yOff=dstH/2;  
   
     
-    for (uint8_t y=0;y<dstH;y++)  
+    for (uint16_t y=0;y<dstH;y++)
     {  
-        for (uint8_t x=0;x<dstW;x++)  
+        for (uint16_t x=0;x<dstW;x++)
         {  
             //求取在原图中的坐标  
             ySrc = si*(x-xOff)+co*(y-yOff)+(srcH/2);  
@@ -2108,15 +2210,15 @@ void refrushImgRotate(DisObjAction* action)
                     uint32_t dst_index = (uint32_t)y * dstW + (uint32_t)x;
                     
                     if (src_index < (uint32_t)srcW * srcH && dst_index < (uint32_t)dstW * dstH) {
-                        uint16_t color = ((uint16_t *)(action->p + action->frameOffset))[src_index];
-                        ((uint16_t *)pDst)[dst_index] = color;
+                        uint16_t color = read_le16(action->p+action->frameOffset+src_index*2);
+                        write_le16(pDst+basicOffset+2+dst_index*2,color);
                     } else {
                         // 超出范围，设置为透明
-                        ((uint16_t *)pDst)[dst_index] = 0x0001;
+                        write_le16(pDst+basicOffset+2+dst_index*2,0x0001);
                     }
                 } else if(action->p[0] == 13){
                     // RGB454+A3格式
-                    uint16_t src_color = ((uint16_t *)(action->p + action->frameOffset))[(uint16_t)ySrc * srcW + (uint16_t)xSrc];
+                    uint16_t src_color = read_le16(action->p+action->frameOffset+((uint32_t)ySrc*srcW+(uint32_t)xSrc)*2);
                     src_color = src_color >> 8 | src_color << 8;  // 字节交换
                     
                     uint16_t a = src_color >> 13;
@@ -2128,10 +2230,10 @@ void refrushImgRotate(DisObjAction* action)
                         uint16_t dst_color = (a << 13) | ((ra/2) << 9) | ((ga/2) << 4) | (ba/2);
                         dst_color = dst_color >> 8 | dst_color << 8;
                         
-                        ((uint16_t *)pDst)[y * dstW + x] = dst_color;
+                        write_le16(pDst+basicOffset+2+((uint32_t)y*dstW+x)*2,dst_color);
                     } else {
                         // 完全透明
-                        ((uint16_t *)pDst)[y * dstW + x] = 0x0001;
+                        write_le16(pDst+basicOffset+2+((uint32_t)y*dstW+x)*2,0x0001);
                     }
                 }else if(action->p[0] == 8){
                     pDst[y*dstW+x+basicOffset+2] = action->p[(uint16_t)ySrc*srcW+(uint16_t)xSrc+action->frameOffset];
@@ -2158,8 +2260,7 @@ void refrushImgRotate(DisObjAction* action)
                 }
             }else{
                 if(action->p[0] == 16){
-                    pDst[(y*dstW+x)*2+basicOffset+2+1] = 0x1;
-                    pDst[(y*dstW+x)*2+basicOffset+2] = 0x0;
+                    write_le16(pDst+basicOffset+2+((uint32_t)y*dstW+x)*2,0x0001);
                 }
             }
         }
@@ -2301,17 +2402,17 @@ void setScalePic(DisObjAction* action){
                 
                 uint32_t src_index = src_y * srcW + src_x;
                 if (src_index < (uint32_t)srcW * srcH) {
-                    uint16_t color = ((uint16_t *)(p + pixOffset))[src_index];
-                    ((uint16_t *)pDst)[basicOffset + 2 + y * dstW + x] = color;
+                    uint16_t color = read_le16(p+pixOffset+src_index*2);
+                    write_le16(pDst+basicOffset+2+((uint32_t)y*dstW+x)*2,color);
                 } else {
-                    ((uint16_t *)pDst)[basicOffset + 2 + y * dstW + x] = 0x0001;
+                    write_le16(pDst+basicOffset+2+((uint32_t)y*dstW+x)*2,0x0001);
                 }
             }
         }
     }else if(p[0] == 13){
 
-        uint16_t *src_data = (uint16_t *)(p + pixOffset);
-        uint16_t *dst_data = (uint16_t *)(pDst + basicOffset +2);
+        const uint8_t *src_data = p + pixOffset;
+        uint8_t *dst_data = pDst + basicOffset +2;
         
         for(uint16_t y = 0; y < dstH; y++){
             uint32_t src_y = (uint32_t)(y * snumy);
@@ -2319,10 +2420,10 @@ void setScalePic(DisObjAction* action){
                 uint32_t src_x = (uint32_t)(x * snumx);
                 
                 if (src_y < srcH && src_x < srcW) {
-                    uint16_t src_color = src_data[src_y * srcW + src_x];
-                    dst_data[y * dstW + x] = src_color;
+                    uint16_t src_color = read_le16(src_data+(src_y*srcW+src_x)*2);
+                    write_le16(dst_data+((uint32_t)y*dstW+x)*2,src_color);
                 } else {
-                    dst_data[y * dstW + x] = 0x0001;  // 透明像素
+                    write_le16(dst_data+((uint32_t)y*dstW+x)*2,0x0001);  // 透明像素
                 }
             }
         }
@@ -2480,6 +2581,7 @@ void addChild(uint8_t num,DisplayObject *disObj){
 
 
 DisplayObject* getChildAt(DisplayObject *disObj,uint16_t num){
+    if(collectingRenderStats)++renderStats.sceneLookups;
     for(uint16_t i=0;i<displayObjMaxNum;i++){
         if(displayMc[i].parent == disObj){
             if(displayMc[i].deep == num){
@@ -2966,7 +3068,7 @@ static FAST_CODE void render_16bit_4corner_image( DisplayObject *disObj, int16_t
     // PIC像素数据
     //--------------------------------
 
-    uint16_t *src = (uint16_t *) ( disObj->p + disObj->frameOffset );
+    const uint8_t *src = disObj->p + disObj->frameOffset;
     //--------------------------------
     // Alpha
     //--------------------------------
@@ -3103,7 +3205,7 @@ static FAST_CODE void render_16bit_4corner_image( DisplayObject *disObj, int16_t
             // 读取PIC原始像素
             //--------------------------------
 
-            uint16_t color = src[(uint32_t)srcY * srcW + srcX ];
+            uint16_t color = read_le16(src+((uint32_t)srcY*srcW+srcX)*2);
             //--------------------------------
             // 透明色跳过
             //--------------------------------
@@ -3341,9 +3443,9 @@ void PIC_DrawCircle(uint8_t *p,short xc, short yc, uint8_t r, uint8_t mode,uint8
     }
 }
 
-void PIC_DrawRect(uint8_t *p,short x, short y, uint8_t w, uint8_t h){
-    for(uint8_t i=0;i<h;i++){
-        for(uint8_t t=0;t<w;t++){
+void PIC_DrawRect(uint8_t *p,short x, short y, uint16_t w, uint16_t h){
+    for(uint16_t i=0;i<h;i++){
+        for(uint16_t t=0;t<w;t++){
             setPColor1(p,x+t,y+i);
         }
     }
@@ -3384,9 +3486,9 @@ DisplayObject* newRoundRectDisObj(uint16_t $color,uint16_t $w,uint16_t $h,short 
     memset(p,0,basicOffset+2+($w* $h/8+1));
     p[0] = 1;
     p[1] = 1;
-    p[2] = $w<<8&0xFF;
+    p[2] = ($w>>8)&0xFF;
     p[3] = $w&0xFF;
-    p[4] = $h<<8&0xFF;
+    p[4] = ($h>>8)&0xFF;
     p[5] = $h&0xFF;
     p[6] = p[7] = 0x7f;
     p[8] = 0;
@@ -3696,7 +3798,7 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
     if (!disObjTemp || !disObjTemp->visible || disObjTemp->alpha == 0) return;
     
     // 处理子对象
-    if (disObjTemp->childrenNum) {
+    if (!renderCommandsActive && disObjTemp->childrenNum) {
         for (uint16_t i = 0; i < disObjTemp->childrenNum; i++) {
             DisplayObject *objTemp = getChildAt(disObjTemp,i);
             DrawPic_disObj(objTemp, mcx + objTemp->parent->x, mcy + objTemp->parent->y, McNumber);
@@ -3705,7 +3807,7 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
     
     // 处理动画
     if (disObjTemp->ac && disObjTemp->ac->Type == 1) {
-        if (disObjTemp->ac->playing) {            
+        if (advanceRenderActions && disObjTemp->ac->playing) {
             if (disObjTemp->ac->totallFrame > 1) {
                 if (disObjTemp->ac->frameTime > 0) {
                     disObjTemp->ac->frameTime --;
@@ -3722,6 +3824,7 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
             }
         }
 
+        if (advanceRenderActions) {
         if ((disObjTemp->ac->scaleXNow != disObjTemp->ac->scaleX) || 
             (disObjTemp->ac->scaleYNow != disObjTemp->ac->scaleY) || 
             disObjTemp->ac->scaleXNow != 100 || 
@@ -3732,6 +3835,7 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
             }
         } else {
             rotaAction(disObjTemp->ac, disObjTemp->ac->angle);
+        }
         }
         mcx -= disObjTemp->width >> 1;
         mcy -= disObjTemp->height >> 1;
@@ -3765,14 +3869,21 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
             // 图片偏移
             if (disObjTemp->ac) {
                 if (disObjTemp->ac->p) {
-                    mcx -= (0x7F - (short)disObjTemp->ac->p[6 + disObjTemp->ac->currentFrame * basicOffset]) * (disObjTemp->ac->scaleX / 100.0f);
-                    mcy -= (0x7F - (short)disObjTemp->ac->p[7 + disObjTemp->ac->currentFrame * basicOffset]) * (disObjTemp->ac->scaleY / 100.0f);
+                    const int dx=0x7F-(short)disObjTemp->ac->p[6+disObjTemp->ac->currentFrame*basicOffset];
+                    const int dy=0x7F-(short)disObjTemp->ac->p[7+disObjTemp->ac->currentFrame*basicOffset];
+                    mcx -= disObjTemp->ac->scaleX==100?dx:dx*(disObjTemp->ac->scaleX/100.0f);
+                    mcy -= disObjTemp->ac->scaleY==100?dy:dy*(disObjTemp->ac->scaleY/100.0f);
                 }
             }else{
                 mcx -= 0x7F - (short)disObjTemp->p[6];
                 mcy -= 0x7F - (short)disObjTemp->p[7];
             }
                 
+            if(activeCommand){
+                activeCommand->bounded=1;
+                activeCommand->top=mcy+disObjTemp->y;
+                activeCommand->bottom=activeCommand->top+disObjTemp->height;
+            }
             if (disObjTemp->nativeIcon && !stage.movieclipArr[McNumber].Mask &&
                 nativeIconDraw &&
                 nativeIconDraw(disObjTemp, mcx + disObjTemp->x,
@@ -3786,7 +3897,8 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
                     uint8_t *pt = disObjTemp->p + disObjTemp->frameOffset;
                     for (ry = pt[rx]; ry < disObjTemp->height; ry++) {
                         sy = mcy + disObjTemp->y + ry;
-                        if (sy < rendSY || sy >= rendEY) break;
+                        if (sy < rendSY) continue;
+                        if (sy >= rendEY) break;
                         set_pixel_fast(sx, sy, disObjTemp->color, disObjTemp->alpha);
                     }
                 }
@@ -3808,22 +3920,31 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
             break;
             
         case 3: // 纯色矩形
+            if(activeCommand){
+                activeCommand->bounded=1;
+                activeCommand->top=mcy+disObjTemp->y;
+                activeCommand->bottom=activeCommand->top+disObjTemp->height;
+            }
             render_rectangle(disObjTemp, mcx, mcy, McNumber);
             break;
             
         case 2: // 数字
-            sprintf(disObjftemp, "%.*f", disObjTemp->dot, disObjTemp->num);
-            reTxtframeAlign(disObjTemp, disObjftemp);
+            if(!activeCommand || advanceRenderActions){
+            char *number=activeCommand?activeCommand->number:disObjftemp;
+            snprintf(number,sizeof(disObjftemp),"%.*f",disObjTemp->dot,disObjTemp->num);
+            ++renderStats.numberFormats;
+            reTxtframeAlign(disObjTemp, number);
             switch (disObjTemp->dir) {
                 case alignLeft:
                     disObjTemp->offsetx = 0;
                     break;
                 case alignMiddle:
-                    disObjTemp->offsetx = -strlen(disObjftemp) * disObjTemp->size / 2 / 2;
+                    disObjTemp->offsetx = -strlen(number) * disObjTemp->size / 2 / 2;
                     break;
                 case alignRight:
-                    disObjTemp->offsetx = -strlen(disObjftemp) * (disObjTemp->size / 2);
+                    disObjTemp->offsetx = -strlen(number) * (disObjTemp->size / 2);
                     break;
+            }
             }
             // 继续执行文本渲染
             // 注意：这里没有break，会继续执行case 1的代码
@@ -3831,8 +3952,13 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
         case 1: { // Text stays inside the active square LCD source area.
             const uint8_t *text = (const uint8_t *)disObjTemp->f;
             if (!text || !disObjTemp->size) break;
-            const int16_t left = rendH == 240 ? 40 : 75;
-            const int16_t right = rendH == 240 ? 280 : 245;
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+            const int16_t left=0,right=winW;
+#else
+            const uint16_t frameHeight=stripRows?renderFrameHeight:rendH;
+            const int16_t left = frameHeight == 240 ? 40 : 75;
+            const int16_t right = frameHeight == 240 ? 280 : 245;
+#endif
             const int16_t char_w = disObjTemp->size / 2;
             const int16_t max_cols = ((right - left) / char_w) & ~1;
             int16_t cols = 0, max_line_cols = 0, lines = 1;
@@ -3868,7 +3994,8 @@ void FAST_CODE DrawPic_disObj(DisplayObject* disObjTemp, int16_t mcx, int16_t mc
             if (!stage.movieclipArr[McNumber].Mask) {
                 if (base_y < 0) base_y = 0;
                 const int16_t text_h = lines * (disObjTemp->size + 2) - 2;
-                if (base_y + text_h > rendEY) base_y = rendEY > text_h ? rendEY - text_h : 0;
+                const uint16_t frameBottom=stripRows?renderFrameBottom:rendEY;
+                if (base_y + text_h > frameBottom) base_y = frameBottom > text_h ? frameBottom - text_h : 0;
             }
             int16_t clip_left = left, clip_top = rendSY;
             int16_t clip_right = right, clip_bottom = rendEY;
@@ -3962,7 +4089,7 @@ void FAST_CODE DrawPic(uint8_t mcNum)
 }
 
 // ===================== 优化的渲染窗口函数 =====================
-void FAST_CODE rendWin(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t bg)
+static void FAST_CODE renderRegion(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t bg)
 {
     if (nativeTextBegin) nativeTextBegin();
     if (nativeIconBegin) nativeIconBegin();
@@ -3993,23 +4120,79 @@ void FAST_CODE rendWin(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint1
     }
     
     // 渲染各层
-    for (uint16_t n = 0; n < moveClipMaxNum; n++) {
-        if (stage.movieclipArr[n].visible) {
-            DrawPic(n);
+    if(renderCommandsActive){
+        for(uint16_t i=0;i<renderCommandCount;++i){
+            RenderCommand *command=&renderCommands[i];
+            if(!advanceRenderActions && command->bounded &&
+               (command->bottom<=sy || command->top>=ey))continue;
+            activeCommand=command;
+            ++renderStats.drawCalls;
+            DrawPic_disObj(command->object,command->x,command->y,command->layer);
+        }
+        activeCommand=NULL;
+    }else{
+        for (uint16_t n = 0; n < moveClipMaxNum; n++) {
+            if (stage.movieclipArr[n].visible) DrawPic(n);
         }
     }
     spiSendHd = 1;
 }
 
 // ===================== 初始化函数 =====================
+static void appendRenderCommand(DisplayObject *object,int16_t x,int16_t y,uint8_t layer){
+    if(!object || !object->type || !object->visible || !object->alpha)return;
+    for(uint16_t i=0;i<object->childrenNum;++i)
+        appendRenderCommand(getChildAt(object,i),x+object->x,y+object->y,layer);
+    assert(renderCommandCount<displayObjMaxNum);
+    RenderCommand *command=&renderCommands[renderCommandCount++];
+    command->object=object;command->x=x;command->y=y;
+    command->layer=layer;command->bounded=0;
+}
+static void prepareRenderCommands(void){
+    renderCommandCount=0;
+    for(uint16_t layer=0;layer<moveClipMaxNum;++layer){
+        const MovieClip *mc=&stage.movieclipArr[layer];
+        if(!mc->visible)continue;
+        for(uint16_t i=0;i<mc->length;++i){
+            DisplayObject *object=getChildAt(&stage.movieclipArr[layer].disObj,i);
+            if(!object || !object->type)break;
+            appendRenderCommand(object,mc->x,mc->y,layer);
+        }
+    }
+    renderStats.commands=renderCommandCount;
+    renderCommandsActive=1;
+}
+void FAST_CODE rendWin(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t bg){
+    renderStats=(GVIEWRenderStats){0};renderStats.scenePasses=1;collectingRenderStats=1;
+    renderFrameBottom=ey;renderFrameHeight=ey-sy;
+    if(!stripRows){advanceRenderActions=1;renderStats.strips=1;renderRegion(sx,sy,ex,ey,bg);collectingRenderStats=0;return;}
+    prepareRenderCommands();
+    assert(sx<ex && sy<ey && ex<=winW && ey<=winH);
+    for(uint16_t top=sy;top<ey;){
+        uint16_t end=top+stripRows;
+        if(end>ey) end=ey;
+        advanceRenderActions=top==sy;
+        ++renderStats.strips;
+        renderRegion(sx,top,ex,end,bg);
+        if(stripOverlay) stripOverlay();
+        stripSink(sx,top,ex-sx,end-top,picCache);
+        top=end;
+    }
+    if(stripCompletion)stripCompletion();
+    renderCommandsActive=0;collectingRenderStats=0;
+    advanceRenderActions=1;
+    spiSendHd=0;
+}
+
 void gviewInit(uint16_t $winW, uint16_t $winH, uint16_t $moveClipMaxNum, uint16_t $displayObjMaxNum, uint16_t $MaxTweenNum, uint16_t $MaxActionNum, uint8_t $fps)
 {
+    gviewReady=0;
     winW = $winW;
     winH = $winH;
     fps = $fps;
     
     // 分配内存
-    picCache = (uint16_t *)GVIEW_MALLOC((size_t)winW * (winH > 240 ? winH : 240) * sizeof(uint16_t));
+    picCache = (uint16_t *)GVIEW_MALLOC((size_t)winW * (stripRows ? stripRows : (winH > 240 ? winH : 240)) * sizeof(uint16_t));
     if (!picCache) {
         printf("[GVIEW] Error: Failed to allocate frame buffer!\n");
         return;
@@ -4034,8 +4217,9 @@ void gviewInit(uint16_t $winW, uint16_t $winH, uint16_t $moveClipMaxNum, uint16_
     displayMc = (DisplayObject *)GVIEW_MALLOC(displayObjMaxNum * sizeof(DisplayObject));
     TweenArr = (TweenS *)GVIEW_MALLOC(MaxTweenNum * sizeof(TweenS));
     Action = (DisObjAction *)GVIEW_MALLOC(MaxActionNum * sizeof(DisObjAction));
+    if(stripRows)renderCommands=GVIEW_MALLOC(displayObjMaxNum*sizeof(RenderCommand));
     
-    if (!stage.movieclipArr|| !displayMc  || !TweenArr || !Action) {
+    if (!stage.movieclipArr|| !displayMc  || !TweenArr || !Action || (stripRows && !renderCommands)) {
         printf("[GVIEW] Error: Failed to allocate structure memory!\n");
         if (picCache) free(picCache);
         if (picCacheTemp) free(picCacheTemp);
@@ -4043,6 +4227,7 @@ void gviewInit(uint16_t $winW, uint16_t $winH, uint16_t $moveClipMaxNum, uint16_
         if (displayMc) free(displayMc);
         if (TweenArr) free(TweenArr);
         if (Action) free(Action);
+        if (renderCommands) free(renderCommands);
         return;
     }
     
@@ -4064,6 +4249,7 @@ void gviewInit(uint16_t $winW, uint16_t $winH, uint16_t $moveClipMaxNum, uint16_
     memset(Action, 0, MaxActionNum * sizeof(DisObjAction));
     memset(displayMc, 0, displayObjMaxNum * sizeof(DisplayObject));
     
+    gviewReady=1;
     printf("[GVIEW] System initialized successfully\n");
 }
 

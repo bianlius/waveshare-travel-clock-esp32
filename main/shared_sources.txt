@@ -1,0 +1,33 @@
+# Shared production sources. Add a common .c file here once for all targets.
+# app: common UI, models, assets and runtime, also compiled by the desktop host.
+# network: production ESP networking; the desktop provides host services.
+# renderer / viewport: shared engine components, independent of board drivers.
+app main/app_runtime.c
+app main/pic_data/picGroup.c
+app main/rom.c
+app main/wifi_ssid.c
+app main/sound_catalog.c
+app main/pinyin.c
+app main/PAGE/pageDraw.c
+app main/PAGE/HOME/home.c
+app main/PAGE/HOME/pkmMovie.c
+app main/PAGE/HOME/calendar.c
+app main/PAGE/SHOP/shop.c
+app main/PAGE/SHOP/shop_model.c
+app main/PAGE/MENU/menu.c
+app main/PAGE/WIFI/wifiScanPage.c
+app main/PAGE/CITY/city.c
+app main/PAGE/TCLOCK/tclock.c
+app main/PAGE/SETTING/setting.c
+app main/PAGE/SETTING/clockSetting.c
+app main/PAGE/WEATHER/weather.c
+app main/PAGE/GARDEN/garden.c
+app main/PAGE/GARDEN/gardenShop.c
+app main/PAGE/INPUTTXT/inputtxt.c
+app main/PAGE/INPUTTXT/wifi_keyboard.c
+network main/NET/connect.c
+network main/NET/RTC_Internet.c
+network main/NET/weather_forecast.c
+renderer components/GVIEW/gview.c
+renderer components/GVIEW/utf8_gb2312_switch.c
+viewport components/GVIEW/viewport.c

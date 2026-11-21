@@ -72,6 +72,15 @@ void pkmMovieEx1(u8 index){
     pkmMvProp[index].nextTime=fps*(2+timeOffset);
 }
 
+static u8 followerUsesFixedCadence(const u8 *animation){
+    if(animation==followerWingull || animation==followerNinjask || animation==followerMetang ||
+       animation==followerTropius)
+        return 1;
+    for(u8 id=SHOP_FIRST_DOWNLOADED_FOLLOWER;id<getShopListArrNum(0);++id)
+        if(animation==momsterListArr[id-1]) return 1;
+    return 0;
+}
+
 void pkmMovieEx2(u8 index,short yOffset){
     //飞行精灵动画处理
     if(index>=5 || !pkmMvProp[index].disOb) return;
@@ -96,7 +105,7 @@ void pkmMovieEx2(u8 index,short yOffset){
             if(moveRange>maxX) moveRange=maxX;
         }
         // These flight loops keep a steady cadence in both directions.
-        if(follower->ac->p==followerWingull || follower->ac->p==followerMetang || follower->ac->p==followerTropius || follower->x>moveRange){
+        if(followerUsesFixedCadence(follower->ac->p) || follower->x>moveRange){
             follower->ac->frameMultiple = 1;
         }else{
             follower->ac->frameMultiple = 0.5;

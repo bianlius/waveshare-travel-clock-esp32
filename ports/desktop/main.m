@@ -26,9 +26,9 @@ void desktop_audio_volume(float volume){soundVolume=volume;player.volume=soundEn
 
 static CGImageRef gameImage(void){
     const uint32_t *data=desktop_pixels();
-    CGDataProviderRef provider=CGDataProviderCreateWithData(NULL,data,240*240*4,NULL);
+    CGDataProviderRef provider=CGDataProviderCreateWithData(NULL,data,DESKTOP_WIDTH*DESKTOP_HEIGHT*4,NULL);
     CGColorSpaceRef space=CGColorSpaceCreateDeviceRGB();
-    CGImageRef image=CGImageCreate(240,240,8,32,240*4,space,
+    CGImageRef image=CGImageCreate(DESKTOP_WIDTH,DESKTOP_HEIGHT,8,32,DESKTOP_WIDTH*4,space,
         kCGBitmapByteOrder32Little|kCGImageAlphaNoneSkipFirst,provider,NULL,false,kCGRenderingIntentDefault);
     CGColorSpaceRelease(space);CGDataProviderRelease(provider);return image;
 }
@@ -62,17 +62,17 @@ static void capture(const char *name){
 - (BOOL)isFlipped{return YES;}
 - (BOOL)acceptsFirstResponder{return YES;}
 - (void)drawRect:(NSRect)rect{
-    (void)rect;CGImageRef image=gameImage();NSImage *bitmap=[[NSImage alloc] initWithCGImage:image size:NSMakeSize(240,240)];
+    (void)rect;CGImageRef image=gameImage();NSImage *bitmap=[[NSImage alloc] initWithCGImage:image size:NSMakeSize(DESKTOP_WIDTH,DESKTOP_HEIGHT)];
     [bitmap drawInRect:self.bounds fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1
         respectFlipped:YES hints:@{NSImageHintInterpolation:@(NSImageInterpolationNone)}];CGImageRelease(image);
 }
 - (void)mouseDown:(NSEvent *)event{
     [self.window makeFirstResponder:self];NSPoint p=[self convertPoint:event.locationInWindow fromView:nil];
-    self.startPoint=NSMakePoint(p.x*240/self.bounds.size.width,p.y*240/self.bounds.size.height);
+    self.startPoint=NSMakePoint(p.x*DESKTOP_WIDTH/self.bounds.size.width,p.y*DESKTOP_HEIGHT/self.bounds.size.height);
 }
 - (void)mouseUp:(NSEvent *)event{
     NSPoint p=[self convertPoint:event.locationInWindow fromView:nil];
-    desktop_touch(self.startPoint.x,self.startPoint.y,p.x*240/self.bounds.size.width,p.y*240/self.bounds.size.height);
+    desktop_touch(self.startPoint.x,self.startPoint.y,p.x*DESKTOP_WIDTH/self.bounds.size.width,p.y*DESKTOP_HEIGHT/self.bounds.size.height);
     [self.controller frame:nil];
 }
 - (void)keyDown:(NSEvent *)event{
@@ -85,7 +85,7 @@ static void capture(const char *name){
     NSString *c=event.charactersIgnoringModifiers.lowercaseString;
     if([c isEqualToString:@" "]){self.controller.paused=!self.controller.paused;return;}
     if(key==53){desktop_key(0,1);return;}
-    if(c.length==1 && [@"12345678" containsString:c]){desktop_open([c intValue]-1);return;}
+    if(c.length==1 && [@"1234567" containsString:c]){desktop_open([c intValue]-1);return;}
     if([c isEqualToString:@"d"])desktop_day();
     if([c isEqualToString:@"w"])desktop_weather();
     if([c isEqualToString:@"["])desktop_cycle_companion(-1);
@@ -93,7 +93,7 @@ static void capture(const char *name){
 }
 - (void)keyUp:(NSEvent *)event{
     NSNumber *start=self.downTimes[@(event.keyCode)];if(!start)return;
-    BOOL held=([NSDate timeIntervalSinceReferenceDate]-start.doubleValue)>0.65 || (event.modifierFlags&NSEventModifierFlagShift);
+    BOOL held=([NSDate timeIntervalSinceReferenceDate]-start.doubleValue)>(event.keyCode==36 || event.keyCode==76 ? 1.5 : 0.65) || (event.modifierFlags&NSEventModifierFlagShift);
     desktop_key(event.keyCode==123?0:event.keyCode==124?2:1,held);
     [self.downTimes removeObjectForKey:@(event.keyCode)];[self.controller frame:nil];
 }
@@ -134,34 +134,35 @@ static void capture(const char *name){
         }
     }
     NSArray *dirs=NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,NSUserDomainMask,YES);
-    NSString *state=[dirs.firstObject stringByAppendingPathComponent:@"GVIEW Travel Simulator"];
+    NSString *state=[dirs.firstObject stringByAppendingPathComponent:@(DESKTOP_WIDTH==320?"GVIEW Travel Passport Simulator":"GVIEW Travel Simulator")];
     [[NSFileManager defaultManager] createDirectoryAtPath:state withIntermediateDirectories:YES attributes:nil error:NULL];
     desktop_init(state.fileSystemRepresentation,NSBundle.mainBundle.resourcePath.fileSystemRepresentation);
-    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,512,746)
+    const CGFloat canvasWidth=DESKTOP_WIDTH*2,windowWidth=canvasWidth+32;
+    self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,windowWidth,746)
         styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable
         backing:NSBackingStoreBuffered defer:NO];
-    self.window.title=@"GVIEW 旅行时钟 · 电脑模拟";self.window.delegate=self;
+    self.window.title=DESKTOP_WIDTH==320?@"GVIEW 旅行时钟 · AI Passport 横屏":@"GVIEW 旅行时钟 · 电脑模拟";self.window.delegate=self;
     self.window.appearance=[NSAppearance appearanceNamed:NSAppearanceNameAqua];
-    self.window.contentView=[[FlippedView alloc] initWithFrame:NSMakeRect(0,0,512,746)];
-    NSArray *tabs=@[@"主页",@"森林",@"商店",@"花园",@"设置",@"日历",@"时钟",@"天气"];
-    for(int i=0;i<8;i++)[self button:tabs[i] frame:NSMakeRect(16+i*60,12,57,28) tag:i action:@selector(openPage:) held:NO];
-    Canvas *canvas=[[Canvas alloc] initWithFrame:NSMakeRect(16,52,480,480)];canvas.controller=self;
+    self.window.contentView=[[FlippedView alloc] initWithFrame:NSMakeRect(0,0,windowWidth,746)];
+    NSArray *tabs=@[@"主页",@"森林",@"商店",@"花园",@"设置",@"日历",@"天气"];
+    for(int i=0;i<7;i++)[self button:tabs[i] frame:NSMakeRect(16+i*canvasWidth/7,12,canvasWidth/7-3,28) tag:i action:@selector(openPage:) held:NO];
+    Canvas *canvas=[[Canvas alloc] initWithFrame:NSMakeRect(16,52,canvasWidth,DESKTOP_HEIGHT*2)];canvas.controller=self;
     self.canvas=canvas;[self.window.contentView addSubview:canvas];
     NSArray *keys=@[@"◀ 左键",@"● 中键",@"右键 ▶"];
-    for(int i=0;i<3;i++)[self button:keys[i] frame:NSMakeRect(16+i*162,545,156,30) tag:i action:@selector(physical:) held:YES];
+    for(int i=0;i<3;i++)[self button:keys[i] frame:NSMakeRect(16+i*(canvasWidth+6)/3,545,(canvasWidth-12)/3,30) tag:i action:@selector(physical:) held:YES];
     [self button:@"◀ 上一只" frame:NSMakeRect(16,584,132,28) tag:-1 action:@selector(cycleCompanion:) held:NO];
-    [self button:@"下一只 ▶" frame:NSMakeRect(364,584,132,28) tag:1 action:@selector(cycleCompanion:) held:NO];
+    [self button:@"下一只 ▶" frame:NSMakeRect(windowWidth-148,584,132,28) tag:1 action:@selector(cycleCompanion:) held:NO];
     self.companionName=[NSTextField labelWithString:@""];
-    self.companionName.frame=NSMakeRect(152,588,208,22);self.companionName.alignment=NSTextAlignmentCenter;
+    self.companionName.frame=NSMakeRect(152,588,windowWidth-304,22);self.companionName.alignment=NSTextAlignmentCenter;
     self.companionName.font=[NSFont systemFontOfSize:13];[self.window.contentView addSubview:self.companionName];
     NSArray *controls=@[@"切换时段",@"切换天气",@"暂停",@"声音：关",@"+5万金币"];
-    for(int i=0;i<5;i++)[self button:controls[i] frame:NSMakeRect(16+i*96,626,93,28) tag:i action:@selector(control:) held:NO];
-    self.status=[NSTextField labelWithString:@""];self.status.frame=NSMakeRect(20,662,476,24);
+    for(int i=0;i<5;i++)[self button:controls[i] frame:NSMakeRect(16+i*canvasWidth/5,626,canvasWidth/5-3,28) tag:i action:@selector(control:) held:NO];
+    self.status=[NSTextField labelWithString:@""];self.status.frame=NSMakeRect(20,662,canvasWidth-4,24);
     self.status.font=[NSFont systemFontOfSize:13];[self.window.contentView addSubview:self.status];
     NSTextField *hint=[NSTextField labelWithString:@"← / → / Enter：短按    按住或 Shift：长按    Esc：返回"];
-    hint.frame=NSMakeRect(20,692,480,20);hint.font=[NSFont systemFontOfSize:11];[self.window.contentView addSubview:hint];
+    hint.frame=NSMakeRect(20,692,canvasWidth,20);hint.font=[NSFont systemFontOfSize:11];[self.window.contentView addSubview:hint];
     NSTextField *info=[NSTextField labelWithString:@"本机模拟存档 · 快捷切换免金币 · 网络、天气和传感器为模拟值"];
-    info.frame=NSMakeRect(20,717,480,18);info.font=[NSFont systemFontOfSize:11];info.textColor=NSColor.secondaryLabelColor;
+    info.frame=NSMakeRect(20,717,canvasWidth,18);info.font=[NSFont systemFontOfSize:11];info.textColor=NSColor.secondaryLabelColor;
     [self.window.contentView addSubview:info];
     NSMenu *menu=[NSMenu new];NSMenuItem *appItem=[NSMenuItem new];[menu addItem:appItem];
     NSMenu *appMenu=[NSMenu new];[appMenu addItemWithTitle:@"退出模拟器" action:@selector(terminate:) keyEquivalent:@"q"];
@@ -190,7 +191,7 @@ static void capture(const char *name){
 }
 - (void)physical:(NSButton *)button{
     HoldButton *hold=[button isKindOfClass:HoldButton.class]?(HoldButton *)button:nil;
-    BOOL held=hold.pressedAt>0 && ([NSDate timeIntervalSinceReferenceDate]-hold.pressedAt)>0.65;
+    BOOL held=hold.pressedAt>0 && ([NSDate timeIntervalSinceReferenceDate]-hold.pressedAt)>(button.tag==1 ? 1.5 : 0.65);
     hold.pressedAt=0;
     desktop_key((int)button.tag,held);[self.window makeFirstResponder:self.canvas];[self frame:nil];
 }

@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-source = (Path(__file__).resolve().parents[1] / "main/sound.c").read_text()
+source = (Path(__file__).resolve().parents[1] / "ports/waveshare/sound.c").read_text()
 
 
 def function(signature):

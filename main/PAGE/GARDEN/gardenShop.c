@@ -25,11 +25,11 @@ static void refreshGardenShop(void){
     snprintf(counterText,sizeof(counterText),"%u/%u",itemIndex+1,(unsigned)PLANT_COUNT);
     snprintf(priceText,sizeof(priceText),owned ? "已解锁" : "花费 %u",gardenPlantCost(itemIndex));
     snprintf(valueText,sizeof(valueText),"每次收获 %u 金币",ShopListGardenHarvest[itemIndex]);
-    itemLabel->x = 160-getTxtLength(itemText)*4;
+    itemLabel->x = WS_UI_MID-getTxtLength(itemText)*4;
     moneyTxtSp->num = dataSaveInfo.money;
     drawPageUITxt("上一项",!owned && dataSaveInfo.money>=gardenPlantCost(itemIndex) ? "解锁" : "","下一项");
     DisplayObject *plant = getNewMvAction(gardenListArr[itemIndex],0,0);
-    placePixelPreview(plant,48,78,224,106);
+    placePixelPreview(plant,PAGE_CONTENT_LEFT,78,PAGE_CONTENT_WIDTH,106);
     addChild(5,plant);
 }
 static void previousItem(void){ itemIndex=(itemIndex+PLANT_COUNT-1)%PLANT_COUNT; refreshGardenShop(); }
@@ -59,13 +59,13 @@ void renderGardenShopInit(void){
     resetPageView(&gardenShopEx);
     setPageUILongKeyText("返回",NULL);
     itemIndex = gardenSaveInfo.gardenIndex < PLANT_COUNT ? gardenSaveInfo.gardenIndex : 0;
-    itemLabel = newChar(12,itemText,0,48,32);
+    itemLabel = newChar(12,itemText,0,PAGE_CONTENT_LEFT,32);
     addChild(1,itemLabel);
-    addChild(1,newChar(12,counterText,GRAY,232,32));
-    addChild(1,newPic(&money,48,57));
-    moneyTxtSp = newNumber(12,dataSaveInfo.money,0,0,68,56);
+    addChild(1,newChar(12,counterText,GRAY,PAGE_COUNTER_LEFT,32));
+    addChild(1,newPic(&money,PAGE_CONTENT_LEFT,57));
+    moneyTxtSp = newNumber(12,dataSaveInfo.money,0,0,PAGE_CONTENT_LEFT+20,56);
     addChild(1,moneyTxtSp);
-    addChild(1,newChar(12,priceText,BLUE,188,56));
+    addChild(1,newChar(12,priceText,BLUE,PAGE_PRICE_LEFT,56));
     addChild(1,newChar(12,valueText,0,WS_UI_LEFT+4,188));
     addChild(1,newChar(12,"解锁后随机生长",GRAY,WS_UI_LEFT+4,204));
     refreshGardenShop();

@@ -1,4 +1,4 @@
-#include "LCD/viewport.h"
+#include "GVIEW/viewport.h"
 #include "weather.h"
 #include "../../rom.h"
 #include "../HOME/home.h"
@@ -11,11 +11,11 @@
 extern char *getFont(uint8_t size, uint8_t type, uint8_t line);
 extern uint16_t getFont16(uint8_t *s, uint8_t line);
 
-// Weather text uses the same 1:1 240x240 coordinates as the cards.
+// Weather text and cards use the active target viewport at 1:1 pixels.
 // Two bits select transparent, black, blue, or dark gray ink.
 static uint8_t wsNativeInk[(LCD_W * LCD_H + 3) / 4];
 
-static int wsPhysicalX(int sourceX){ return sourceX-40; }
+static int wsPhysicalX(int sourceX){ return sourceX-WS_UI_LEFT; }
 static int wsPhysicalY(int sourceY){ return sourceY; }
 
 static void wsSetNativeInk(int x, int y, uint8_t ink){
@@ -51,7 +51,8 @@ static const char wsWaiting[]="\xB5\xC8\xB4\xFD\xCC\xEC\xC6\xF8";
 static uint32_t wsDrawnForecastVersion;
 
 // Center each line separately and never split a two-byte GBK character.
-static char wsCondition[2][2][16];
+static char wsCondition[PAGE_WEATHER_COLUMNS][2][16];
+static const char *const forecastDayNames[3]={"今天","明天","后天"};
 static void wsSplitCondition(char dst[2][16], const char *src){
     int line = 0, col[2] = {0}, used[2] = {0};
     dst[0][0] = dst[1][0] = 0;
@@ -73,7 +74,7 @@ static void KeyDownM1(void){
 }
 
 static void KeyDownM3(void){
-    clockPageInit();
+    renderCalendarInit();
 }
 
 
@@ -91,7 +92,7 @@ void weatherInit(void){
     BGColor = sceneBGColor;
     pageNow = PAGE_WEATHER;
     resetPageView(&weatherEx);
-    LCD_SetPageViewport(&pageNow, PAGE_WEATHER, 40, 0, 240, 240);
+    LCD_SetPageViewport(&pageNow, PAGE_WEATHER, WS_UI_LEFT, 0, WS_UI_WIDTH, 240);
 
     LCD_SetNativeOverlay(NULL,NULL,0);
     memset(wsNativeInk,0,sizeof(wsNativeInk));
@@ -99,10 +100,11 @@ void weatherInit(void){
     weatherForecastCopy(&forecast);
     wsDrawnForecastVersion=forecast.version;
     addChild(9,newChar(12,"Open-Meteo",0xFFFF,WS_UI_MID-40,8));
-    for(u8 i=0;i<2;i++){
-        const short x = 46 + i * 118;
+    for(u8 i=0;i<PAGE_WEATHER_COLUMNS;i++){
+        const short cardWidth = PAGE_WEATHER_CARD_WIDTH;
+        const short x = WS_UI_LEFT+6+i*PAGE_WEATHER_CARD_PITCH;
         const short y = 32;
-        const u8 forecastDay = i + 1;
+        const u8 forecastDay = PAGE_WEATHER_FIRST_DAY+i;
         const char *condition = forecast.ready ? forecast.condition[forecastDay] : wsWaiting;
         const char *temperature = forecast.ready ? forecast.temperature[forecastDay] : "--";
         const char *humidity = forecast.ready ? forecast.humidity[forecastDay] : "--";
@@ -110,19 +112,26 @@ void weatherInit(void){
         u8 dayIndex = forecast.ready ? forecast.weekday[forecastDay] :
                       tStruct ? (tStruct->tm_wday + forecastDay) % 7 : forecastDay;
         const short tempWidth = getTxtLength(temperature) * 8 + 16;
-        const short tempX = x + (110 - tempWidth) / 2;
+        const short tempX = x + (cardWidth - tempWidth) / 2;
         const short humidityWidth = 18 + getTxtLength(humidity) * 8;
-        const short humidityX = x + (110 - humidityWidth) / 2;
-        const int centerX = (wsPhysicalX(x) + wsPhysicalX(x+110)) / 2;
-        addChild(0,newRoundRectDisObj(0xFFFF,110,196,x,y,6,1));
-        addChild(0,newNativePic(weatherArr[code],x+43,y+14));
+        const short humidityX = x + (cardWidth - humidityWidth) / 2;
+        const int centerX = (wsPhysicalX(x) + wsPhysicalX(x+cardWidth)) / 2;
+        addChild(0,newRoundRectDisObj(0xFFFF,cardWidth,196,x,y,6,1));
+        if(PAGE_WEATHER_DAY_TITLES)
+            wsDrawNativeText(forecastDayNames[forecastDay],
+                centerX-getTxtLength(forecastDayNames[forecastDay])*4,y+8,3);
+        const short iconY=y+(PAGE_WEATHER_DAY_TITLES ? 30 : 14);
+        addChild(0,newNativePic(weatherArr[code],x+cardWidth/2-12,iconY));
         wsSplitCondition(wsCondition[i], condition);
         const int conditionLines = wsCondition[i][1][0] ? 2 : 1;
-        const int conditionY = y + 52 + (2-conditionLines)*10;
+        const int conditionY = y + 52 + (PAGE_WEATHER_DAY_TITLES ? 10 : 0)
+            + (2-conditionLines)*10;
         // Leave 16 pixels after the final 16-pixel condition glyph.
-        const int temperatureY = conditionY + conditionLines*20 + 12;
-        const int humidityY = temperatureY + 30;
-        const int weekdayY = humidityY + 34;
+        // Three-day cards share value baselines even when a condition wraps.
+        const int temperatureY = PAGE_WEATHER_DAY_TITLES ? y+114 :
+            conditionY + conditionLines*20 + 12;
+        const int humidityY = temperatureY + (PAGE_WEATHER_DAY_TITLES ? 28 : 30);
+        const int weekdayY = humidityY + (PAGE_WEATHER_DAY_TITLES ? 32 : 34);
         for(u8 line=0; line<2; line++){
             if(wsCondition[i][line][0]){
                 const int textX = centerX - getTxtLength(wsCondition[i][line]) * 4;
@@ -142,10 +151,5 @@ void weatherInit(void){
     }
     LCD_SetNativeOverlay(wsNativeInk,&pageNow,PAGE_WEATHER);
 
-    setKeyFun(KM1,&mainViewOpenGarden);
-    setKeyFun(KM3,&mainViewOpenShop);
-    setKeyFun(KML,&KeyDownM3);
-    setKeyFun(KMR,&KeyDownM1);
-    setKeyFun(KMU1,&KeyDownM1);
-    setKeyFun(KMU3,&KeyDownM3);
+    mainViewBindKeys(KeyDownM3,KeyDownM1);
 }

@@ -25,6 +25,7 @@ esp_partition_t* Wifi_res;
 // WIFISAVEINFOTxt wifiSaveInfoTxt;
 WIFISAVEINFO wifiSaveInfo = {0};
 static u8 savedWifiSelection=0xFF;
+static u8 wifiSaveDirty;
 
 // The native font uses two-byte GB2312 glyphs. Never truncate inside one.
 void formatSoundTrackTitle(char *dest,size_t capacity,u8 slot,size_t maxUnits){
@@ -132,6 +133,8 @@ ITEMSAVEINFO itemSaveInfo = {
     .bagIndex = 0,
     .legacyRiderConfigVersion = LEGACY_RIDER_CONFIG_VERSION,
     .legacyRiderIndex = 0,
+    .monsterOwnershipVersion = MONSTER_OWNERSHIP_CONFIG_VERSION,
+    .itemMonsterExtra = 0,
     
 };
 GARDENSAVEINFO  gardenSaveInfo = {
@@ -143,6 +146,13 @@ GARDENSAVEINFO  gardenSaveInfo = {
 
 static u8 legacyRiderSaveNeeded;
 static u8 monsterSaveNeeded;
+static u8 migrateMonsterOwnership(void){
+    if(itemSaveInfo.monsterOwnershipVersion==MONSTER_OWNERSHIP_CONFIG_VERSION) return 0;
+    itemSaveInfo.monsterOwnershipVersion=MONSTER_OWNERSHIP_CONFIG_VERSION;
+    itemSaveInfo.itemMonsterExtra=0;
+    return 1;
+}
+
 static void migrateLegacyRiderSelection(void){
     if(itemSaveInfo.legacyRiderConfigVersion!=LEGACY_RIDER_CONFIG_VERSION ||
        itemSaveInfo.legacyRiderIndex!=0){
@@ -219,6 +229,7 @@ void writeData(void){
     }
 }
 u8 writeWifi(void){
+    wifiSaveDirty=1;
 #ifdef GVIEW_UI_AUDIT
     return 1; // The visual audit must never modify saved user data.
 #endif
@@ -235,6 +246,7 @@ u8 writeWifi(void){
         return 0;
     }
     savedWifiSelection=wifiSaveInfo.selectWifiNow;
+    wifiSaveDirty=0;
     return 1;
 }
 
@@ -259,7 +271,10 @@ u8 writeWIFIInfo(char* ssid,char* password){
     const size_t passwordLength=password ? strnlen(password,64) : 64;
     if(!ssidLength || ssidLength>32 || passwordLength>63 || wifiSaveInfo.saveNumAll>10) return 0;
     u8 index=0;
-    while(index<wifiSaveInfo.saveNumAll && strcmp(wifiSaveInfo.ssid[index],ssid)!=0) ++index;
+    while(index<wifiSaveInfo.saveNumAll && strncmp(wifiSaveInfo.ssid[index],ssid,33)!=0) ++index;
+    if(index<wifiSaveInfo.saveNumAll && !wifiSaveDirty && savedWifiSelection==index &&
+       wifiSaveInfo.selectWifiNow==index && strncmp(wifiSaveInfo.password[index],password,64)==0)
+        return 1; // Reconnects and DHCP renewals must not erase Flash again.
     if(index==wifiSaveInfo.saveNumAll){
         if(index>=10) return 0; // Never discard an existing network to save an eleventh.
         ++wifiSaveInfo.saveNumAll;
@@ -331,6 +346,8 @@ void resetAllData(void){
     dataSaveInfo.money = 1000;
 
     itemSaveInfo.itemMonster = 1;
+    itemSaveInfo.itemMonsterExtra = 0;
+    itemSaveInfo.monsterOwnershipVersion = MONSTER_OWNERSHIP_CONFIG_VERSION;
     itemSaveInfo.itemTent = 1;
     itemSaveInfo.itemBike = 1;
     itemSaveInfo.itemHead = 1;
@@ -431,6 +448,7 @@ void readData(void){
 
     migrateLegacyRiderSelection();
     monsterSaveNeeded=shopRemoveRetiredMonster(&itemSaveInfo.itemMonster,&itemSaveInfo.monsterIndex);
+    monsterSaveNeeded|=migrateMonsterOwnership();
 
     if(esp_partition_read(Data_res,gardenInfoAdress, &gardenSaveInfo, sizeof(GARDENSAVEINFO))!=ESP_OK)
     {
@@ -464,6 +482,7 @@ void readData(void){
 
 void delayed_restart(void) {
     
+    wifi_forgetSaved(NULL); // No late connection may repopulate cleared Wi-Fi data.
     showTips("已恢复出厂,重启中...",0);
     rendWin(0,0,winW,winH,BGColor);
     resetAllData();

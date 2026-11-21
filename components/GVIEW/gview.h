@@ -241,6 +241,19 @@ typedef void (*GVIEWNativeIconBegin)(void);
 typedef uint8_t (*GVIEWNativeIconDraw)(const DisplayObject *icon, int16_t x, int16_t y);
 void gviewSetNativeIconHooks(GVIEWNativeIconBegin begin, GVIEWNativeIconDraw draw);
 uint16_t gviewPalette8Color(uint8_t index);
+// Configure before gviewInit. A zero row count retains full-frame rendering.
+// The sink must finish reading each strip before returning; animation advances once per update.
+uint8_t gviewIsReady(void);
+uint16_t gviewUsedObjectCount(void);
+typedef void (*GVIEWStripSink)(uint16_t x,uint16_t y,uint16_t width,uint16_t height,const uint16_t *pixels);
+void gviewSetStripRenderer(uint16_t rows,GVIEWStripSink sink,void (*overlay)(void));
+// Optional drain after the last strip; a copying sink may overlap DMA and rendering.
+void gviewSetStripCompletion(void (*complete)(void));
+typedef struct {
+    uint32_t sceneLookups, drawCalls, numberFormats;
+    uint16_t commands, strips, scenePasses;
+} GVIEWRenderStats;
+GVIEWRenderStats gviewGetRenderStats(void);
 void update(void);//处理每帧逻辑
 void rendWin(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t bg);//渲染窗口
 void addChild(uint8_t num,DisplayObject *disObj);//加载显示对象到图层

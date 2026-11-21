@@ -4,50 +4,251 @@
   "assets": [
     {
       "file": "torchic_walk.png",
-      "source_path": "project/pokemon/torchic_walk.png",
-      "sha256": "024de820526537330bde87f9db24fa10a48a6cddec955efe3d45eb22f2e6bafb",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0255 Torchic.png",
+      "sha256": "892b02e6cc4a5a166e4c24e68e727678e90a61c7a4b5075f3c0da4a2229c1dc3",
       "symbol": "followerTorchic",
-      "frames": 4,
-      "frame_width": 18,
-      "frame_height": 24,
-      "scale_percent": 140,
+      "frames": 6,
+      "frame_width": 34,
+      "frame_height": 50,
+      "scale_percent": 100,
       "frame_ticks": 2,
       "flip_x": true,
       "credits": [
-        "Nintendo / Game Freak",
-        "christt105 (extraction)"
-      ]
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "upstream_ready_path": "project/pokemon/torchic_walk.png",
+      "upstream_ready_sha256": "024de820526537330bde87f9db24fa10a48a6cddec955efe3d45eb22f2e6bafb",
+      "source_kind": "user-provided download",
+      "saved_id": 10,
+      "price": 400,
+      "variant": "source-sheet-run",
+      "sheet_extract": {
+        "file": "source_sheets/torchic.png",
+        "sha256": "17276216d95784620d1823eecf142d8bf3a19b15fd581a416e99ac5454da49de",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          17,
+          48
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              99,
+              31,
+              145
+            ],
+            "pivot": [
+              16,
+              145
+            ]
+          },
+          {
+            "box": [
+              32,
+              97,
+              63,
+              141
+            ],
+            "pivot": [
+              47,
+              145
+            ]
+          },
+          {
+            "box": [
+              65,
+              99,
+              93,
+              144
+            ],
+            "pivot": [
+              79,
+              145
+            ]
+          },
+          {
+            "box": [
+              94,
+              99,
+              122,
+              144
+            ],
+            "pivot": [
+              108,
+              145
+            ]
+          },
+          {
+            "box": [
+              125,
+              97,
+              153,
+              141
+            ],
+            "pivot": [
+              139,
+              145
+            ]
+          },
+          {
+            "box": [
+              156,
+              99,
+              184,
+              145
+            ],
+            "pivot": [
+              170,
+              145
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
     },
     {
       "file": "mudkip_walk.png",
-      "source_path": "project/pokemon/mudkip_walk.png",
-      "sha256": "350e79131815a9f8432ec8d8acfa09471f30e9dcd54d5b987a7a21eadf3d04f8",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0258 Mudkip.png",
+      "sha256": "ce9548aed094b81eed4c7447925c93074dc80c8c420386823504286e34afafa4",
       "symbol": "followerMudkip",
-      "frames": 3,
-      "frame_width": 22,
-      "frame_height": 22,
-      "scale_percent": 140,
-      "frame_ticks": 3,
+      "frames": 5,
+      "frame_width": 42,
+      "frame_height": 40,
+      "scale_percent": 100,
+      "frame_ticks": 2,
       "flip_x": true,
       "credits": [
-        "Nintendo / Game Freak",
-        "christt105 (extraction)"
-      ]
-    },
-    {
-      "file": "zigzagoon_run.png",
-      "source_path": "project/pokemon/zigzagoon_run.png",
-      "sha256": "0fa3f0f47e85c5df16e47a8f29ad28f51b2b57293eb5c1d7976a49fa9389978d",
-      "symbol": "followerZigzagoon",
-      "frames": 7,
-      "frame_width": 68,
-      "frame_height": 47,
-      "frame_ticks": 1,
-      "flip_x": true,
-      "credits": [
-        "JoshR691",
-        "christt105 (sheet extraction and alignment)"
-      ]
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "upstream_ready_path": "project/pokemon/mudkip_walk.png",
+      "upstream_ready_sha256": "350e79131815a9f8432ec8d8acfa09471f30e9dcd54d5b987a7a21eadf3d04f8",
+      "source_kind": "user-provided download",
+      "saved_id": 11,
+      "price": 400,
+      "variant": "source-sheet-run",
+      "sheet_extract": {
+        "file": "source_sheets/mudkip.png",
+        "sha256": "dad5d81f474117493b4d43b7b92f52c01d7a257c4b16b4056396e323010350de",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          21,
+          38
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              115,
+              38,
+              151
+            ],
+            "pivot": [
+              19,
+              151
+            ]
+          },
+          {
+            "box": [
+              39,
+              117,
+              77,
+              149
+            ],
+            "pivot": [
+              58,
+              151
+            ]
+          },
+          {
+            "box": [
+              78,
+              119,
+              115,
+              151
+            ],
+            "pivot": [
+              96,
+              151
+            ]
+          },
+          {
+            "box": [
+              116,
+              119,
+              150,
+              151
+            ],
+            "pivot": [
+              133,
+              151
+            ]
+          },
+          {
+            "box": [
+              151,
+              118,
+              189,
+              149
+            ],
+            "pivot": [
+              170,
+              151
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ],
+      "deduplicate_frames": true
     },
     {
       "file": "manectric_run.png",
@@ -62,7 +263,22 @@
       "credits": [
         "Nintendo / Game Freak",
         "christt105 (extraction)"
-      ]
+      ],
+      "saved_id": 13,
+      "price": 1600,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2
+      ],
+      "deduplicate_frames": true
     },
     {
       "file": "taillow_fly.png",
@@ -273,34 +489,74 @@
       }
     },
     {
-      "file": "volbeat_fly.png",
-      "source_path": "project/pokemon/volbeat_fly.png",
-      "sha256": "2e2d37b38be74267e0ae642c53536ae116ba930a03a04a1722833f38aadc386c",
-      "symbol": "followerVolbeat",
-      "frames": 2,
-      "frame_width": 30,
-      "frame_height": 28,
-      "frame_ticks": 3,
-      "flip_x": true,
-      "credits": [
-        "Nintendo / Game Freak",
-        "christt105 (extraction)"
-      ]
-    },
-    {
       "file": "ninjask_fly.png",
-      "source_path": "project/pokemon/ninjask_fly.png",
-      "sha256": "eccc61a6165efadd3b83d272714b26c422c9170454334606c62e8189795dc159",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0291 Ninjask.png",
+      "source_kind": "user-provided download",
+      "sha256": "7332d382c7f79f9529981ca121c6465d028e955feb74ac609323723612c8bc5b",
       "symbol": "followerNinjask",
       "frames": 2,
-      "frame_width": 34,
-      "frame_height": 29,
-      "frame_ticks": 1,
+      "frame_width": 70,
+      "frame_height": 60,
+      "frame_ticks": 2,
       "flip_x": true,
       "credits": [
-        "JoshR691",
-        "christt105 (sheet extraction and alignment)"
-      ]
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "fly",
+      "name_zh": "铁面忍者",
+      "pokedex_id": 291,
+      "ground": false,
+      "price": 1600,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/ninjask.png",
+        "sha256": "5bfb6228740f9d5e425b49ab9dfc7bdef356a582a65470aece782677ef93819f",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          23,
+          31
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              1,
+              62,
+              51
+            ],
+            "pivot": [
+              20,
+              23
+            ]
+          },
+          {
+            "box": [
+              63,
+              1,
+              115,
+              51
+            ],
+            "pivot": [
+              81,
+              23
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1
+        ]
+      },
+      "upstream_ready_path": "project/pokemon/ninjask_fly.png",
+      "upstream_ready_sha256": "eccc61a6165efadd3b83d272714b26c422c9170454334606c62e8189795dc159",
+      "saved_id": 18
     },
     {
       "file": "tropius_fly.png",
@@ -319,256 +575,12 @@
       "variant": "fly-loop",
       "saved_id": 19,
       "name_zh": "热带龙",
-      "price": 1200,
+      "price": 400,
       "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/tropius_fly.png",
       "approved_preview": {
         "file": "fly.gif",
         "sha256": "d0f9d46d4c9aaeae4e68f9eebd35c7defdfb7778847b19a5f289ebbd4d4680de"
       }
-    },
-    {
-      "file": "meowth_run.png",
-      "source_path": "firmware-3.4-resources/02dc44.png",
-      "source_offset": "0x2dc44",
-      "source_firmware": "user-provided firmware 3.4 resource export",
-      "sha256": "7b5595e8df38061acd30cf9909b5b11e1c8daf366f709eadfeb1c9e66741452a",
-      "symbol": "followerMeowth",
-      "frames": 4,
-      "frame_width": 41,
-      "frame_height": 44,
-      "frame_dimensions": [
-        [
-          41,
-          43
-        ],
-        [
-          37,
-          42
-        ],
-        [
-          41,
-          42
-        ],
-        [
-          37,
-          44
-        ]
-      ],
-      "frame_offsets": [
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          1
-        ],
-        [
-          0,
-          1
-        ],
-        [
-          0,
-          0
-        ]
-      ],
-      "depth": 13,
-      "frame_ticks": 2,
-      "flip_x": false,
-      "credits": [
-        "Nintendo / Game Freak",
-        "User-provided firmware 3.4 export; original sprite author not recorded"
-      ],
-      "saved_id": 20,
-      "name_zh": "喵喵",
-      "price": 100
-    },
-    {
-      "file": "lugia_fly.png",
-      "source_path": "firmware-3.4-resources/0386cc.png",
-      "source_offset": "0x386cc",
-      "source_firmware": "user-provided firmware 3.4 resource export",
-      "sha256": "1246c161443efc41bbc3d0d6d2d80f3b0c15806944f7bedc12ab869b0b469e31",
-      "symbol": "followerLugia",
-      "frames": 5,
-      "frame_width": 124,
-      "frame_height": 80,
-      "frame_dimensions": [
-        [
-          119,
-          66
-        ],
-        [
-          120,
-          64
-        ],
-        [
-          124,
-          48
-        ],
-        [
-          121,
-          80
-        ],
-        [
-          123,
-          59
-        ]
-      ],
-      "frame_offsets": [
-        [
-          0,
-          11
-        ],
-        [
-          0,
-          10
-        ],
-        [
-          0,
-          -2
-        ],
-        [
-          0,
-          -25
-        ],
-        [
-          0,
-          -5
-        ]
-      ],
-      "depth": 13,
-      "frame_ticks": 2,
-      "flip_x": false,
-      "credits": [
-        "Nintendo / Game Freak",
-        "User-provided firmware 3.4 export; original sprite author not recorded"
-      ],
-      "saved_id": 21,
-      "name_zh": "洛奇亚",
-      "price": 5000
-    },
-    {
-      "file": "ho_oh_fly.png",
-      "source_path": "firmware-3.4-resources/05bb74.png",
-      "source_offset": "0x5bb74",
-      "source_firmware": "user-provided firmware 3.4 resource export",
-      "sha256": "55653d264d161f0b9a0da956dd49d3ba92fd3f3b9987808437101c5a31ab63e9",
-      "symbol": "followerHoOh",
-      "frames": 5,
-      "frame_width": 91,
-      "frame_height": 76,
-      "frame_dimensions": [
-        [
-          91,
-          76
-        ],
-        [
-          90,
-          55
-        ],
-        [
-          90,
-          73
-        ],
-        [
-          91,
-          55
-        ],
-        [
-          91,
-          47
-        ]
-      ],
-      "frame_offsets": [
-        [
-          0,
-          -16
-        ],
-        [
-          0,
-          -9
-        ],
-        [
-          0,
-          14
-        ],
-        [
-          0,
-          -1
-        ],
-        [
-          0,
-          -1
-        ]
-      ],
-      "depth": 13,
-      "frame_ticks": 2,
-      "flip_x": false,
-      "credits": [
-        "Nintendo / Game Freak",
-        "User-provided firmware 3.4 export; original sprite author not recorded"
-      ],
-      "saved_id": 22,
-      "name_zh": "凤王",
-      "price": 5000
-    },
-    {
-      "file": "pidgeot_fly.png",
-      "source_path": "firmware-3.4-resources/06a74c.png",
-      "source_offset": "0x6a74c",
-      "source_firmware": "user-provided firmware 3.4 resource export",
-      "sha256": "e98b442568d268f1e75ff9db5d9691d55fb193080cd9af6f5eb1d047d1f62d06",
-      "symbol": "followerPidgeot",
-      "frames": 4,
-      "frame_width": 68,
-      "frame_height": 52,
-      "frame_dimensions": [
-        [
-          66,
-          43
-        ],
-        [
-          68,
-          25
-        ],
-        [
-          68,
-          52
-        ],
-        [
-          67,
-          34
-        ]
-      ],
-      "frame_offsets": [
-        [
-          0,
-          8
-        ],
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          -14
-        ],
-        [
-          0,
-          4
-        ]
-      ],
-      "depth": 13,
-      "frame_ticks": 2,
-      "flip_x": false,
-      "credits": [
-        "Nintendo / Game Freak",
-        "User-provided firmware 3.4 export; original sprite author not recorded"
-      ],
-      "saved_id": 23,
-      "name_zh": "比雕",
-      "price": 700
     },
     {
       "file": "aron_run.png",
@@ -587,7 +599,7 @@
       ],
       "saved_id": 24,
       "name_zh": "可可多拉",
-      "price": 300,
+      "price": 200,
       "sheet_extract": {
         "file": "source_sheets/aron.png",
         "sha256": "07c1e5a354b5e1731db9fa447274e38e6e1563a2518a7b17735792b9f9374c5f",
@@ -672,17 +684,42 @@
         ],
         "row": "running"
       },
-      "variant": "run"
+      "variant": "run",
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ],
+      "deduplicate_frames": true
     },
     {
       "file": "metang_hover.png",
       "source_path": "project/pokemon/Custom _ Edited - Pokemon Customs - Third Generation - #0375 Metang.png",
       "source_url": "https://github.com/christt105/PokemonEmeraldIntroVideo/blob/870520f6161ee521835d2a1bb6b4d037d61c5278/project/pokemon/Custom%20_%20Edited%20-%20Pokemon%20Customs%20-%20Third%20Generation%20-%20%230375%20Metang.png",
-      "sha256": "efbf56b200e728828bc864959cd231e6ca0be046128241a195a8cbf80b06a16d",
+      "sha256": "09be24f2e1096253744112a4a498d69e410592e158c5e24c6fe51ad5d528d041",
       "symbol": "followerMetang",
-      "frames": 12,
-      "frame_width": 84,
-      "frame_height": 76,
+      "frames": 4,
+      "frame_width": 70,
+      "frame_height": 62,
       "frame_ticks": 3,
       "flip_x": true,
       "credits": [
@@ -691,7 +728,7 @@
       ],
       "saved_id": 25,
       "name_zh": "金属怪",
-      "price": 2000,
+      "price": 2100,
       "sheet_extract": {
         "file": "source_sheets/metang.png",
         "sha256": "c9d53b640d26788343ca93eb53bffbe9601a796b73f768bab5f73a52075b3bef",
@@ -702,112 +739,55 @@
           255
         ],
         "origin": [
-          33,
-          16
+          35,
+          31
         ],
         "poses": [
           {
             "box": [
               1,
-              136,
-              63,
-              200
+              2,
+              69,
+              60
             ],
             "pivot": [
-              31,
-              149
+              35,
+              31
             ]
           },
           {
             "box": [
-              62,
+              68,
+              3,
               136,
-              118,
-              205
+              59
             ],
             "pivot": [
-              86,
-              149
+              102,
+              31
             ]
           },
           {
             "box": [
-              117,
-              136,
-              168,
-              201
-            ],
-            "pivot": [
               135,
-              149
-            ]
-          },
-          {
-            "box": [
+              1,
+              203,
+              61
+            ],
+            "pivot": [
               169,
-              136,
-              227,
-              198
-            ],
-            "pivot": [
-              187,
-              149
-            ]
-          },
-          {
-            "box": [
-              228,
-              136,
-              292,
-              191
-            ],
-            "pivot": [
-              246,
-              149
-            ]
-          },
-          {
-            "box": [
-              293,
-              136,
-              358,
-              185
-            ],
-            "pivot": [
-              311,
-              149
-            ]
-          },
-          {
-            "box": [
-              359,
-              135,
-              425,
-              179
-            ],
-            "pivot": [
-              377,
-              148
+              31
             ]
           }
         ],
         "sequence": [
           0,
           1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          5,
-          4,
-          3,
-          2,
-          1
-        ],
-        "row": 3
+          0,
+          2
+        ]
       },
-      "variant": "third-row-arm-fold-flight"
+      "variant": "hover"
     },
     {
       "file": "swablu_fly.png",
@@ -826,7 +806,7 @@
       ],
       "saved_id": 26,
       "name_zh": "青绵鸟",
-      "price": 300,
+      "price": 200,
       "sheet_extract": {
         "file": "source_sheets/swablu.png",
         "sha256": "fe5e821f848b80677a552c2ee3ecb1458eaf22a633b73a74c996ed1152616fef",
@@ -954,7 +934,7 @@
       ],
       "saved_id": 27,
       "name_zh": "脱壳忍者",
-      "price": 1200,
+      "price": 1600,
       "sheet_extract": {
         "file": "source_sheets/shedinja.png",
         "sha256": "19dcbf5ea21ea5e6f78026f58262621027db2f7cf0f24f73eaeb09567fd772c9",
@@ -1013,6 +993,4976 @@
           2
         ]
       }
+    },
+    {
+      "file": "butterfree_fly.png",
+      "source_path": "Custom _ Edited - Pokemon Generation 1 Customs - Caterpie, Metapod, & Butterfree - #0012 Butterfree.png",
+      "source_kind": "user-provided download",
+      "sha256": "8ecf7389a1164c670b622b95c05e03816b3ec02abc7f47188109bbcedec0acc3",
+      "symbol": "followerButterfree",
+      "frames": 7,
+      "frame_width": 66,
+      "frame_height": 66,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "fly",
+      "name_zh": "巴大蝶",
+      "pokedex_id": 12,
+      "ground": false,
+      "price": 3000,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/butterfree.png",
+        "sha256": "a54fb47fec6a98a39d6dd8d8062345ba4f446bb79c0dc572951811e1673cb02c",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          28,
+          31
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              1,
+              63,
+              61
+            ],
+            "pivot": [
+              27,
+              28
+            ]
+          },
+          {
+            "box": [
+              64,
+              2,
+              113,
+              63
+            ],
+            "pivot": [
+              85,
+              30
+            ]
+          },
+          {
+            "box": [
+              114,
+              3,
+              153,
+              65
+            ],
+            "pivot": [
+              131,
+              32
+            ]
+          },
+          {
+            "box": [
+              154,
+              4,
+              193,
+              65
+            ],
+            "pivot": [
+              171,
+              32
+            ]
+          },
+          {
+            "box": [
+              194,
+              5,
+              233,
+              65
+            ],
+            "pivot": [
+              211,
+              32
+            ]
+          },
+          {
+            "box": [
+              234,
+              4,
+              283,
+              63
+            ],
+            "pivot": [
+              255,
+              30
+            ]
+          },
+          {
+            "box": [
+              284,
+              3,
+              346,
+              61
+            ],
+            "pivot": [
+              310,
+              28
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "saved_id": 28
+    },
+    {
+      "file": "treecko_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0252 Treecko.png",
+      "source_kind": "user-provided download",
+      "sha256": "05141e2733db1b5ed08cde147f03f61da632373d051206a7b0f5b24772b5bc39",
+      "symbol": "followerTreecko",
+      "frames": 8,
+      "frame_width": 52,
+      "frame_height": 49,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "木守宫",
+      "pokedex_id": 252,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/treecko.png",
+        "sha256": "b12c60b526d48646e617ec451cad66ea2665c0e2a63fc344ecd9d8813e420825",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          25,
+          47
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              94,
+              48,
+              136
+            ],
+            "pivot": [
+              24,
+              136
+            ]
+          },
+          {
+            "box": [
+              49,
+              91,
+              96,
+              131
+            ],
+            "pivot": [
+              72,
+              136
+            ]
+          },
+          {
+            "box": [
+              97,
+              92,
+              144,
+              133
+            ],
+            "pivot": [
+              120,
+              136
+            ]
+          },
+          {
+            "box": [
+              145,
+              94,
+              192,
+              136
+            ],
+            "pivot": [
+              168,
+              136
+            ]
+          },
+          {
+            "box": [
+              193,
+              94,
+              240,
+              136
+            ],
+            "pivot": [
+              216,
+              136
+            ]
+          },
+          {
+            "box": [
+              241,
+              91,
+              288,
+              131
+            ],
+            "pivot": [
+              264,
+              136
+            ]
+          },
+          {
+            "box": [
+              289,
+              92,
+              336,
+              134
+            ],
+            "pivot": [
+              312,
+              136
+            ]
+          },
+          {
+            "box": [
+              337,
+              94,
+              384,
+              136
+            ],
+            "pivot": [
+              360,
+              136
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "ground_baseline": 136,
+      "saved_id": 29
+    },
+    {
+      "file": "grovyle_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0253 Grovyle.png",
+      "source_kind": "user-provided download",
+      "sha256": "aa6d6efdba109d2efcb319d65c425050b42daf633f5139124a191e5d83e1c8fc",
+      "symbol": "followerGrovyle",
+      "frames": 6,
+      "frame_width": 80,
+      "frame_height": 78,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "森林蜥蜴",
+      "pokedex_id": 253,
+      "ground": true,
+      "price": 1800,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/grovyle.png",
+        "sha256": "b8749b52a50343f2ddc7746586875dceb516269f3567aaf2e29dd098df949efe",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          39,
+          76
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              149,
+              75,
+              222
+            ],
+            "pivot": [
+              38,
+              222
+            ]
+          },
+          {
+            "box": [
+              76,
+              148,
+              151,
+              215
+            ],
+            "pivot": [
+              113,
+              222
+            ]
+          },
+          {
+            "box": [
+              152,
+              150,
+              226,
+              219
+            ],
+            "pivot": [
+              189,
+              222
+            ]
+          },
+          {
+            "box": [
+              226,
+              149,
+              300,
+              219
+            ],
+            "pivot": [
+              263,
+              222
+            ]
+          },
+          {
+            "box": [
+              301,
+              148,
+              376,
+              214
+            ],
+            "pivot": [
+              338,
+              222
+            ]
+          },
+          {
+            "box": [
+              377,
+              150,
+              451,
+              222
+            ],
+            "pivot": [
+              414,
+              222
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "ground_baseline": 222,
+      "saved_id": 30
+    },
+    {
+      "file": "poochyena_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0261 Poochyena.png",
+      "source_kind": "user-provided download",
+      "sha256": "91993a5b52334515d477bc4e0c43bf68bbcf4a4ed4a67ebff8c71838b49312f7",
+      "symbol": "followerPoochyena",
+      "frames": 7,
+      "frame_width": 58,
+      "frame_height": 55,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "土狼犬",
+      "pokedex_id": 261,
+      "ground": true,
+      "price": 100,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/poochyena.png",
+        "sha256": "5d3ff130bc719da86b3b1133b7decb7ff79bf79ff3641fa03ca490d3316f70e1",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          28,
+          53
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              98,
+              52,
+              147
+            ],
+            "pivot": [
+              26,
+              148
+            ]
+          },
+          {
+            "box": [
+              53,
+              97,
+              105,
+              139
+            ],
+            "pivot": [
+              79,
+              148
+            ]
+          },
+          {
+            "box": [
+              106,
+              102,
+              158,
+              146
+            ],
+            "pivot": [
+              132,
+              148
+            ]
+          },
+          {
+            "box": [
+              159,
+              104,
+              212,
+              148
+            ],
+            "pivot": [
+              185,
+              148
+            ]
+          },
+          {
+            "box": [
+              213,
+              102,
+              265,
+              148
+            ],
+            "pivot": [
+              239,
+              148
+            ]
+          },
+          {
+            "box": [
+              266,
+              101,
+              318,
+              147
+            ],
+            "pivot": [
+              292,
+              148
+            ]
+          },
+          {
+            "box": [
+              319,
+              99,
+              370,
+              147
+            ],
+            "pivot": [
+              344,
+              148
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "ground_baseline": 148,
+      "saved_id": 31,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "gardevoir_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0282 Gardevoir.png",
+      "source_kind": "user-provided download",
+      "sha256": "9114bb2436b2ab241b055244305a6f84ee8b6a9e82ed77fd6c0ae9bedf4ba48e",
+      "symbol": "followerGardevoir",
+      "frames": 5,
+      "frame_width": 76,
+      "frame_height": 69,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "沙奈朵",
+      "pokedex_id": 282,
+      "ground": true,
+      "price": 3300,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/gardevoir.png",
+        "sha256": "87ecac4d5eac4ac90fe080c541010307b710286f261407dda36fecd3e647b80c",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          38,
+          67
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              136,
+              60,
+              201
+            ],
+            "pivot": [
+              30,
+              201
+            ]
+          },
+          {
+            "box": [
+              72,
+              139,
+              140,
+              201
+            ],
+            "pivot": [
+              106,
+              201
+            ]
+          },
+          {
+            "box": [
+              141,
+              137,
+              213,
+              198
+            ],
+            "pivot": [
+              177,
+              201
+            ]
+          },
+          {
+            "box": [
+              214,
+              139,
+              285,
+              200
+            ],
+            "pivot": [
+              249,
+              201
+            ]
+          },
+          {
+            "box": [
+              286,
+              140,
+              354,
+              201
+            ],
+            "pivot": [
+              320,
+              201
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ground_baseline": 201,
+      "saved_id": 32
+    },
+    {
+      "file": "azurill_bounce.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0298 Azurill.png",
+      "source_kind": "user-provided download",
+      "sha256": "28eaf4fbbe3c8d3a5495267168578655449b364798b2cf0de97913997e669b21",
+      "symbol": "followerAzurill",
+      "frames": 8,
+      "frame_width": 44,
+      "frame_height": 71,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "bounce",
+      "name_zh": "露力丽",
+      "pokedex_id": 298,
+      "ground": true,
+      "price": 200,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/azurill.png",
+        "sha256": "a80302ec3a7a56f162fff87be6810b6c72a22f8e6548155abe8d46c735c18d37",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          22,
+          69
+        ],
+        "poses": [
+          {
+            "box": [
+              3,
+              133,
+              43,
+              171
+            ],
+            "pivot": [
+              23,
+              171
+            ]
+          },
+          {
+            "box": [
+              45,
+              135,
+              84,
+              171
+            ],
+            "pivot": [
+              64,
+              171
+            ]
+          },
+          {
+            "box": [
+              85,
+              132,
+              125,
+              171
+            ],
+            "pivot": [
+              105,
+              171
+            ]
+          },
+          {
+            "box": [
+              126,
+              123,
+              164,
+              166
+            ],
+            "pivot": [
+              145,
+              171
+            ]
+          },
+          {
+            "box": [
+              165,
+              115,
+              202,
+              162
+            ],
+            "pivot": [
+              183,
+              171
+            ]
+          },
+          {
+            "box": [
+              203,
+              104,
+              240,
+              158
+            ],
+            "pivot": [
+              221,
+              171
+            ]
+          },
+          {
+            "box": [
+              241,
+              114,
+              280,
+              166
+            ],
+            "pivot": [
+              260,
+              171
+            ]
+          },
+          {
+            "box": [
+              281,
+              124,
+              320,
+              171
+            ],
+            "pivot": [
+              300,
+              171
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "ground_baseline": 171,
+      "saved_id": 33
+    },
+    {
+      "file": "skitty_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0300 Skitty.png",
+      "source_kind": "user-provided download",
+      "sha256": "d9d76bc29dace8e39893e24ae02c739b282606f1516d5af9fd03b56fb9b9ee6f",
+      "symbol": "followerSkitty",
+      "frames": 5,
+      "frame_width": 56,
+      "frame_height": 50,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "向尾喵",
+      "pokedex_id": 300,
+      "ground": true,
+      "price": 200,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/skitty.png",
+        "sha256": "a2612a5b88d61fa240da00407252a2731921deb2e17101a32364389091ad498d",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          27,
+          48
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              105,
+              51,
+              149
+            ],
+            "pivot": [
+              26,
+              150
+            ]
+          },
+          {
+            "box": [
+              52,
+              105,
+              102,
+              147
+            ],
+            "pivot": [
+              77,
+              150
+            ]
+          },
+          {
+            "box": [
+              104,
+              105,
+              155,
+              149
+            ],
+            "pivot": [
+              129,
+              150
+            ]
+          },
+          {
+            "box": [
+              157,
+              106,
+              206,
+              150
+            ],
+            "pivot": [
+              181,
+              150
+            ]
+          },
+          {
+            "box": [
+              210,
+              104,
+              255,
+              150
+            ],
+            "pivot": [
+              232,
+              150
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ground_baseline": 150,
+      "saved_id": 34,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "solrock_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0338 Solrock.png",
+      "source_kind": "user-provided download",
+      "sha256": "1ddaa1225774bdea0bf8520ce48dc671c52f49667c6cf4fd239abfff948727cf",
+      "symbol": "followerSolrock",
+      "frames": 8,
+      "frame_width": 84,
+      "frame_height": 77,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "太阳岩",
+      "pokedex_id": 338,
+      "ground": false,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/solrock.png",
+        "sha256": "b7b14d4ee1eb059c8ba43040a51a5889eba655e10d316f21586e9820ee262e15",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          37,
+          36
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              3,
+              74,
+              76
+            ],
+            "pivot": [
+              33,
+              37
+            ]
+          },
+          {
+            "box": [
+              75,
+              2,
+              146,
+              75
+            ],
+            "pivot": [
+              105,
+              36
+            ]
+          },
+          {
+            "box": [
+              147,
+              1,
+              214,
+              74
+            ],
+            "pivot": [
+              175,
+              35
+            ]
+          },
+          {
+            "box": [
+              215,
+              3,
+              290,
+              76
+            ],
+            "pivot": [
+              248,
+              37
+            ]
+          },
+          {
+            "box": [
+              291,
+              4,
+              370,
+              77
+            ],
+            "pivot": [
+              326,
+              38
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "saved_id": 35
+    },
+    {
+      "file": "chimecho_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0358 Chimecho.png",
+      "source_kind": "user-provided download",
+      "sha256": "10c50e4943f003ff255d4266c38be216694dd2c00de00b324e8bba04f57cbab7",
+      "symbol": "followerChimecho",
+      "frames": 8,
+      "frame_width": 42,
+      "frame_height": 57,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "风铃铃",
+      "pokedex_id": 358,
+      "ground": false,
+      "price": 1800,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/chimecho.png",
+        "sha256": "949833cb541791127c1d4fcb25fa9cb00194f74595cf762247eb4edcbeabf0fb",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          19,
+          7
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              1,
+              19,
+              54
+            ],
+            "pivot": [
+              8,
+              6
+            ]
+          },
+          {
+            "box": [
+              20,
+              3,
+              42,
+              56
+            ],
+            "pivot": [
+              31,
+              8
+            ]
+          },
+          {
+            "box": [
+              43,
+              5,
+              71,
+              57
+            ],
+            "pivot": [
+              60,
+              10
+            ]
+          },
+          {
+            "box": [
+              72,
+              3,
+              93,
+              56
+            ],
+            "pivot": [
+              79,
+              8
+            ]
+          },
+          {
+            "box": [
+              94,
+              5,
+              122,
+              57
+            ],
+            "pivot": [
+              102,
+              10
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "saved_id": 36
+    },
+    {
+      "file": "absol_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0359 Absol.png",
+      "source_kind": "user-provided download",
+      "sha256": "0d292068311148bffa51e702f9e5a6fc174328f7bf501701ac6d1a0f549e27fc",
+      "symbol": "followerAbsol",
+      "frames": 4,
+      "frame_width": 58,
+      "frame_height": 50,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "阿勃梭鲁",
+      "pokedex_id": 359,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/absol.png",
+        "sha256": "ba444c440d346c591071c9821d3b2f40c89c2d556c37c072d12a97c44977a65e",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          29,
+          48
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              52,
+              55,
+              86
+            ],
+            "pivot": [
+              28,
+              96
+            ]
+          },
+          {
+            "box": [
+              56,
+              52,
+              101,
+              96
+            ],
+            "pivot": [
+              78,
+              96
+            ]
+          },
+          {
+            "box": [
+              102,
+              50,
+              145,
+              96
+            ],
+            "pivot": [
+              123,
+              96
+            ]
+          },
+          {
+            "box": [
+              146,
+              50,
+              189,
+              96
+            ],
+            "pivot": [
+              167,
+              96
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "ground_baseline": 96,
+      "saved_id": 37,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "jirachi_fly.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0385 Jirachi.png",
+      "source_kind": "user-provided download",
+      "sha256": "66d327bb35baade7d1da0898ee37c83d830ecf21b8e84c19bcc4dccfda23e87c",
+      "symbol": "followerJirachi",
+      "frames": 6,
+      "frame_width": 48,
+      "frame_height": 41,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "fly",
+      "name_zh": "基拉祈",
+      "pokedex_id": 385,
+      "ground": false,
+      "price": 1300,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/jirachi.png",
+        "sha256": "81e66e0cf9963e8228eaaccc523c639df360f0dacc3e25b2b8c3eb39105ffa16",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          18,
+          24
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              74,
+              41,
+              108
+            ],
+            "pivot": [
+              14,
+              94
+            ]
+          },
+          {
+            "box": [
+              42,
+              74,
+              82,
+              108
+            ],
+            "pivot": [
+              56,
+              96
+            ]
+          },
+          {
+            "box": [
+              83,
+              73,
+              123,
+              109
+            ],
+            "pivot": [
+              97,
+              95
+            ]
+          },
+          {
+            "box": [
+              124,
+              72,
+              162,
+              109
+            ],
+            "pivot": [
+              137,
+              94
+            ]
+          },
+          {
+            "box": [
+              163,
+              72,
+              201,
+              108
+            ],
+            "pivot": [
+              176,
+              94
+            ]
+          },
+          {
+            "box": [
+              202,
+              72,
+              243,
+              109
+            ],
+            "pivot": [
+              218,
+              94
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "saved_id": 39
+    },
+    {
+      "file": "chimchar_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0390 Chimchar.png",
+      "source_kind": "user-provided download",
+      "sha256": "93a08c5f3be9d62ca51de281bb8911bddce02dfbf5e3b81059f6a1beb67c5e73",
+      "symbol": "followerChimchar",
+      "frames": 6,
+      "frame_width": 46,
+      "frame_height": 51,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "小火焰猴",
+      "pokedex_id": 390,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/chimchar.png",
+        "sha256": "e6c7a7dee0d487f3fe5d41b40b7cdcf5930d699cbd46ba0f31515252d7e6ad36",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          22,
+          49
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              98,
+              41,
+              142
+            ],
+            "pivot": [
+              21,
+              143
+            ]
+          },
+          {
+            "box": [
+              42,
+              100,
+              83,
+              143
+            ],
+            "pivot": [
+              62,
+              143
+            ]
+          },
+          {
+            "box": [
+              85,
+              99,
+              116,
+              143
+            ],
+            "pivot": [
+              100,
+              143
+            ]
+          },
+          {
+            "box": [
+              118,
+              96,
+              152,
+              139
+            ],
+            "pivot": [
+              135,
+              143
+            ]
+          },
+          {
+            "box": [
+              153,
+              97,
+              181,
+              142
+            ],
+            "pivot": [
+              167,
+              143
+            ]
+          },
+          {
+            "box": [
+              182,
+              99,
+              220,
+              142
+            ],
+            "pivot": [
+              201,
+              143
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "ground_baseline": 143,
+      "saved_id": 40,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "piplup_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0393 Piplup.png",
+      "source_kind": "user-provided download",
+      "sha256": "a187e10c1e1356255fa695bffeed9e9cbcc6a292a399c622ce2f620b7d2afd8f",
+      "symbol": "followerPiplup",
+      "frames": 8,
+      "frame_width": 36,
+      "frame_height": 43,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "波加曼",
+      "pokedex_id": 393,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/piplup.png",
+        "sha256": "6de3f64b27cc073993ecb70928a68038a2487560166269148355b916cb45b6f0",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          17,
+          41
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              80,
+              31,
+              116
+            ],
+            "pivot": [
+              16,
+              117
+            ]
+          },
+          {
+            "box": [
+              32,
+              78,
+              61,
+              113
+            ],
+            "pivot": [
+              46,
+              117
+            ]
+          },
+          {
+            "box": [
+              62,
+              80,
+              92,
+              117
+            ],
+            "pivot": [
+              77,
+              117
+            ]
+          },
+          {
+            "box": [
+              93,
+              80,
+              124,
+              117
+            ],
+            "pivot": [
+              108,
+              117
+            ]
+          },
+          {
+            "box": [
+              125,
+              80,
+              155,
+              117
+            ],
+            "pivot": [
+              140,
+              117
+            ]
+          },
+          {
+            "box": [
+              156,
+              78,
+              185,
+              113
+            ],
+            "pivot": [
+              170,
+              117
+            ]
+          },
+          {
+            "box": [
+              186,
+              80,
+              216,
+              116
+            ],
+            "pivot": [
+              201,
+              117
+            ]
+          },
+          {
+            "box": [
+              217,
+              80,
+              248,
+              116
+            ],
+            "pivot": [
+              232,
+              117
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "ground_baseline": 117,
+      "saved_id": 41
+    },
+    {
+      "file": "pachirisu_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0417 Pachirisu.png",
+      "source_kind": "user-provided download",
+      "sha256": "fe58bfc1c55e99d0a94e763aa40b4f65f26237bf7f2813447756c5e99fcda467",
+      "symbol": "followerPachirisu",
+      "frames": 5,
+      "frame_width": 52,
+      "frame_height": 49,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "帕奇利兹",
+      "pokedex_id": 417,
+      "ground": true,
+      "price": 200,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/pachirisu.png",
+        "sha256": "2da33b9e1f7c9e0738d091d478c5ef0c89bc39dde8dff1ddb20116e90c295201",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          25,
+          47
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              131,
+              46,
+              176
+            ],
+            "pivot": [
+              23,
+              176
+            ]
+          },
+          {
+            "box": [
+              47,
+              131,
+              94,
+              175
+            ],
+            "pivot": [
+              70,
+              176
+            ]
+          },
+          {
+            "box": [
+              95,
+              131,
+              142,
+              174
+            ],
+            "pivot": [
+              118,
+              176
+            ]
+          },
+          {
+            "box": [
+              143,
+              131,
+              189,
+              174
+            ],
+            "pivot": [
+              166,
+              176
+            ]
+          },
+          {
+            "box": [
+              190,
+              131,
+              237,
+              175
+            ],
+            "pivot": [
+              213,
+              176
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ground_baseline": 176,
+      "saved_id": 42,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "mismagius_fly.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0429 Mismagius.png",
+      "source_kind": "user-provided download",
+      "sha256": "0c9559db0744ef463da1961a50f0d24271e276bc819d3860f14b5684fa86802b",
+      "symbol": "followerMismagius",
+      "frames": 12,
+      "frame_width": 58,
+      "frame_height": 74,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "fly",
+      "name_zh": "梦妖魔",
+      "pokedex_id": 429,
+      "ground": false,
+      "price": 1600,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/mismagius.png",
+        "sha256": "ac48a282b6fafd162e12cd126afcfea6b69eefba1f1629160c43b06c342df9c1",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          26,
+          38
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              149,
+              51,
+              219
+            ],
+            "pivot": [
+              22,
+              185
+            ]
+          },
+          {
+            "box": [
+              52,
+              152,
+              102,
+              219
+            ],
+            "pivot": [
+              74,
+              186
+            ]
+          },
+          {
+            "box": [
+              103,
+              155,
+              157,
+              218
+            ],
+            "pivot": [
+              127,
+              186
+            ]
+          },
+          {
+            "box": [
+              158,
+              155,
+              212,
+              218
+            ],
+            "pivot": [
+              182,
+              186
+            ]
+          },
+          {
+            "box": [
+              213,
+              155,
+              267,
+              218
+            ],
+            "pivot": [
+              237,
+              186
+            ]
+          },
+          {
+            "box": [
+              268,
+              155,
+              322,
+              218
+            ],
+            "pivot": [
+              292,
+              186
+            ]
+          },
+          {
+            "box": [
+              323,
+              155,
+              377,
+              218
+            ],
+            "pivot": [
+              347,
+              186
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "saved_id": 43
+    },
+    {
+      "file": "munchlax_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0446 Munchlax.png",
+      "source_kind": "user-provided download",
+      "sha256": "af4e4077e61590f7d5e7fe8b2b52f1a62b33fd768d0da60ac076bde3aa00823e",
+      "symbol": "followerMunchlax",
+      "frames": 8,
+      "frame_width": 36,
+      "frame_height": 42,
+      "frame_ticks": 2,
+      "flip_x": false,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "小卡比兽",
+      "pokedex_id": 446,
+      "ground": true,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/munchlax.png",
+        "sha256": "101a15320736e4a80b75702380d949310df5a22e327ad532d59db76ea7c8d451",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          18,
+          40
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              40,
+              33,
+              78
+            ],
+            "pivot": [
+              17,
+              78
+            ]
+          },
+          {
+            "box": [
+              34,
+              41,
+              66,
+              77
+            ],
+            "pivot": [
+              50,
+              78
+            ]
+          },
+          {
+            "box": [
+              67,
+              45,
+              99,
+              78
+            ],
+            "pivot": [
+              83,
+              78
+            ]
+          },
+          {
+            "box": [
+              100,
+              43,
+              129,
+              78
+            ],
+            "pivot": [
+              114,
+              78
+            ]
+          },
+          {
+            "box": [
+              130,
+              40,
+              159,
+              77
+            ],
+            "pivot": [
+              144,
+              78
+            ]
+          },
+          {
+            "box": [
+              160,
+              41,
+              190,
+              76
+            ],
+            "pivot": [
+              175,
+              78
+            ]
+          },
+          {
+            "box": [
+              191,
+              43,
+              220,
+              77
+            ],
+            "pivot": [
+              205,
+              78
+            ]
+          },
+          {
+            "box": [
+              221,
+              40,
+              251,
+              77
+            ],
+            "pivot": [
+              236,
+              78
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "ground_baseline": 78,
+      "saved_id": 44
+    },
+    {
+      "file": "magnezone_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0462 Magnezone.png",
+      "source_kind": "user-provided download",
+      "sha256": "46a35e6f5909e0fa9aeb0c05417a9e32cc4ce72a2d2a3158b2021958e47283a9",
+      "symbol": "followerMagnezone",
+      "frames": 10,
+      "frame_width": 96,
+      "frame_height": 69,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "自爆磁怪",
+      "pokedex_id": 462,
+      "ground": false,
+      "price": 3100,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/magnezone.png",
+        "sha256": "d7fb8934e44970545b8935ac8fe048cc9efe4fbdb9cdd74ad3db573a62aa833b",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          54,
+          10
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              1,
+              90,
+              66
+            ],
+            "pivot": [
+              52,
+              9
+            ]
+          },
+          {
+            "box": [
+              91,
+              3,
+              182,
+              66
+            ],
+            "pivot": [
+              143,
+              11
+            ]
+          },
+          {
+            "box": [
+              183,
+              6,
+              275,
+              67
+            ],
+            "pivot": [
+              235,
+              14
+            ]
+          },
+          {
+            "box": [
+              276,
+              8,
+              368,
+              70
+            ],
+            "pivot": [
+              328,
+              16
+            ]
+          },
+          {
+            "box": [
+              369,
+              6,
+              458,
+              68
+            ],
+            "pivot": [
+              418,
+              14
+            ]
+          },
+          {
+            "box": [
+              459,
+              3,
+              550,
+              66
+            ],
+            "pivot": [
+              511,
+              11
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "saved_id": 46
+    },
+    {
+      "file": "togekiss_fly.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0468 Togekiss.png",
+      "source_kind": "user-provided download",
+      "sha256": "cc834af906cdefbf36f25c0c5ce931549b225c830481eba7d81aac05affdda78",
+      "symbol": "followerTogekiss",
+      "frames": 8,
+      "frame_width": 112,
+      "frame_height": 96,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "steady_flight",
+      "name_zh": "波克基斯",
+      "pokedex_id": 468,
+      "ground": false,
+      "price": 3600,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/togekiss.png",
+        "sha256": "1e351a52d65615637f9be412f994216b686349de8849509bffb46144ff1add76",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          46,
+          44
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              6,
+              89,
+              59
+            ],
+            "pivot": [
+              31,
+              25
+            ]
+          },
+          {
+            "box": [
+              90,
+              3,
+              169,
+              60
+            ],
+            "pivot": [
+              114,
+              27
+            ]
+          },
+          {
+            "box": [
+              170,
+              1,
+              236,
+              61
+            ],
+            "pivot": [
+              189,
+              29
+            ]
+          },
+          {
+            "box": [
+              237,
+              6,
+              333,
+              58
+            ],
+            "pivot": [
+              272,
+              23
+            ]
+          },
+          {
+            "box": [
+              334,
+              4,
+              432,
+              56
+            ],
+            "pivot": [
+              372,
+              21
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1,
+          0,
+          3,
+          4,
+          3
+        ]
+      },
+      "saved_id": 47
+    },
+    {
+      "file": "rotom_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0479 Rotom.png",
+      "source_kind": "user-provided download",
+      "sha256": "44af3f7f9c751830f56a4fabf09117bb697aa44d5aca035d0732ab77fd41d3f6",
+      "symbol": "followerRotom",
+      "frames": 4,
+      "frame_width": 40,
+      "frame_height": 38,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "洛托姆",
+      "pokedex_id": 479,
+      "ground": false,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/rotom.png",
+        "sha256": "b4d52108206f67d3f1d5047efbb668d4df485ae106393aa13d8102dbc7bcc2d7",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          20,
+          19
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              2,
+              36,
+              35
+            ],
+            "pivot": [
+              18,
+              19
+            ]
+          },
+          {
+            "box": [
+              37,
+              4,
+              73,
+              35
+            ],
+            "pivot": [
+              55,
+              21
+            ]
+          },
+          {
+            "box": [
+              74,
+              1,
+              106,
+              35
+            ],
+            "pivot": [
+              89,
+              18
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 48
+    },
+    {
+      "file": "darkrai_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0491 Darkrai.png",
+      "source_kind": "user-provided download",
+      "sha256": "7e7aabb1b682d256c589c2cc85f713dfed8727f67725d2b5187f6716acfa10ac",
+      "symbol": "followerDarkrai",
+      "frames": 4,
+      "frame_width": 64,
+      "frame_height": 64,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "达克莱伊",
+      "pokedex_id": 491,
+      "ground": false,
+      "price": 1300,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/darkrai.png",
+        "sha256": "7be47febf3572d7adc3dc40737509bec42682e6f715ceb65adffe5c514187b57",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          22,
+          21
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              5,
+              57,
+              60
+            ],
+            "pivot": [
+              18,
+              22
+            ]
+          },
+          {
+            "box": [
+              58,
+              4,
+              117,
+              60
+            ],
+            "pivot": [
+              78,
+              23
+            ]
+          },
+          {
+            "box": [
+              118,
+              1,
+              177,
+              60
+            ],
+            "pivot": [
+              138,
+              20
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 49
+    },
+    {
+      "file": "snivy_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0495 Snivy.png",
+      "source_kind": "user-provided download",
+      "sha256": "efae4485452ab397552bd09b0cee43f688e6af6060b1463ad6108dac5b28b24e",
+      "symbol": "followerSnivy",
+      "frames": 6,
+      "frame_width": 62,
+      "frame_height": 45,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "藤藤蛇",
+      "pokedex_id": 495,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/snivy.png",
+        "sha256": "a667d7281338562e3f4ba2bab0440d55196ebec79413cec251b85cbe858f5d6e",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          31,
+          43
+        ],
+        "poses": [
+          {
+            "box": [
+              2,
+              84,
+              55,
+              123
+            ],
+            "pivot": [
+              28,
+              123
+            ]
+          },
+          {
+            "box": [
+              57,
+              82,
+              113,
+              122
+            ],
+            "pivot": [
+              85,
+              123
+            ]
+          },
+          {
+            "box": [
+              115,
+              84,
+              168,
+              122
+            ],
+            "pivot": [
+              141,
+              123
+            ]
+          },
+          {
+            "box": [
+              170,
+              84,
+              223,
+              122
+            ],
+            "pivot": [
+              196,
+              123
+            ]
+          },
+          {
+            "box": [
+              225,
+              82,
+              281,
+              120
+            ],
+            "pivot": [
+              253,
+              123
+            ]
+          },
+          {
+            "box": [
+              283,
+              84,
+              336,
+              123
+            ],
+            "pivot": [
+              309,
+              123
+            ]
+          },
+          {
+            "box": [
+              343,
+              82,
+              401,
+              121
+            ],
+            "pivot": [
+              372,
+              123
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "ground_baseline": 123,
+      "saved_id": 50
+    },
+    {
+      "file": "cottonee_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0546 Cottonee.png",
+      "source_kind": "user-provided download",
+      "sha256": "8e7ccab4fe71a46b1ccdfce28dc3d594695b967e97a856096bc0146e131da48f",
+      "symbol": "followerCottonee",
+      "frames": 8,
+      "frame_width": 66,
+      "frame_height": 38,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "木棉球",
+      "pokedex_id": 546,
+      "ground": false,
+      "price": 200,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/cottonee.png",
+        "sha256": "1c1088cd6f260690c0d8b253e75492eca51fa822b28b713f9cf4da71e8d6115f",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          30,
+          16
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              5,
+              61,
+              37
+            ],
+            "pivot": [
+              29,
+              18
+            ]
+          },
+          {
+            "box": [
+              62,
+              7,
+              120,
+              39
+            ],
+            "pivot": [
+              88,
+              19
+            ]
+          },
+          {
+            "box": [
+              121,
+              9,
+              176,
+              41
+            ],
+            "pivot": [
+              145,
+              21
+            ]
+          },
+          {
+            "box": [
+              177,
+              3,
+              238,
+              35
+            ],
+            "pivot": [
+              205,
+              17
+            ]
+          },
+          {
+            "box": [
+              239,
+              1,
+              299,
+              33
+            ],
+            "pivot": [
+              267,
+              15
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "saved_id": 51
+    },
+    {
+      "file": "scraggy_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0559 Scraggy.png",
+      "source_kind": "user-provided download",
+      "sha256": "19b43b6747b6c42b8554e23ab3cd6a7e805fb830f08b39b4c68078153c3935fa",
+      "symbol": "followerScraggy",
+      "frames": 8,
+      "frame_width": 48,
+      "frame_height": 53,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "滑滑小子",
+      "pokedex_id": 559,
+      "ground": true,
+      "price": 200,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/scraggy.png",
+        "sha256": "9decbe15412cd27ca23305464308b9d03d4a38db5b31ec89a313ac5d37e4db31",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          23,
+          51
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              99,
+              44,
+              145
+            ],
+            "pivot": [
+              22,
+              146
+            ]
+          },
+          {
+            "box": [
+              45,
+              97,
+              88,
+              141
+            ],
+            "pivot": [
+              66,
+              146
+            ]
+          },
+          {
+            "box": [
+              89,
+              97,
+              132,
+              142
+            ],
+            "pivot": [
+              110,
+              146
+            ]
+          },
+          {
+            "box": [
+              133,
+              97,
+              176,
+              146
+            ],
+            "pivot": [
+              154,
+              146
+            ]
+          },
+          {
+            "box": [
+              177,
+              99,
+              220,
+              146
+            ],
+            "pivot": [
+              198,
+              146
+            ]
+          },
+          {
+            "box": [
+              221,
+              97,
+              264,
+              140
+            ],
+            "pivot": [
+              242,
+              146
+            ]
+          },
+          {
+            "box": [
+              265,
+              97,
+              308,
+              143
+            ],
+            "pivot": [
+              286,
+              146
+            ]
+          },
+          {
+            "box": [
+              309,
+              97,
+              352,
+              145
+            ],
+            "pivot": [
+              330,
+              146
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "ground_baseline": 146,
+      "saved_id": 52
+    },
+    {
+      "file": "cofagrigus_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0563 Cofagrigus.png",
+      "source_kind": "user-provided download",
+      "sha256": "1aed8bef24d69d330b78e0a829ff692d9f7d78f43511d57cd5c718e2b39f1908",
+      "symbol": "followerCofagrigus",
+      "frames": 4,
+      "frame_width": 110,
+      "frame_height": 117,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "死神棺",
+      "pokedex_id": 563,
+      "ground": false,
+      "price": 1600,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/cofagrigus.png",
+        "sha256": "ac236899d0f89c734062f958049d3ea27f0ebd77dc2e43d2430d562857e86255",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          58,
+          50
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              2,
+              104,
+              111
+            ],
+            "pivot": [
+              55,
+              48
+            ]
+          },
+          {
+            "box": [
+              105,
+              1,
+              210,
+              114
+            ],
+            "pivot": [
+              161,
+              49
+            ]
+          },
+          {
+            "box": [
+              211,
+              2,
+              314,
+              111
+            ],
+            "pivot": [
+              265,
+              48
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 53
+    },
+    {
+      "file": "zorua_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0570 Zorua.png",
+      "source_kind": "user-provided download",
+      "sha256": "9e7de9555cafdf4a86dfef806f9ac1bc7cd96dad61714ad7a8925bced15ee8ae",
+      "symbol": "followerZorua",
+      "frames": 7,
+      "frame_width": 52,
+      "frame_height": 57,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "索罗亚",
+      "pokedex_id": 570,
+      "ground": true,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/zorua.png",
+        "sha256": "2b37fed59478f66a346265b58814696fc206167a44ffaf9e0122c471caa4509d",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          26,
+          55
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              110,
+              47,
+              161
+            ],
+            "pivot": [
+              24,
+              161
+            ]
+          },
+          {
+            "box": [
+              48,
+              109,
+              96,
+              155
+            ],
+            "pivot": [
+              72,
+              161
+            ]
+          },
+          {
+            "box": [
+              97,
+              109,
+              143,
+              158
+            ],
+            "pivot": [
+              120,
+              161
+            ]
+          },
+          {
+            "box": [
+              144,
+              110,
+              189,
+              161
+            ],
+            "pivot": [
+              166,
+              161
+            ]
+          },
+          {
+            "box": [
+              190,
+              108,
+              234,
+              161
+            ],
+            "pivot": [
+              212,
+              161
+            ]
+          },
+          {
+            "box": [
+              235,
+              108,
+              279,
+              161
+            ],
+            "pivot": [
+              257,
+              161
+            ]
+          },
+          {
+            "box": [
+              280,
+              108,
+              325,
+              161
+            ],
+            "pivot": [
+              302,
+              161
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "ground_baseline": 161,
+      "saved_id": 54,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "litwick_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0607 Litwick.png",
+      "source_kind": "user-provided download",
+      "sha256": "45d81aaeeab87439a85d2c6a90bb2412bd4dd2d63a21db96838c7b3ea32f2cbf",
+      "symbol": "followerLitwick",
+      "frames": 8,
+      "frame_width": 30,
+      "frame_height": 44,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "烛光灵",
+      "pokedex_id": 607,
+      "ground": false,
+      "price": 200,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/litwick.png",
+        "sha256": "af45b0635d47ee00a12ea261e55826fb0385e60fa82e939d7891a43304d746a4",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          15,
+          42
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              3,
+              26,
+              41
+            ],
+            "pivot": [
+              13,
+              41
+            ]
+          },
+          {
+            "box": [
+              27,
+              3,
+              53,
+              41
+            ],
+            "pivot": [
+              40,
+              41
+            ]
+          },
+          {
+            "box": [
+              54,
+              5,
+              80,
+              41
+            ],
+            "pivot": [
+              67,
+              41
+            ]
+          },
+          {
+            "box": [
+              81,
+              1,
+              106,
+              41
+            ],
+            "pivot": [
+              93,
+              41
+            ]
+          },
+          {
+            "box": [
+              107,
+              1,
+              132,
+              41
+            ],
+            "pivot": [
+              119,
+              41
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "saved_id": 55
+    },
+    {
+      "file": "lampent_fly.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0608 Lampent.png",
+      "source_kind": "user-provided download",
+      "sha256": "9cfc8067c74828f7406d7e4b1451fea89e3b4c09763543954bec3c7333cc4164",
+      "symbol": "followerLampent",
+      "frames": 11,
+      "frame_width": 68,
+      "frame_height": 44,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "fly",
+      "name_zh": "灯火幽灵",
+      "pokedex_id": 608,
+      "ground": false,
+      "price": 1600,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/lampent.png",
+        "sha256": "5de68ca0cbee0368b7684270d7e35bf19e6f4376ea84f41ea5f772d7e7106e4d",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          32,
+          22
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              6,
+              60,
+              44
+            ],
+            "pivot": [
+              29,
+              24
+            ]
+          },
+          {
+            "box": [
+              61,
+              5,
+              120,
+              42
+            ],
+            "pivot": [
+              88,
+              23
+            ]
+          },
+          {
+            "box": [
+              121,
+              3,
+              178,
+              41
+            ],
+            "pivot": [
+              144,
+              21
+            ]
+          },
+          {
+            "box": [
+              179,
+              2,
+              236,
+              40
+            ],
+            "pivot": [
+              202,
+              20
+            ]
+          },
+          {
+            "box": [
+              237,
+              3,
+              294,
+              41
+            ],
+            "pivot": [
+              260,
+              21
+            ]
+          },
+          {
+            "box": [
+              295,
+              5,
+              354,
+              42
+            ],
+            "pivot": [
+              322,
+              23
+            ]
+          },
+          {
+            "box": [
+              355,
+              5,
+              414,
+              42
+            ],
+            "pivot": [
+              385,
+              24
+            ]
+          },
+          {
+            "box": [
+              415,
+              2,
+              471,
+              39
+            ],
+            "pivot": [
+              444,
+              22
+            ]
+          },
+          {
+            "box": [
+              472,
+              1,
+              528,
+              38
+            ],
+            "pivot": [
+              501,
+              21
+            ]
+          },
+          {
+            "box": [
+              529,
+              2,
+              585,
+              39
+            ],
+            "pivot": [
+              558,
+              22
+            ]
+          },
+          {
+            "box": [
+              586,
+              4,
+              645,
+              41
+            ],
+            "pivot": [
+              616,
+              22
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "saved_id": 56
+    },
+    {
+      "file": "deino_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fifth Generation - #0633 Deino.png",
+      "source_kind": "user-provided download",
+      "sha256": "46cb6b21ffcabb84e0ccab767c3db213daca7aac1ed48e7975c8b3e3c941468d",
+      "symbol": "followerDeino",
+      "frames": 6,
+      "frame_width": 50,
+      "frame_height": 61,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "单首龙",
+      "pokedex_id": 633,
+      "ground": true,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/deino.png",
+        "sha256": "fb505fe5f656646fb2df5f731f4cf25bfa42f2c8fd3e295fafa835ac888b043a",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          25,
+          59
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              114,
+              42,
+              170
+            ],
+            "pivot": [
+              21,
+              171
+            ]
+          },
+          {
+            "box": [
+              51,
+              116,
+              97,
+              170
+            ],
+            "pivot": [
+              74,
+              171
+            ]
+          },
+          {
+            "box": [
+              101,
+              118,
+              147,
+              171
+            ],
+            "pivot": [
+              124,
+              171
+            ]
+          },
+          {
+            "box": [
+              153,
+              117,
+              199,
+              171
+            ],
+            "pivot": [
+              176,
+              171
+            ]
+          },
+          {
+            "box": [
+              208,
+              116,
+              251,
+              169
+            ],
+            "pivot": [
+              229,
+              171
+            ]
+          },
+          {
+            "box": [
+              261,
+              115,
+              302,
+              170
+            ],
+            "pivot": [
+              281,
+              171
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "ground_baseline": 171,
+      "saved_id": 57,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "froakie_hop_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Sixth Generation - #0656 Froakie.png",
+      "source_kind": "user-provided download",
+      "sha256": "1e94c2ae293b66737d4c82b45cda624eff7dab6fee3ebbe07292e6efb049797c",
+      "symbol": "followerFroakie",
+      "frames": 7,
+      "frame_width": 50,
+      "frame_height": 53,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hop-run",
+      "name_zh": "呱呱泡蛙",
+      "pokedex_id": 656,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/froakie.png",
+        "sha256": "386b65b68ec6cfd90bc68ed2822f5136713d39749b62733c5a26da1293574917",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          25,
+          51
+        ],
+        "poses": [
+          {
+            "box": [
+              2,
+              149,
+              33,
+              185
+            ],
+            "pivot": [
+              17,
+              186
+            ]
+          },
+          {
+            "box": [
+              36,
+              151,
+              67,
+              185
+            ],
+            "pivot": [
+              51,
+              186
+            ]
+          },
+          {
+            "box": [
+              69,
+              137,
+              105,
+              181
+            ],
+            "pivot": [
+              87,
+              186
+            ]
+          },
+          {
+            "box": [
+              107,
+              143,
+              153,
+              173
+            ],
+            "pivot": [
+              130,
+              186
+            ]
+          },
+          {
+            "box": [
+              155,
+              150,
+              201,
+              186
+            ],
+            "pivot": [
+              178,
+              186
+            ]
+          },
+          {
+            "box": [
+              203,
+              145,
+              237,
+              186
+            ],
+            "pivot": [
+              220,
+              186
+            ]
+          },
+          {
+            "box": [
+              238,
+              149,
+              272,
+              186
+            ],
+            "pivot": [
+              255,
+              186
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "ground_baseline": 186,
+      "saved_id": 58
+    },
+    {
+      "file": "goomy_crawl.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Sixth Generation - #0704 Goomy.png",
+      "source_kind": "user-provided download",
+      "sha256": "4446968c2c17f708ecfe4a37b3e6214d6ca5897af43a2c0a24ee2da539eab78d",
+      "symbol": "followerGoomy",
+      "frames": 9,
+      "frame_width": 38,
+      "frame_height": 51,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "crawl",
+      "name_zh": "黏黏宝",
+      "pokedex_id": 704,
+      "ground": true,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/goomy.png",
+        "sha256": "36f23e2e2e6dbe58233f6c95720dd5f589fdf24083b680b3863cddda7e52689c",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          18,
+          49
+        ],
+        "poses": [
+          {
+            "box": [
+              5,
+              95,
+              35,
+              132
+            ],
+            "pivot": [
+              20,
+              132
+            ]
+          },
+          {
+            "box": [
+              41,
+              98,
+              73,
+              132
+            ],
+            "pivot": [
+              57,
+              132
+            ]
+          },
+          {
+            "box": [
+              76,
+              98,
+              109,
+              132
+            ],
+            "pivot": [
+              92,
+              132
+            ]
+          },
+          {
+            "box": [
+              110,
+              86,
+              140,
+              127
+            ],
+            "pivot": [
+              125,
+              132
+            ]
+          },
+          {
+            "box": [
+              147,
+              88,
+              177,
+              127
+            ],
+            "pivot": [
+              162,
+              132
+            ]
+          },
+          {
+            "box": [
+              183,
+              85,
+              211,
+              125
+            ],
+            "pivot": [
+              197,
+              132
+            ]
+          },
+          {
+            "box": [
+              216,
+              98,
+              249,
+              132
+            ],
+            "pivot": [
+              232,
+              132
+            ]
+          },
+          {
+            "box": [
+              255,
+              98,
+              287,
+              132
+            ],
+            "pivot": [
+              271,
+              132
+            ]
+          },
+          {
+            "box": [
+              296,
+              95,
+              326,
+              132
+            ],
+            "pivot": [
+              311,
+              132
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "ground_baseline": 132,
+      "saved_id": 59
+    },
+    {
+      "file": "rowlet_fly.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Seventh Generation - #0722 Rowlet.png",
+      "source_kind": "user-provided download",
+      "sha256": "5f631464a03aed30779e0b58a35d47deabfd1e026d981cb6085465270420828b",
+      "symbol": "followerRowlet",
+      "frames": 7,
+      "frame_width": 60,
+      "frame_height": 53,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "fly",
+      "name_zh": "木木枭",
+      "pokedex_id": 722,
+      "ground": false,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/rowlet.png",
+        "sha256": "cb4f4d04105a19683637cd07330f50020901dbd6078d2b9e3f688339e9376443",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          26,
+          21
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              133,
+              44,
+              171
+            ],
+            "pivot": [
+              23,
+              144
+            ]
+          },
+          {
+            "box": [
+              45,
+              138,
+              91,
+              178
+            ],
+            "pivot": [
+              67,
+              148
+            ]
+          },
+          {
+            "box": [
+              92,
+              136,
+              143,
+              184
+            ],
+            "pivot": [
+              112,
+              155
+            ]
+          },
+          {
+            "box": [
+              145,
+              143,
+              196,
+              191
+            ],
+            "pivot": [
+              165,
+              162
+            ]
+          },
+          {
+            "box": [
+              218,
+              151,
+              269,
+              199
+            ],
+            "pivot": [
+              238,
+              170
+            ]
+          },
+          {
+            "box": [
+              270,
+              142,
+              314,
+              182
+            ],
+            "pivot": [
+              290,
+              153
+            ]
+          },
+          {
+            "box": [
+              315,
+              140,
+              358,
+              180
+            ],
+            "pivot": [
+              339,
+              151
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "saved_id": 60
+    },
+    {
+      "file": "litten_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Seventh Generation - #0725 Litten.png",
+      "source_kind": "user-provided download",
+      "sha256": "f5e7b717b7b54e4e441c054d098a38c7cdce6b9b8195a5281f02f0f9e67a3d6f",
+      "symbol": "followerLitten",
+      "frames": 6,
+      "frame_width": 68,
+      "frame_height": 46,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "火斑喵",
+      "pokedex_id": 725,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/litten.png",
+        "sha256": "8834260f4f58000f44965325a23e53876a715f08557ecc9b647b2495f1d37641",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          34,
+          44
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              100,
+              64,
+              136
+            ],
+            "pivot": [
+              32,
+              142
+            ]
+          },
+          {
+            "box": [
+              65,
+              103,
+              129,
+              141
+            ],
+            "pivot": [
+              97,
+              142
+            ]
+          },
+          {
+            "box": [
+              130,
+              105,
+              188,
+              142
+            ],
+            "pivot": [
+              159,
+              142
+            ]
+          },
+          {
+            "box": [
+              190,
+              104,
+              242,
+              139
+            ],
+            "pivot": [
+              216,
+              142
+            ]
+          },
+          {
+            "box": [
+              244,
+              103,
+              304,
+              142
+            ],
+            "pivot": [
+              274,
+              142
+            ]
+          },
+          {
+            "box": [
+              305,
+              101,
+              367,
+              142
+            ],
+            "pivot": [
+              336,
+              142
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "ground_baseline": 142,
+      "saved_id": 61,
+      "playback_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "playback_ticks": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "file": "mimikyu_shuffle.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Seventh Generation - #0778 Mimikyu.png",
+      "source_kind": "user-provided download",
+      "sha256": "2245aaa1db3548f2ae988638701cf8c40338fd23bdb811c5f74115bbffff4e03",
+      "symbol": "followerMimikyu",
+      "frames": 4,
+      "frame_width": 46,
+      "frame_height": 53,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "shuffle",
+      "name_zh": "谜拟丘",
+      "pokedex_id": 778,
+      "ground": true,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/mimikyu.png",
+        "sha256": "6b88534405b5bfbc979dad1941c362201410fd9e2680a16346d8ecd6fcd9d8d7",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          23,
+          51
+        ],
+        "poses": [
+          {
+            "box": [
+              2,
+              196,
+              44,
+              245
+            ],
+            "pivot": [
+              23,
+              245
+            ]
+          },
+          {
+            "box": [
+              49,
+              198,
+              91,
+              245
+            ],
+            "pivot": [
+              70,
+              245
+            ]
+          },
+          {
+            "box": [
+              97,
+              199,
+              139,
+              245
+            ],
+            "pivot": [
+              118,
+              245
+            ]
+          },
+          {
+            "box": [
+              145,
+              200,
+              185,
+              245
+            ],
+            "pivot": [
+              165,
+              245
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "ground_baseline": 245,
+      "saved_id": 62
+    },
+    {
+      "file": "grookey_run.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Eighth Generation - #0810 Grookey.png",
+      "source_kind": "user-provided download",
+      "sha256": "7242c80f2c5a5eafea1a31a1c9ae26366231693d28478fe74f7a869ec4f6cddf",
+      "symbol": "followerGrookey",
+      "frames": 5,
+      "frame_width": 44,
+      "frame_height": 50,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "run",
+      "name_zh": "敲音猴",
+      "pokedex_id": 810,
+      "ground": true,
+      "price": 400,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/grookey.png",
+        "sha256": "47b31b9481a3d92f47de5829ef3dcc3fa913ee48ec1f4b302e4c5832f18824c9",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          22,
+          48
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              190,
+              35,
+              231
+            ],
+            "pivot": [
+              18,
+              231
+            ]
+          },
+          {
+            "box": [
+              37,
+              188,
+              77,
+              231
+            ],
+            "pivot": [
+              57,
+              231
+            ]
+          },
+          {
+            "box": [
+              78,
+              187,
+              116,
+              231
+            ],
+            "pivot": [
+              97,
+              231
+            ]
+          },
+          {
+            "box": [
+              118,
+              185,
+              154,
+              230
+            ],
+            "pivot": [
+              136,
+              231
+            ]
+          },
+          {
+            "box": [
+              156,
+              186,
+              189,
+              231
+            ],
+            "pivot": [
+              172,
+              231
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ground_baseline": 231,
+      "saved_id": 63
+    },
+    {
+      "file": "gossifleur_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Eighth Generation - #0829 Gossifleur.png",
+      "source_kind": "user-provided download",
+      "sha256": "f2207e556b5a8857bf535f1246516fb2d16ced852727ac0011a5531f2acced5b",
+      "symbol": "followerGossifleur",
+      "frames": 8,
+      "frame_width": 56,
+      "frame_height": 49,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "hover",
+      "name_zh": "幼棉棉",
+      "pokedex_id": 829,
+      "ground": false,
+      "price": 100,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/gossifleur.png",
+        "sha256": "cb08815dcd1b2977186d23a55ea94999888c406d71fa9f9c492c1a7c8a677c82",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          24,
+          32
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              104,
+              53,
+              148
+            ],
+            "pivot": [
+              23,
+              134
+            ]
+          },
+          {
+            "box": [
+              59,
+              107,
+              109,
+              150
+            ],
+            "pivot": [
+              81,
+              137
+            ]
+          },
+          {
+            "box": [
+              117,
+              108,
+              165,
+              150
+            ],
+            "pivot": [
+              139,
+              138
+            ]
+          },
+          {
+            "box": [
+              178,
+              102,
+              230,
+              146
+            ],
+            "pivot": [
+              200,
+              132
+            ]
+          },
+          {
+            "box": [
+              238,
+              95,
+              288,
+              140
+            ],
+            "pivot": [
+              260,
+              125
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "saved_id": 64
+    },
+    {
+      "file": "applin_roll.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Eighth Generation - #0840 Applin.png",
+      "source_kind": "user-provided download",
+      "sha256": "37cd835cd63be8ad0222bf7873c6f1f2b7933b6467cb252e94eebfd0565c1f6a",
+      "symbol": "followerApplin",
+      "frames": 5,
+      "frame_width": 34,
+      "frame_height": 32,
+      "frame_ticks": 2,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "roll",
+      "name_zh": "啃果虫",
+      "pokedex_id": 840,
+      "ground": true,
+      "price": 200,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/applin.png",
+        "sha256": "cdbb9e2f309cd17396b274c6e30cb9df111bf0f47760bbe3ad9d10f4182fe5fd",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          17,
+          30
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              64,
+              20,
+              92
+            ],
+            "pivot": [
+              10,
+              92
+            ]
+          },
+          {
+            "box": [
+              28,
+              65,
+              49,
+              92
+            ],
+            "pivot": [
+              38,
+              92
+            ]
+          },
+          {
+            "box": [
+              53,
+              72,
+              83,
+              92
+            ],
+            "pivot": [
+              68,
+              92
+            ]
+          },
+          {
+            "box": [
+              90,
+              70,
+              112,
+              92
+            ],
+            "pivot": [
+              101,
+              92
+            ]
+          },
+          {
+            "box": [
+              123,
+              69,
+              151,
+              89
+            ],
+            "pivot": [
+              137,
+              92
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ground_baseline": 92,
+      "saved_id": 65
+    },
+    {
+      "file": "rotom_heat_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0479 Rotom.png",
+      "source_kind": "user-provided download",
+      "sha256": "48ff5a6af9ca8a18089f79ec5d9bbf1cd86c4b8b4c87cf260807ee370e65869d",
+      "symbol": "followerRotomHeat",
+      "frames": 4,
+      "frame_width": 62,
+      "frame_height": 52,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "heat_hover",
+      "name_zh": "加热洛托姆",
+      "pokedex_id": 479,
+      "ground": false,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/rotom.png",
+        "sha256": "b4d52108206f67d3f1d5047efbb668d4df485ae106393aa13d8102dbc7bcc2d7",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          31,
+          26
+        ],
+        "poses": [
+          {
+            "box": [
+              411,
+              232,
+              465,
+              279
+            ],
+            "pivot": [
+              438,
+              255
+            ]
+          },
+          {
+            "box": [
+              466,
+              231,
+              515,
+              279
+            ],
+            "pivot": [
+              491,
+              255
+            ]
+          },
+          {
+            "box": [
+              516,
+              233,
+              574,
+              279
+            ],
+            "pivot": [
+              545,
+              255
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 66,
+      "form": "heat"
+    },
+    {
+      "file": "rotom_wash_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0479 Rotom.png",
+      "source_kind": "user-provided download",
+      "sha256": "c2cbb485235574282b306d84e4ced9f4706fb52e15d51b9620cbad46488aa9d5",
+      "symbol": "followerRotomWash",
+      "frames": 4,
+      "frame_width": 78,
+      "frame_height": 62,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "wash_hover",
+      "name_zh": "清洗洛托姆",
+      "pokedex_id": 479,
+      "ground": false,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/rotom.png",
+        "sha256": "b4d52108206f67d3f1d5047efbb668d4df485ae106393aa13d8102dbc7bcc2d7",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          39,
+          31
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              408,
+              74,
+              465
+            ],
+            "pivot": [
+              38,
+              437
+            ]
+          },
+          {
+            "box": [
+              75,
+              408,
+              148,
+              465
+            ],
+            "pivot": [
+              112,
+              437
+            ]
+          },
+          {
+            "box": [
+              149,
+              408,
+              222,
+              465
+            ],
+            "pivot": [
+              186,
+              437
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 67,
+      "form": "wash"
+    },
+    {
+      "file": "rotom_frost_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0479 Rotom.png",
+      "source_kind": "user-provided download",
+      "sha256": "01dc5832130c3ae79fb3faa0a55d3e60eee8b3e7112565bde3a630278badef13",
+      "symbol": "followerRotomFrost",
+      "frames": 4,
+      "frame_width": 82,
+      "frame_height": 66,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "frost_hover",
+      "name_zh": "结冰洛托姆",
+      "pokedex_id": 479,
+      "ground": false,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/rotom.png",
+        "sha256": "b4d52108206f67d3f1d5047efbb668d4df485ae106393aa13d8102dbc7bcc2d7",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          41,
+          33
+        ],
+        "poses": [
+          {
+            "box": [
+              1,
+              136,
+              76,
+              197
+            ],
+            "pivot": [
+              38,
+              167
+            ]
+          },
+          {
+            "box": [
+              77,
+              136,
+              155,
+              197
+            ],
+            "pivot": [
+              116,
+              167
+            ]
+          },
+          {
+            "box": [
+              156,
+              136,
+              231,
+              197
+            ],
+            "pivot": [
+              193,
+              167
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 68,
+      "form": "frost"
+    },
+    {
+      "file": "rotom_fan_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0479 Rotom.png",
+      "source_kind": "user-provided download",
+      "sha256": "e84a1d34c539cb09847ae805fc67fcc1113486242b1df7f59d90aad253d42908",
+      "symbol": "followerRotomFan",
+      "frames": 4,
+      "frame_width": 66,
+      "frame_height": 50,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "fan_hover",
+      "name_zh": "旋转洛托姆",
+      "pokedex_id": 479,
+      "ground": false,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/rotom.png",
+        "sha256": "b4d52108206f67d3f1d5047efbb668d4df485ae106393aa13d8102dbc7bcc2d7",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          33,
+          25
+        ],
+        "poses": [
+          {
+            "box": [
+              411,
+              1,
+              473,
+              46
+            ],
+            "pivot": [
+              442,
+              24
+            ]
+          },
+          {
+            "box": [
+              474,
+              1,
+              536,
+              46
+            ],
+            "pivot": [
+              505,
+              24
+            ]
+          },
+          {
+            "box": [
+              537,
+              1,
+              599,
+              46
+            ],
+            "pivot": [
+              568,
+              24
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 69,
+      "form": "fan"
+    },
+    {
+      "file": "rotom_mow_hover.png",
+      "source_path": "Custom _ Edited - Pokemon Customs - Fourth Generation - #0479 Rotom.png",
+      "source_kind": "user-provided download",
+      "sha256": "a01cb05da7e80743c56645db2ce8865c0dcba191e6917334423e617a22220943",
+      "symbol": "followerRotomMow",
+      "frames": 4,
+      "frame_width": 54,
+      "frame_height": 62,
+      "frame_ticks": 3,
+      "flip_x": true,
+      "credits": [
+        "JoshR691 (sprite artwork)",
+        "Nintendo / Game Freak (character design)"
+      ],
+      "variant": "mow_hover",
+      "name_zh": "切割洛托姆",
+      "pokedex_id": 479,
+      "ground": false,
+      "price": 700,
+      "uniform_cadence": true,
+      "deduplicate_frames": true,
+      "sheet_extract": {
+        "file": "source_sheets/rotom.png",
+        "sha256": "b4d52108206f67d3f1d5047efbb668d4df485ae106393aa13d8102dbc7bcc2d7",
+        "background": [
+          199,
+          225,
+          209,
+          255
+        ],
+        "origin": [
+          27,
+          31
+        ],
+        "poses": [
+          {
+            "box": [
+              411,
+              436,
+              461,
+              493
+            ],
+            "pivot": [
+              436,
+              465
+            ]
+          },
+          {
+            "box": [
+              462,
+              436,
+              512,
+              493
+            ],
+            "pivot": [
+              487,
+              465
+            ]
+          },
+          {
+            "box": [
+              513,
+              436,
+              563,
+              493
+            ],
+            "pivot": [
+              538,
+              465
+            ]
+          }
+        ],
+        "sequence": [
+          0,
+          1,
+          2,
+          1
+        ]
+      },
+      "saved_id": 70,
+      "form": "mow"
     }
   ]
 }

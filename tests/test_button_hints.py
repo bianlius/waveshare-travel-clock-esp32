@@ -23,7 +23,7 @@ def function(text, signature):
 
 page = source("main/PAGE/pageDraw.c")
 wifi = source("main/PAGE/WIFI/wifiScanPage.c")
-adc = source("main/adc.c")
+adc = source("ports/waveshare/adc.c")
 swipe_constants = next(
     line for line in adc.splitlines() if line.startswith("enum { MAIN_SWIPE_NEXT=")
 )
@@ -77,7 +77,7 @@ static void renderMenuInit(void){ entered=13; }
 static void writeData(void){}
 static void tomatoPageInit(void){ entered=14; }
 static void KeyDownML(void){ entered=7; }
-#define GRAY 0x8410
+#define BLACK 0x0000
 static unsigned footerDraws;
 static uint8_t LCD_NativeTextDraw(const char *text,int16_t x,int16_t y,uint16_t color,
                                 uint8_t size,int16_t left,int16_t top,int16_t right,int16_t bottom){
@@ -112,7 +112,7 @@ static void saveSystemSettingsIfDirty(void){}
 static void saveSoundSettingsIfDirty(void){}
 static void saveTimerSoundSettingsIfDirty(void){}
 static void leaveClockSettings(void){}
-static void renderPowerMenuInit(void){}
+static void renderPowerMenuInit(void){entered=15;pageNow=PAGE_POWER_MENU;}
 static void hideTips(void){}
 static void soundStopAll(void){}
 #define WS_WIFI_LIST_TOP 32
@@ -257,9 +257,10 @@ int main(void){
     for(int state=0;state<=4;++state){
         WifiConnectingStateOld=state;
         refreshWifiKeyHints();
-        expect("返回",state>=3 ? "返回首页" : "","",3,-1);
+        expect("返回",state>=3 ? "返回首页" : "后台连接","",3,-1);
         footerDraws=0; drawPageReturnHint();
         assert(footerDraws==0 && !*longKeyText[1]);
+        entered=0;tap(1);assert(entered==5); // In-progress connections can leave for home too.
     }
     entered=0; tap(1); assert(entered==5);
 
@@ -288,6 +289,25 @@ int main(void){
     refreshWifiKeyHints(); levels[4]=0; keyCheckC();
     fakeTime+=700000; keyCheckC(); assert(keyState==(1<<(4*2)));
     levels[4]=1; keyCheckC(); assert(keyState==0);
+    // The production GPIO path must deliver a single middle click on every
+    // main view; a shared page binding alone cannot bypass input filtering.
+    softKeyHeaderVisible=0;
+    for(int page=PAGE_HOME;page<=PAGE_WEATHER;page++){
+        pageNow=page;
+        levels[5]=0;keyCheckC();assert(keyState==0);
+        fakeTime+=100000;levels[5]=1;keyCheckC();assert(keyState==(1<<2));
+        keyCheckC();assert(keyState==0);
+    }
+    // Long middle presses still open the power menu without a release click.
+    pageNow=PAGE_HOME;levels[5]=0;keyCheckC();assert(keyState==0);
+    fakeTime+=1600000;keyCheckC();assert(entered==15 && pageNow==PAGE_POWER_MENU);
+    levels[5]=1;keyCheckC();assert(keyState==0);
+    // Cancel releases when another event moved between main and subpages.
+    pageNow=PAGE_HOME;levels[5]=0;keyCheckC();
+    pageNow=PAGE_WIFI_HOME;fakeTime+=100000;levels[5]=1;keyCheckC();assert(keyState==0);
+    pageNow=PAGE_WIFI_HOME;levels[5]=0;keyCheckC();
+    pageNow=PAGE_HOME;fakeTime+=100000;levels[5]=1;keyCheckC();assert(keyState==0);
+    puts("PASS: physical middle clicks on all main views; middle hold and page-transition release suppression");
     puts("PASS: short-first physical/touch actions; Pomodoro start/pause/resume/stop/return; Wi-Fi empty/busy/boundary states; no duplicate release actions");
 }
 '''

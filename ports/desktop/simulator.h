@@ -1,6 +1,12 @@
 #ifndef DESKTOP_SIMULATOR_H
 #define DESKTOP_SIMULATOR_H
 #include <stdint.h>
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+#define DESKTOP_WIDTH 320
+#else
+#define DESKTOP_WIDTH 240
+#endif
+#define DESKTOP_HEIGHT 240
 void desktop_init(const char *state_dir,const char *resources);
 void desktop_tick(void);
 void desktop_open(int page);

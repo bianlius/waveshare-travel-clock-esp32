@@ -8,6 +8,8 @@ extern const unsigned char fire[];
 extern const unsigned char floorPicWS[];
 extern const unsigned char gardenHint[];
 extern const unsigned char alarmHint[];
+extern const unsigned char homeChargeHint[];
+extern const unsigned char homeUsbHint[];
 extern const unsigned char grass[];
 extern const unsigned char grassB0[];
 extern const unsigned char grassF0[];
@@ -110,23 +112,6 @@ extern const unsigned char sleepBag[];
 extern const unsigned char Tshirt_A[];
 extern const unsigned char Tshirt_B[];
 extern const unsigned char BKQ_M[];
-extern const unsigned char followerTorchic[];
-extern const unsigned char followerMudkip[];
-extern const unsigned char followerZigzagoon[];
-extern const unsigned char followerManectric[];
-extern const unsigned char followerTaillow[];
-extern const unsigned char followerWingull[];
-extern const unsigned char followerVolbeat[];
-extern const unsigned char followerNinjask[];
-extern const unsigned char followerTropius[];
-extern const unsigned char followerMeowth[];
-extern const unsigned char followerLugia[];
-extern const unsigned char followerHoOh[];
-extern const unsigned char followerPidgeot[];
-extern const unsigned char followerAron[];
-extern const unsigned char followerMetang[];
-extern const unsigned char followerSwablu[];
-extern const unsigned char followerShedinja[];
 extern const unsigned char FSG_M[];
 extern const unsigned char GS_M[];
 extern const unsigned char LDYS_M[];
@@ -144,5 +129,7 @@ extern const unsigned char garden_F[];
 extern const unsigned char garden_G[];
 extern const unsigned char garden_H[];
 extern const unsigned char garden_I[];
+
+#include "pocketMon/followers_decl.h"
 
 #endif

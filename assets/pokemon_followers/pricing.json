@@ -1,0 +1,804 @@
+{
+  "version": 2,
+  "minimum_price": 100,
+  "stage_definition": "从最初形态起计为基础形态，进化一次为一阶，进化两次为二阶；包含后补幼年形态。新增伙伴先按阶段定基础价，再在阶段内按族系稀有度加价；各阶段价格区间不交叉。",
+  "rarity_definition": "本作按族系收集难度固定分档；同一族系共享稀有档。御三家为稀有；铁哑铃、波克比、小卡比兽、单首龙、黏黏宝、洛托姆、索罗亚、谜拟丘族系为珍稀。传说与封面传说／幻之宝可梦单独分档。",
+  "tiers": [
+    {
+      "id": "common",
+      "name_zh": "常见",
+      "price_bonus": 0
+    },
+    {
+      "id": "uncommon",
+      "name_zh": "较少见",
+      "price_bonus": 100
+    },
+    {
+      "id": "rare",
+      "name_zh": "稀有",
+      "price_bonus": 300
+    },
+    {
+      "id": "very_rare",
+      "name_zh": "珍稀",
+      "price_bonus": 600
+    },
+    {
+      "id": "legendary",
+      "name_zh": "传说",
+      "price_bonus": 900
+    },
+    {
+      "id": "exceptional",
+      "name_zh": "限定珍稀／幻之宝可梦",
+      "price_bonus": 1200
+    }
+  ],
+  "reserved_ids": [
+    0,
+    12,
+    14,
+    17,
+    20,
+    21,
+    22,
+    23,
+    38,
+    45
+  ],
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_species.csv",
+      "sha256": "e66e2eeb25fd3836b0ebab6bf87bbf01960aa3c0555e2bac495fa8393c5e0c45",
+      "use": "进化路径、全国图鉴编号；不以捕获率代替稀有度。"
+    },
+    {
+      "url": "https://ph.portal-pokemon.com/pokedex/0252/",
+      "use": "官方图鉴交叉核对木守宫进化链。"
+    },
+    {
+      "url": "https://www.pokemon.com/uk/pokedex/pikachu",
+      "use": "官方图鉴交叉核对皮丘→皮卡丘。"
+    },
+    {
+      "url": "https://www.pokemon.com/us/pokedex/0358",
+      "use": "官方图鉴交叉核对铃铛响→风铃铃。"
+    },
+    {
+      "url": "https://www.pokemon.com/us/pokemon-tcg/product-gallery/volcanion-and-magearna-mythical-collections/",
+      "use": "幻之宝可梦身份参考；稀有档与金额为本作游戏设定。"
+    }
+  ],
+  "species": [
+    {
+      "saved_id": 1,
+      "name_zh": "喷火龙",
+      "symbol": "PHL_M",
+      "pokedex_id": 6,
+      "rarity": "rare",
+      "evolution_path": [
+        4,
+        5,
+        6
+      ],
+      "evolution_stage": 2
+    },
+    {
+      "saved_id": 2,
+      "name_zh": "风速狗",
+      "symbol": "FSG_M",
+      "pokedex_id": 59,
+      "rarity": "rare",
+      "evolution_path": [
+        58,
+        59
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 3,
+      "name_zh": "拉蒂奥斯",
+      "symbol": "LDYS_M",
+      "pokedex_id": 381,
+      "rarity": "legendary",
+      "evolution_path": [
+        381
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 4,
+      "name_zh": "拉蒂亚斯",
+      "symbol": "pkm_ldys2",
+      "pokedex_id": 380,
+      "rarity": "legendary",
+      "evolution_path": [
+        380
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 5,
+      "name_zh": "烈焰马",
+      "symbol": "LYM_M",
+      "pokedex_id": 78,
+      "rarity": "uncommon",
+      "evolution_path": [
+        77,
+        78
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 6,
+      "name_zh": "鬼斯",
+      "symbol": "GS_M",
+      "pokedex_id": 92,
+      "rarity": "uncommon",
+      "evolution_path": [
+        92
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 7,
+      "name_zh": "炎帝",
+      "symbol": "YD_M",
+      "pokedex_id": 244,
+      "rarity": "legendary",
+      "evolution_path": [
+        244
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 8,
+      "name_zh": "沙漠蜻蜓",
+      "symbol": "SMQT_M",
+      "pokedex_id": 330,
+      "rarity": "rare",
+      "evolution_path": [
+        328,
+        329,
+        330
+      ],
+      "evolution_stage": 2
+    },
+    {
+      "saved_id": 9,
+      "name_zh": "比卡丘",
+      "symbol": "BKQ_M",
+      "pokedex_id": 25,
+      "rarity": "uncommon",
+      "evolution_path": [
+        172,
+        25
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 10,
+      "name_zh": "火稚鸡",
+      "symbol": "followerTorchic",
+      "pokedex_id": 255,
+      "rarity": "rare",
+      "evolution_path": [
+        255
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 11,
+      "name_zh": "水跃鱼",
+      "symbol": "followerMudkip",
+      "pokedex_id": 258,
+      "rarity": "rare",
+      "evolution_path": [
+        258
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 13,
+      "name_zh": "雷电兽",
+      "symbol": "followerManectric",
+      "pokedex_id": 310,
+      "rarity": "uncommon",
+      "evolution_path": [
+        309,
+        310
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 15,
+      "name_zh": "傲骨燕",
+      "symbol": "followerTaillow",
+      "pokedex_id": 276,
+      "rarity": "common",
+      "evolution_path": [
+        276
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 16,
+      "name_zh": "长翅鸥",
+      "symbol": "followerWingull",
+      "pokedex_id": 278,
+      "rarity": "common",
+      "evolution_path": [
+        278
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 18,
+      "name_zh": "铁面忍者",
+      "symbol": "followerNinjask",
+      "pokedex_id": 291,
+      "rarity": "uncommon",
+      "evolution_path": [
+        290,
+        291
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 19,
+      "name_zh": "热带龙",
+      "symbol": "followerTropius",
+      "pokedex_id": 357,
+      "rarity": "rare",
+      "evolution_path": [
+        357
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 24,
+      "name_zh": "可可多拉",
+      "symbol": "followerAron",
+      "pokedex_id": 304,
+      "rarity": "uncommon",
+      "evolution_path": [
+        304
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 25,
+      "name_zh": "金属怪",
+      "symbol": "followerMetang",
+      "pokedex_id": 375,
+      "rarity": "very_rare",
+      "evolution_path": [
+        374,
+        375
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 26,
+      "name_zh": "青绵鸟",
+      "symbol": "followerSwablu",
+      "pokedex_id": 333,
+      "rarity": "uncommon",
+      "evolution_path": [
+        333
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 27,
+      "name_zh": "脱壳忍者",
+      "symbol": "followerShedinja",
+      "pokedex_id": 292,
+      "rarity": "uncommon",
+      "evolution_path": [
+        290,
+        292
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 28,
+      "name_zh": "巴大蝶",
+      "symbol": "followerButterfree",
+      "pokedex_id": 12,
+      "rarity": "common",
+      "evolution_path": [
+        10,
+        11,
+        12
+      ],
+      "evolution_stage": 2
+    },
+    {
+      "saved_id": 29,
+      "name_zh": "木守宫",
+      "symbol": "followerTreecko",
+      "pokedex_id": 252,
+      "rarity": "rare",
+      "evolution_path": [
+        252
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 30,
+      "name_zh": "森林蜥蜴",
+      "symbol": "followerGrovyle",
+      "pokedex_id": 253,
+      "rarity": "rare",
+      "evolution_path": [
+        252,
+        253
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 31,
+      "name_zh": "土狼犬",
+      "symbol": "followerPoochyena",
+      "pokedex_id": 261,
+      "rarity": "common",
+      "evolution_path": [
+        261
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 32,
+      "name_zh": "沙奈朵",
+      "symbol": "followerGardevoir",
+      "pokedex_id": 282,
+      "rarity": "rare",
+      "evolution_path": [
+        280,
+        281,
+        282
+      ],
+      "evolution_stage": 2
+    },
+    {
+      "saved_id": 33,
+      "name_zh": "露力丽",
+      "symbol": "followerAzurill",
+      "pokedex_id": 298,
+      "rarity": "uncommon",
+      "evolution_path": [
+        298
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 34,
+      "name_zh": "向尾喵",
+      "symbol": "followerSkitty",
+      "pokedex_id": 300,
+      "rarity": "uncommon",
+      "evolution_path": [
+        300
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 35,
+      "name_zh": "太阳岩",
+      "symbol": "followerSolrock",
+      "pokedex_id": 338,
+      "rarity": "rare",
+      "evolution_path": [
+        338
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 36,
+      "name_zh": "风铃铃",
+      "symbol": "followerChimecho",
+      "pokedex_id": 358,
+      "rarity": "rare",
+      "evolution_path": [
+        433,
+        358
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 37,
+      "name_zh": "阿勃梭鲁",
+      "symbol": "followerAbsol",
+      "pokedex_id": 359,
+      "rarity": "rare",
+      "evolution_path": [
+        359
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 39,
+      "name_zh": "基拉祈",
+      "symbol": "followerJirachi",
+      "pokedex_id": 385,
+      "rarity": "exceptional",
+      "evolution_path": [
+        385
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 40,
+      "name_zh": "小火焰猴",
+      "symbol": "followerChimchar",
+      "pokedex_id": 390,
+      "rarity": "rare",
+      "evolution_path": [
+        390
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 41,
+      "name_zh": "波加曼",
+      "symbol": "followerPiplup",
+      "pokedex_id": 393,
+      "rarity": "rare",
+      "evolution_path": [
+        393
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 42,
+      "name_zh": "帕奇利兹",
+      "symbol": "followerPachirisu",
+      "pokedex_id": 417,
+      "rarity": "uncommon",
+      "evolution_path": [
+        417
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 43,
+      "name_zh": "梦妖魔",
+      "symbol": "followerMismagius",
+      "pokedex_id": 429,
+      "rarity": "uncommon",
+      "evolution_path": [
+        200,
+        429
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 44,
+      "name_zh": "小卡比兽",
+      "symbol": "followerMunchlax",
+      "pokedex_id": 446,
+      "rarity": "very_rare",
+      "evolution_path": [
+        446
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 46,
+      "name_zh": "自爆磁怪",
+      "symbol": "followerMagnezone",
+      "pokedex_id": 462,
+      "rarity": "uncommon",
+      "evolution_path": [
+        81,
+        82,
+        462
+      ],
+      "evolution_stage": 2
+    },
+    {
+      "saved_id": 47,
+      "name_zh": "波克基斯",
+      "symbol": "followerTogekiss",
+      "pokedex_id": 468,
+      "rarity": "very_rare",
+      "evolution_path": [
+        175,
+        176,
+        468
+      ],
+      "evolution_stage": 2
+    },
+    {
+      "saved_id": 48,
+      "name_zh": "洛托姆",
+      "symbol": "followerRotom",
+      "pokedex_id": 479,
+      "rarity": "very_rare",
+      "evolution_path": [
+        479
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 49,
+      "name_zh": "达克莱伊",
+      "symbol": "followerDarkrai",
+      "pokedex_id": 491,
+      "rarity": "exceptional",
+      "evolution_path": [
+        491
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 50,
+      "name_zh": "藤藤蛇",
+      "symbol": "followerSnivy",
+      "pokedex_id": 495,
+      "rarity": "rare",
+      "evolution_path": [
+        495
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 51,
+      "name_zh": "木棉球",
+      "symbol": "followerCottonee",
+      "pokedex_id": 546,
+      "rarity": "uncommon",
+      "evolution_path": [
+        546
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 52,
+      "name_zh": "滑滑小子",
+      "symbol": "followerScraggy",
+      "pokedex_id": 559,
+      "rarity": "uncommon",
+      "evolution_path": [
+        559
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 53,
+      "name_zh": "死神棺",
+      "symbol": "followerCofagrigus",
+      "pokedex_id": 563,
+      "rarity": "uncommon",
+      "evolution_path": [
+        562,
+        563
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 54,
+      "name_zh": "索罗亚",
+      "symbol": "followerZorua",
+      "pokedex_id": 570,
+      "rarity": "very_rare",
+      "evolution_path": [
+        570
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 55,
+      "name_zh": "烛光灵",
+      "symbol": "followerLitwick",
+      "pokedex_id": 607,
+      "rarity": "uncommon",
+      "evolution_path": [
+        607
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 56,
+      "name_zh": "灯火幽灵",
+      "symbol": "followerLampent",
+      "pokedex_id": 608,
+      "rarity": "uncommon",
+      "evolution_path": [
+        607,
+        608
+      ],
+      "evolution_stage": 1
+    },
+    {
+      "saved_id": 57,
+      "name_zh": "单首龙",
+      "symbol": "followerDeino",
+      "pokedex_id": 633,
+      "rarity": "very_rare",
+      "evolution_path": [
+        633
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 58,
+      "name_zh": "呱呱泡蛙",
+      "symbol": "followerFroakie",
+      "pokedex_id": 656,
+      "rarity": "rare",
+      "evolution_path": [
+        656
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 59,
+      "name_zh": "黏黏宝",
+      "symbol": "followerGoomy",
+      "pokedex_id": 704,
+      "rarity": "very_rare",
+      "evolution_path": [
+        704
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 60,
+      "name_zh": "木木枭",
+      "symbol": "followerRowlet",
+      "pokedex_id": 722,
+      "rarity": "rare",
+      "evolution_path": [
+        722
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 61,
+      "name_zh": "火斑喵",
+      "symbol": "followerLitten",
+      "pokedex_id": 725,
+      "rarity": "rare",
+      "evolution_path": [
+        725
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 62,
+      "name_zh": "谜拟丘",
+      "symbol": "followerMimikyu",
+      "pokedex_id": 778,
+      "rarity": "very_rare",
+      "evolution_path": [
+        778
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 63,
+      "name_zh": "敲音猴",
+      "symbol": "followerGrookey",
+      "pokedex_id": 810,
+      "rarity": "rare",
+      "evolution_path": [
+        810
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 64,
+      "name_zh": "幼棉棉",
+      "symbol": "followerGossifleur",
+      "pokedex_id": 829,
+      "rarity": "common",
+      "evolution_path": [
+        829
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 65,
+      "name_zh": "啃果虫",
+      "symbol": "followerApplin",
+      "pokedex_id": 840,
+      "rarity": "uncommon",
+      "evolution_path": [
+        840
+      ],
+      "evolution_stage": 0
+    },
+    {
+      "saved_id": 66,
+      "name_zh": "加热洛托姆",
+      "symbol": "followerRotomHeat",
+      "pokedex_id": 479,
+      "rarity": "very_rare",
+      "evolution_path": [
+        479
+      ],
+      "evolution_stage": 0,
+      "form": "heat"
+    },
+    {
+      "saved_id": 67,
+      "name_zh": "清洗洛托姆",
+      "symbol": "followerRotomWash",
+      "pokedex_id": 479,
+      "rarity": "very_rare",
+      "evolution_path": [
+        479
+      ],
+      "evolution_stage": 0,
+      "form": "wash"
+    },
+    {
+      "saved_id": 68,
+      "name_zh": "结冰洛托姆",
+      "symbol": "followerRotomFrost",
+      "pokedex_id": 479,
+      "rarity": "very_rare",
+      "evolution_path": [
+        479
+      ],
+      "evolution_stage": 0,
+      "form": "frost"
+    },
+    {
+      "saved_id": 69,
+      "name_zh": "旋转洛托姆",
+      "symbol": "followerRotomFan",
+      "pokedex_id": 479,
+      "rarity": "very_rare",
+      "evolution_path": [
+        479
+      ],
+      "evolution_stage": 0,
+      "form": "fan"
+    },
+    {
+      "saved_id": 70,
+      "name_zh": "切割洛托姆",
+      "symbol": "followerRotomMow",
+      "pokedex_id": 479,
+      "rarity": "very_rare",
+      "evolution_path": [
+        479
+      ],
+      "evolution_stage": 0,
+      "form": "mow"
+    }
+  ],
+  "stage_prices": [
+    {
+      "stage": 0,
+      "name_zh": "基础形态",
+      "base_price": 100
+    },
+    {
+      "stage": 1,
+      "name_zh": "一阶进化",
+      "base_price": 1500
+    },
+    {
+      "stage": 2,
+      "name_zh": "二阶进化",
+      "base_price": 3000
+    }
+  ],
+  "original_prices": {
+    "1": 200,
+    "2": 200,
+    "3": 200,
+    "4": 500,
+    "5": 500,
+    "6": 200,
+    "7": 1000,
+    "8": 800,
+    "9": 1800
+  },
+  "original_price_source": "GVIEW-Engine/examples/GameProject_travel_2.5/main/PAGE/SHOP/shop.c: ShopListMonsterCost, original IDs 1-9"
+}

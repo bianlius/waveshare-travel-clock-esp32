@@ -14,6 +14,7 @@ from PIL import Image, ImageDraw, ImageOps
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets/pokemon_followers"
 OUTPUT = ROOT / "main/pic_data/pocketMon/followers.h"
+DECLARATIONS = OUTPUT.with_name("followers_decl.h")
 MAX_ANIMATION_BYTES = (1 << 31) - 1  # DisplayObject uses a signed 32-bit offset.
 
 
@@ -49,19 +50,30 @@ def load_frames(entry):
             canvas.alpha_composite(frame, (0, target_bottom - bottom))
             aligned.append(canvas)
         frames = aligned
-    return frames
+    sequence = entry.get("playback_sequence", list(range(len(frames))))
+    if not sequence or len(sequence) > 255 or any(not 0 <= i < len(frames) for i in sequence):
+        raise ValueError(f"Invalid playback sequence: {entry['file']}")
+    return [frames[i] for i in sequence]
+
+
+def playback_ticks(entry, count):
+    ticks = entry.get("playback_ticks", [entry["frame_ticks"]] * count)
+    if len(ticks) != count or any(not isinstance(t, int) or not 0 <= t <= 255 for t in ticks):
+        raise ValueError(f"Invalid playback timing: {entry['file']}")
+    return ticks
 
 
 def pack(entry, frames):
+    ticks = playback_ticks(entry, len(frames))
     if entry.get("depth") == 13:
         # Preserve the firmware's RGB454 colors and all eight alpha levels.
         header, body = bytearray((13, len(frames))), bytearray()
         offsets = entry.get("frame_offsets", [[0, 0]] * len(frames))
         assert len(offsets) == len(frames)
-        for frame, (dx, dy) in zip(frames, offsets):
+        for index, (frame, (dx, dy)) in enumerate(zip(frames, offsets)):
             if 2 + 7 * len(frames) + len(body) > MAX_ANIMATION_BYTES:
                 raise ValueError(f"Frame start exceeds GVIEW offset range: {entry['file']}")
-            header.extend(struct.pack(">HHBBB", *frame.size, 127 + dx, 127 + dy, entry["frame_ticks"]))
+            header.extend(struct.pack(">HHBBB", *frame.size, 127 + dx, 127 + dy, ticks[index]))
             for r, g, b, a in frame.getdata():
                 color = (round(a * 7 / 255) << 13) | (round(r * 15 / 255) << 9) | (round(g * 31 / 255) << 4) | round(b * 15 / 255)
                 body.extend(struct.pack(">H", color))
@@ -69,14 +81,24 @@ def pack(entry, frames):
     width, height = frames[0].size
     pixels = [[rgb565(p) for p in frame.getdata()] for frame in frames]
     colors = sorted({color for frame in pixels for color in frame if color is not None})
-    # Mudkip needs 16 opaque colors. Keep all of them in RGB565 instead of
+    # Preserve every opaque shade when a source exceeds 15 colors, instead of
     # dropping a shade to make room for the indexed transparency entry.
     depth = 4 if len(colors) <= 15 else 16
     header = bytearray((depth, len(frames)))
-    for _ in frames:
-        header.extend(struct.pack(">HHBBB", width, height, 127, 127, entry["frame_ticks"]))
+    unique_frames, seen = [], {}
+    for index, frame in enumerate(pixels):
+        key = tuple(frame)
+        if entry.get("deduplicate_frames") and key in seen:
+            # GVIEW's native zero-height descriptor references a real frame.
+            # Keep cadence/anchors on every timeline entry; store pixels once.
+            header.extend(struct.pack(">HHBBB", seen[key] + 1, 0,
+                                      127, 127, ticks[index]))
+            continue
+        seen[key] = index
+        unique_frames.append(frame)
+        header.extend(struct.pack(">HHBBB", width, height, 127, 127, ticks[index]))
     body = bytearray()
-    for frame in pixels:
+    for frame in unique_frames:
         if depth == 16:
             for color in frame:
                 if color == 1:
@@ -103,7 +125,7 @@ def header_text(animations):
         width = (entry["frame_width"] * entry.get("scale_percent", 100) + 50) // 100
         height = (entry["frame_height"] * entry.get("scale_percent", 100) + 50) // 100
         lines.extend((f"// {entry['file']}: {width}x{height}, "
-                      f"{entry['frames']} frames, {data[0]}-bit, facing right.",
+                      f"{data[1]} frames, {data[0]}-bit, facing right.",
                       f"const unsigned char {entry['symbol']}[] = {{"))
         for start in range(0, len(data), 24):
             lines.append("    " + ",".join(f"0x{x:02x}" for x in data[start:start + 24]) + ",")
@@ -129,7 +151,7 @@ def previews(animations):
     animations = [(entry, data, preview_frames(entry, frames)) for entry, data, frames in animations]
     out = ROOT / "build/pokemon_followers"
     out.mkdir(parents=True, exist_ok=True)
-    width = max(frames[0].width * entry["frames"] * 2 + 16
+    width = max(frames[0].width * len(frames) * 2 + 16
                 for entry, _, frames in animations)
     height = sum(frames[0].height * 2 + 30 for _, _, frames in animations)
     sheet = Image.new("RGB", (width, height), "#e9ecef")
@@ -149,7 +171,7 @@ def previews(animations):
                                         Image.Resampling.NEAREST))
         sequence[0].save(out / entry["file"].replace(".png", ".gif"),
                          save_all=True, append_images=sequence[1:], loop=0,
-                         duration=(entry["frame_ticks"] + 1) * 40, disposal=2)
+                         duration=[(ticks + 1) * 40 for ticks in playback_ticks(entry, len(frames))], disposal=2)
         y += frames[0].height * 2 + 12
     sheet.save(out / "frames.png")
 
@@ -166,11 +188,19 @@ def main():
         animations.append((entry, data, frames))
         print(f"{entry['symbol']}: {len(frames)} frames, {data[0]}-bit, {len(data)} bytes")
     text = header_text(animations)
+    declarations = "\n".join([
+        "#ifndef GVIEW_POKEMON_FOLLOWERS_DECL_H",
+        "#define GVIEW_POKEMON_FOLLOWERS_DECL_H",
+        "// Generated by tools/pack_pokemon_followers.py from manifest.json.",
+        *(f"extern const unsigned char {entry['symbol']}[];" for entry, _, _ in animations),
+        "#endif", "",
+    ])
     if args.check:
-        if OUTPUT.read_text() != text:
-            raise SystemExit("followers.h is out of date; run this script without --check")
+        if OUTPUT.read_text() != text or DECLARATIONS.read_text() != declarations:
+            raise SystemExit("Follower headers are out of date; run this script without --check")
     else:
         OUTPUT.write_text(text)
+        DECLARATIONS.write_text(declarations)
         previews(animations)
 
 

@@ -105,11 +105,9 @@ static void shopDragonPage(void){itemSaveInfo.monsterIndex=1;renderShopInit();}
 static void shopHorsePage(void){itemSaveInfo.monsterIndex=5;renderShopInit();}
 static void shopTorchicPage(void){itemSaveInfo.monsterIndex=10;renderShopInit();}
 static void shopMudkipPage(void){itemSaveInfo.monsterIndex=11;renderShopInit();}
-static void shopZigzagoonPage(void){itemSaveInfo.monsterIndex=12;renderShopInit();}
 static void shopManectricPage(void){itemSaveInfo.monsterIndex=13;renderShopInit();}
 static void shopTaillowPage(void){itemSaveInfo.monsterIndex=15;renderShopInit();}
 static void shopWingullPage(void){itemSaveInfo.monsterIndex=16;renderShopInit();}
-static void shopVolbeatPage(void){itemSaveInfo.monsterIndex=17;renderShopInit();}
 static void shopNinjaskPage(void){itemSaveInfo.monsterIndex=18;renderShopInit();}
 static void shopTropiusPage(void){itemSaveInfo.monsterIndex=19;renderShopInit();}
 static void plantPurchasePage(void){
@@ -166,11 +164,9 @@ static const AuditPage pages[] = {
     {"shop_horse",shopHorsePage,0,0},
     {"shop_torchic",shopTorchicPage,0,0},
     {"shop_mudkip",shopMudkipPage,0,0},
-    {"shop_zigzagoon",shopZigzagoonPage,0,0},
     {"shop_manectric",shopManectricPage,0,0},
     {"shop_taillow",shopTaillowPage,0,0},
     {"shop_wingull",shopWingullPage,0,0},
-    {"shop_volbeat",shopVolbeatPage,0,0},
     {"shop_ninjask",shopNinjaskPage,0,0},
     {"shop_tropius",shopTropiusPage,0,0},
     {"shop_rider",renderShopInit,1,1},

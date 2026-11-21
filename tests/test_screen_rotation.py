@@ -5,8 +5,8 @@ import subprocess
 import tempfile
 
 root = Path(__file__).resolve().parents[1]
-lcd = (root / "components/LCD/lcd_init.c").read_bytes().decode("latin1")
-imu = (root / "main/imu_rotation.c").read_text()
+lcd = (root / "ports/waveshare/components/LCD/lcd_init.c").read_bytes().decode("latin1")
+imu = (root / "ports/waveshare/imu_rotation.c").read_text()
 
 
 def function(source, signature):

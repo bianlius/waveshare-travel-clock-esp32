@@ -1,0 +1,81 @@
+{
+  "status": "retired",
+  "saved_id": 21,
+  "reuse_saved_id": false,
+  "animation": {
+    "file": "lugia_fly.png",
+    "source_path": "firmware-3.4-resources/0386cc.png",
+    "source_offset": "0x386cc",
+    "source_firmware": "user-provided firmware 3.4 resource export",
+    "sha256": "1246c161443efc41bbc3d0d6d2d80f3b0c15806944f7bedc12ab869b0b469e31",
+    "symbol": "followerLugia",
+    "frames": 5,
+    "frame_width": 124,
+    "frame_height": 80,
+    "frame_dimensions": [
+      [
+        119,
+        66
+      ],
+      [
+        120,
+        64
+      ],
+      [
+        124,
+        48
+      ],
+      [
+        121,
+        80
+      ],
+      [
+        123,
+        59
+      ]
+    ],
+    "frame_offsets": [
+      [
+        0,
+        11
+      ],
+      [
+        0,
+        10
+      ],
+      [
+        0,
+        -2
+      ],
+      [
+        0,
+        -25
+      ],
+      [
+        0,
+        -5
+      ]
+    ],
+    "depth": 13,
+    "frame_ticks": 2,
+    "flip_x": false,
+    "credits": [
+      "Nintendo / Game Freak",
+      "User-provided firmware 3.4 export; original sprite author not recorded"
+    ],
+    "saved_id": 21,
+    "name_zh": "洛奇亚",
+    "price": 5000
+  },
+  "pricing": {
+    "saved_id": 21,
+    "name_zh": "洛奇亚",
+    "symbol": "followerLugia",
+    "pokedex_id": 249,
+    "rarity": "exceptional",
+    "evolution_path": [
+      249
+    ],
+    "evolution_stage": 0
+  }
+}

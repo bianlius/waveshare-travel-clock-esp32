@@ -1,0 +1,24 @@
+{
+  "upstream": "https://github.com/FoloToy/ai-passport",
+  "upstream_commit": "f75873f1aab24ac4c0ba9394c131669f66cce650",
+  "button_variant": "https://github.com/bianlius/Tama-go-esp32",
+  "button_variant_commit": "4e90a2cdeac591da5d2ece8e489b3c93f00c23de",
+  "license": "MIT",
+  "notes": "Display, shared I2C, codec and fuel gauge are reused from the Passport BSP. Button code and pin definitions include the calibrated ADC ownership and release-event fixes. LVGL is omitted; the official display API supports direct panel rendering. CMake selects only the used BSP drivers. Local extension: bsp_audio_suspend closes playback before deep sleep after the audio owner acknowledges shutdown. Playback-only initialization avoids allocating unused RX DMA.",
+  "files": {
+    "CMakeLists.txt": "05d6fd6a9590bdf2559c7fd4e755a519f6462f77ccc902d08ecede2f15afb64c",
+    "LICENSE": "0ca7f3a382d5d681ced06d6008081c1d51b05a2547c94c3350058efbe7ddb5ee",
+    "idf_component.yml": "e0fc317bad0612698821c0ae07a52ccd7255a8c1bb35d0760d6887c991974ee8",
+    "include/bsp_audio.h": "f187803ee31166db9a1a5bae9ba20cb89a8a39d1889b55f3e39af4290441f7e8",
+    "include/bsp_battery.h": "e5bb0eb5b6dcf92c51fd1c5f63a7587161ebdf30214cb6e0151c3f12213ade2d",
+    "include/bsp_button.h": "89b7e2720083f14aad1608daa3e1e7307e1c5b4ef14f626432a3538a8396e86f",
+    "include/bsp_display.h": "b4ba99678123e5cbcc0b0e99eb7dd9a02bdca1c3b6b8865b2967ed6fdd564dd2",
+    "include/bsp_i2c.h": "fa44fb728377f4099236f0c1b807ff453b1b413440c86245b426431c34a25697",
+    "include/bsp_pins.h": "ffec65f635791dd78f90faffa0779badda11631f31afcc43099c867b0083b9b3",
+    "src/bsp_audio.c": "886864e0814bd9f6face3f603887607ecc9a16cf2140801ab2f9e4791b36af53",
+    "src/bsp_battery.c": "9edfd88bbf4a83a1366e26487b88d7fd70f6f2c2da8a6d1727bb9edb1f5e4909",
+    "src/bsp_button.c": "ddbbca8badaeec19e38945b9b2728befc759ded3c81f4fc4151662775f238419",
+    "src/bsp_display.c": "fc0d05ad8ce62a03b971d11da0bc7f43943a03ecd32327535cfab1f70df639e6",
+    "src/bsp_i2c.c": "1dda44aa8eead0fbc3d79ecd815766c89e799165a483b79eee681ae6cbd0c9bd"
+  }
+}

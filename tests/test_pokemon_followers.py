@@ -6,13 +6,58 @@ from pathlib import Path
 import re
 import struct
 import subprocess
+import sys
 import tempfile
 
 from PIL import Image, ImageDraw, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from price_pokemon_followers import load_pricing, outputs as price_outputs
 manifest = json.loads((ROOT / "assets/pokemon_followers/manifest.json").read_text())
+pricing, expected_prices = load_pricing()
+assert all(path.read_bytes() == data for path, data in price_outputs(pricing, expected_prices).items())
+assert pricing["reserved_ids"] == [0, 12, 14, 17, 20, 21, 22, 23, 38, 45]
+assert len(pricing["species"]) == 61
+assert expected_prices[1:10] == [200, 200, 200, 500, 500, 200, 1000, 800, 1800]
+rotom_forms = [e for e in manifest["assets"] if e.get("form")]
+assert [(e["saved_id"], e["form"]) for e in rotom_forms] == [
+    (66, "heat"), (67, "wash"), (68, "frost"), (69, "fan"), (70, "mow")]
+assert all(expected_prices[e["saved_id"]] == 700 and not e["ground"] for e in rotom_forms)
+assert all(expected_prices[i] == 0 for i in pricing["reserved_ids"])
+assert min(p for p in expected_prices if p) == 100 and max(expected_prices) == 3600
+# Same-family evolutions must become more expensive, including intermediate forms.
+assert expected_prices[29] == 400 and expected_prices[30] == 1800
+assert expected_prices[55] == 200 and expected_prices[56] == 1600
+added = [r for r in pricing["species"] if r["saved_id"] >= 10]
+for a in added:
+    for b in added:
+        if a["evolution_path"][0] == b["evolution_path"][0] and a["evolution_stage"] < b["evolution_stage"]:
+            assert expected_prices[a["saved_id"]] < expected_prices[b["saved_id"]]
+        if a["evolution_stage"] < b["evolution_stage"]:
+            assert expected_prices[a["saved_id"]] < expected_prices[b["saved_id"]]
+# Rarity only orders partners within the same evolution stage.
+rank = {tier["id"]: i for i, tier in enumerate(pricing["tiers"])}
+for a in added:
+    for b in added:
+        if a["evolution_stage"] == b["evolution_stage"] and rank[a["rarity"]] < rank[b["rarity"]]:
+            assert expected_prices[a["saved_id"]] < expected_prices[b["saved_id"]]
 packed = (ROOT / "main/pic_data/pocketMon/followers.h").read_text()
+declarations = (ROOT / "main/pic_data/pocketMon/followers_decl.h").read_text()
+for species in ("zigzagoon", "volbeat", "meowth", "lugia", "ho_oh", "pidgeot", "regice"):
+    archive = ROOT / "assets/pokemon_followers/retired" / species
+    recipe = json.loads((archive / "recipe.json").read_text())
+    entry = recipe["animation"]
+    assert recipe["status"] == "retired" and not recipe["reuse_saved_id"]
+    assert recipe["saved_id"] in pricing["reserved_ids"]
+    assert entry["symbol"] not in packed and entry["symbol"] not in declarations
+    assert entry["symbol"] not in {e["symbol"] for e in manifest["assets"]}
+    assert not (ROOT / "assets/pokemon_followers" / entry["file"]).exists()
+    assert hashlib.sha256((archive / entry["file"]).read_bytes()).hexdigest() == entry["sha256"]
+assert "followerLucario" not in packed
+assert "followerLucario" not in (ROOT / "main/pic_data/pocketMon/followers_decl.h").read_text()
+assert not (ROOT / "assets/pokemon_followers/lucario_run.png").exists()
+assert (ROOT / "assets/pokemon_followers/source_sheets/lucario.png").exists()
 column_width = max((e["frame_width"] * e.get("scale_percent", 100) + 50) // 100
                    for e in manifest["assets"]) * 3 + 16
 preview_height = sum(((e["frame_height"] * e.get("scale_percent", 100) + 50) // 100) * 3 + 30
@@ -20,6 +65,8 @@ preview_height = sum(((e["frame_height"] * e.get("scale_percent", 100) + 50) // 
 preview = Image.new("RGB", (column_width * 2, preview_height), "#e9ecef")
 draw = ImageDraw.Draw(preview)
 preview_y = 8
+quadrupeds = {11, 13, 24, 31, 34, 37, 40, 42, 54, 57, 61}
+assert {e["saved_id"] for e in manifest["assets"] if "playback_ticks" in e} == quadrupeds
 for entry in manifest["assets"]:
     path = ROOT / "assets/pokemon_followers" / entry["file"]
     assert hashlib.sha256(path.read_bytes()).hexdigest() == entry["sha256"]
@@ -27,14 +74,20 @@ for entry in manifest["assets"]:
     body = packed.split(f"{entry['symbol']}[] = {{", 1)[1].split("};", 1)[0]
     data = bytes(int(x, 16) for x in re.findall(r"0x([0-9a-f]+)", body))
     depth, count = data[:2]
-    assert count == entry["frames"] and depth in (4, 13, 16)
+    sequence = entry.get("playback_sequence", list(range(entry["frames"])))
+    timing = entry.get("playback_ticks", [entry["frame_ticks"]] * len(sequence))
+    assert count == len(sequence) and len(timing) == count and depth in (4, 13, 16)
+    if entry["saved_id"] in quadrupeds:
+        assert sequence == list(range(entry["frames"])) * (2 if entry["frames"] % 2 else 1)
+        assert timing == [1, 2] * (count // 2)
+        assert sum(t + 1 for t in timing) * 2 == count * 5  # Exactly 100 ms/frame at 25 FPS.
     offset = 2 + 7 * count
     source_width, source_height = entry["frame_width"], entry["frame_height"]
     scale = entry.get("scale_percent", 100)
     display_size = ((source_width * scale + 50) // 100,
                     (source_height * scale + 50) // 100)
     source_frames = []
-    dimensions = entry.get("frame_dimensions", [[source_width, source_height]] * count)
+    dimensions = entry.get("frame_dimensions", [[source_width, source_height]] * entry["frames"])
     strip_x = 0
     for frame_width, frame_height in dimensions:
         original = source.crop((strip_x, 0, strip_x + frame_width, frame_height))
@@ -44,13 +97,50 @@ for entry in manifest["assets"]:
         if scale != 100:
             original = original.resize(display_size, Image.Resampling.NEAREST)
         source_frames.append(original)
+    source_frames = [source_frames[i] for i in sequence]
+    dimensions = [dimensions[i] for i in sequence]
+    if entry["symbol"] == "followerMetang":
+        assert count == 4 and entry["frame_ticks"] == 3
+        assert display_size == (70, 62)
+        assert entry["sheet_extract"]["sequence"] == [0, 1, 0, 2]
+    if entry["symbol"] == "followerSnivy":
+        assert count == 6 and entry["sheet_extract"]["sequence"] == [0, 1, 2, 3, 4, 5]
+        assert len(entry["sheet_extract"]["poses"]) == 7  # Bowed pose 6 stays out of playback.
+    if entry["symbol"] == "followerDarkrai":
+        assert count == 4 and entry["variant"] == "hover" and entry["frame_ticks"] == 3
+        assert entry["sheet_extract"]["sequence"] == [0, 1, 2, 1]
+    if entry.get("form"):
+        assert entry["pokedex_id"] == 479 and count == 4 and entry["frame_ticks"] == 3
+        assert entry["sheet_extract"]["file"] == "source_sheets/rotom.png"
+        assert entry["sheet_extract"]["sequence"] == [0, 1, 2, 1]
+        assert len({f.tobytes() for f in source_frames}) == 3
+    if entry["symbol"] == "followerGardevoir":
+        # The selected forward motion cycles complete poses, including the skirt.
+        poses = entry["sheet_extract"]["poses"]
+        assert entry["variant"] == "run" and count == 5 and entry["frame_ticks"] == 2
+        assert entry["sheet_extract"]["sequence"] == [0, 1, 2, 3, 4]
+        assert len(poses) == 5 and all("layers" not in pose for pose in poses)
+        assert "fixed_regions" not in entry["sheet_extract"]
+        assert len({f.tobytes() for f in source_frames}) == 5
+        skirt_box = (0, display_size[1] // 2, *display_size)
+        assert len({f.crop(skirt_box).tobytes() for f in source_frames}) == 5
     target_bottom = (max(frame.getchannel("A").getbbox()[3] for frame in source_frames)
                      if entry.get("align_opaque_bottom") else None)
+    decoded_offsets = []
     for frame in range(count):
+        cursor = offset
         width, height, anchor_x, anchor_y, ticks = struct.unpack_from(">HHBBB", data, 2 + 7 * frame)
+        alias = height == 0
+        if alias:
+            reference = width - 1
+            assert entry.get("deduplicate_frames") and 0 <= reference < frame
+            width, height = struct.unpack_from(">HH", data, 2 + 7 * reference)
+            assert height > 0
+            offset = decoded_offsets[reference]
+        decoded_offsets.append(offset)
         assert (width, height) == (tuple(dimensions[frame]) if depth == 13 else display_size)
         dx, dy = entry.get("frame_offsets", [[0, 0]] * count)[frame]
-        assert (anchor_x, anchor_y, ticks) == (127 + dx, 127 + dy, entry["frame_ticks"])
+        assert (anchor_x, anchor_y, ticks) == (127 + dx, 127 + dy, timing[frame])
         assert offset < (1 << 31)  # Animation offsets are 32-bit, including >64K.
         original = source_frames[frame]
         if target_bottom is not None:
@@ -96,6 +186,8 @@ for entry in manifest["assets"]:
                 preview.paste(tile.resize((width * 3, height * 3), Image.Resampling.NEAREST),
                               (8 + column_width * column, preview_y))
             preview_y += height * 3 + 12
+        if alias:
+            offset = cursor
     assert offset == len(data), entry["file"]
 out = ROOT / "build/pokemon_followers/packed-preview.png"
 out.parent.mkdir(parents=True, exist_ok=True)
@@ -128,6 +220,7 @@ production = "\n".join(function(shop, signature) for signature in (
 production += function(motion, "u8 checkMonsterType(u8 index)")
 production += function(motion, "static void followerExtents(")
 production += function(motion, "void pkmMovieEx1(u8 index)")
+production += function(motion, "static u8 followerUsesFixedCadence(")
 production += function(motion, "void pkmMovieEx2(u8 index,short yOffset)")
 production += function(home, "static void placeHomeFollower(u8 index)")
 harness = r'''
@@ -173,39 +266,52 @@ static void Tween(short *axis,float seconds,short target,int delay,int easing){
 }
 __PRODUCTION__
 int main(void){
-    assert(COUNT(ShopListMonsterCost)==28 && COUNT(momsterListArr)==27);
+    assert(COUNT(ShopListMonsterCost)==71 && COUNT(momsterListArr)==70);
     assert(momsterListArr[0]==PHL_M && momsterListArr[8]==BKQ_M);
     assert(momsterListArr[13]==NULL && !shopMonsterAvailable(14));
+    assert(momsterListArr[44]==NULL && !shopMonsterAvailable(45));
     assert(shopMonsterAvailable(0) && !shopMonsterAvailable(255));
-    const u8 *newSprites[]={followerTorchic,followerMudkip,followerZigzagoon,
+    const u8 *newSprites[]={followerTorchic,followerMudkip,NULL,
                             followerManectric,NULL,followerTaillow,followerWingull,
-                            followerVolbeat,followerNinjask,followerTropius,
-                            followerMeowth,followerLugia,followerHoOh,followerPidgeot,
-                            followerAron,followerMetang,followerSwablu,followerShedinja};
-    const u16 newPrices[]={1200,1200,100,700,0,100,100,300,700,1200,100,5000,5000,700,300,2000,300,1200};
+                            NULL,followerNinjask,followerTropius,
+                            NULL,NULL,NULL,NULL,
+                            followerAron,followerMetang,followerSwablu,followerShedinja,__MORE_SPRITES__};
+    const u16 expectedPrices[]={__ALL_PRICES__};
+    const u8 newGround[]={1,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,__MORE_GROUND__};
     buildMonsterOrder();
-    assert(monsterCount==27 && shopItemCount()==27);
-    assert(monsterOrder[0]==0 && monsterOrder[1]==12 && monsterOrder[2]==15);
+    assert(monsterCount==62 && shopItemCount()==62);
+    for(u8 id=0;id<10;++id)assert(monsterOrder[id]==id);
+    assert(monsterOrder[10]==15 && monsterOrder[11]==16);
+    for(u8 id=1;id<COUNT(ShopListMonsterCost);++id){
+        if(!shopIsRetiredMonster(id)) continue;
+        assert(momsterListArr[id-1]==NULL && !shopMonsterAvailable(id));
+        assert(!ShopListMonsterTxt[id][0] && ShopListMonsterCost[id]==0);
+    }
     for(u8 position=0;position<monsterCount;++position){
         assert(itemDisplayPosition()==position && itemIndex==monsterOrder[position]);
-        assert(itemIndex!=14 && shopMonsterAvailable(itemIndex));
-        if(position) assert(ShopListMonsterCost[monsterOrder[position-1]]<=ShopListMonsterCost[itemIndex]);
+        assert(!shopIsRetiredMonster(itemIndex) && shopMonsterAvailable(itemIndex));
+        assert(ShopListMonsterCost[itemIndex]==expectedPrices[itemIndex]);
+        if(position>10) assert(ShopListMonsterCost[monsterOrder[position-1]]<=ShopListMonsterCost[itemIndex]);
+        if(position>10 && ShopListMonsterCost[monsterOrder[position-1]]==ShopListMonsterCost[itemIndex])
+            assert(monsterOrder[position-1]<itemIndex);
         nextItem();
     }
     assert(itemIndex==0);previousItem();
-    assert(itemDisplayPosition()==monsterCount-1 && itemIndex==22);
+    assert(itemDisplayPosition()==monsterCount-1 && itemIndex==47);
     categoryIndex=1;itemIndex=0;previousItem();assert(itemIndex==2);nextItem();assert(itemIndex==0);
     categoryIndex=0;
-    for(u8 id=10;id<28;++id){
-        if(id==14) continue;
+    for(u8 id=10;id<COUNT(ShopListMonsterCost);++id){
+        if(shopIsRetiredMonster(id)) continue;
         assert(momsterListArr[id-1]==newSprites[id-10]);
-        assert(ShopListMonsterCost[id]==newPrices[id-10]);
-        assert(checkMonsterType(id)==(id<14 || id==20 || id==24));
-        uint64_t original=1|(UINT64_C(1)<<2)|(UINT64_C(1)<<9),owned=original;
+        assert(ShopListMonsterCost[id]==expectedPrices[id]);
+        assert(checkMonsterType(id)==newGround[id-10]);
+        uint64_t original=1|(UINT64_C(1)<<2)|(UINT64_C(1)<<9),owned=original,extra=0;
         uint8_t equipped=2;uint32_t balance=ShopListMonsterCost[id]+10;
-        assert(shopApply(&owned,&equipped,id,ShopListMonsterCost[id],&balance)==SHOP_UNLOCKED);
-        assert(owned==(original|(UINT64_C(1)<<id)) && balance==10 && equipped==2);
-        assert(shopApply(&owned,&equipped,id,ShopListMonsterCost[id],&balance)==SHOP_EQUIPPED);
+        assert(shopApplyExtended(&owned,&extra,&equipped,id,ShopListMonsterCost[id],&balance)==SHOP_UNLOCKED);
+        assert(owned==(id<64 ? original|(UINT64_C(1)<<id) : original));
+        assert(extra==(id<64 ? 0 : UINT64_C(1)<<(id-64)));
+        assert(balance==10 && equipped==2);
+        assert(shopApplyExtended(&owned,&extra,&equipped,id,ShopListMonsterCost[id],&balance)==SHOP_EQUIPPED);
         assert(equipped==id && balance==10);
         DisObjAction action={.p=newSprites[id-10]};
         DisplayObject object={.x=160,.y=116,.ac=&action,
@@ -222,6 +328,7 @@ int main(void){
             for(u8 f=0;f<action.p[1];f++){
                 const u8 *desc=action.p+2+f*7;
                 int w=(desc[0]<<8)|desc[1],h=(desc[2]<<8)|desc[3];
+                if(!h)continue;
                 int dx=(int)desc[4]-127,dy=(int)desc[5]-127;
                 assert(object.x-w/2+dx>=WS_UI_LEFT+4);
                 assert(object.x+(w+1)/2+dx<=WS_UI_RIGHT-4);
@@ -235,14 +342,14 @@ int main(void){
                 assert(object.y-object.height/2>=4);
                 assert(object.y+(object.height+1)/2<=WS_UI_FOOTER_TOP-4);
                 assert(action.frameMultiple==1 || action.frameMultiple==0.5);
-                if(id==16 || id==19 || id==25){
+                if(id==16 || id==18 || id==19 || id==25 || id>=28){
                     assert(action.frameMultiple==1);
                     if(object.x<before)++leftFlights;
                     if(object.x>before)++rightFlights;
                 }
             }
         }
-        if(id==16 || id==19 || id==25)assert(leftFlights>0 && rightFlights>0);
+        if(!checkMonsterType(id) && (id==16 || id==18 || id==19 || id==25 || id>=28))assert(leftFlights>0 && rightFlights>0);
     }
     uint64_t saved=1|(UINT64_C(1)<<2)|(UINT64_C(1)<<13)|(UINT64_C(1)<<14);
     uint8_t equipped=14;
@@ -275,6 +382,12 @@ int main(void){
     puts("PASS: retired ID migration, sorted navigation, all prices, ground/flight bounds, and follower layers");
 }
 '''
+new_entries = sorted((e for e in manifest["assets"] if e.get("saved_id", 0) >= 28),
+                     key=lambda e: e["saved_id"])
+by_id = {e["saved_id"]: e for e in new_entries}
+harness = harness.replace("__MORE_SPRITES__", ",".join(by_id[i]["symbol"] if i in by_id else "NULL" for i in range(28, len(expected_prices))))
+harness = harness.replace("__ALL_PRICES__", ",".join(map(str, expected_prices)))
+harness = harness.replace("__MORE_GROUND__", ",".join(str(int(by_id[i]["ground"])) if i in by_id else "0" for i in range(28, len(expected_prices))))
 with tempfile.TemporaryDirectory(prefix="gview-followers-") as folder:
     test = Path(folder) / "test.c"
     binary = Path(folder) / "test"

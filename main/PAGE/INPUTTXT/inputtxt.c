@@ -1,19 +1,12 @@
 #include "inputtxt.h"
 #include "wifi_keyboard.h"
-#include "LCD/viewport.h"
+#include "../WIFI/wifi_layout.h"
+#include "GVIEW/viewport.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define KEYBOARD_KEYS 32
-#define KEYBOARD_LEFT 48
-#define KEYBOARD_WIDTH 224
-#define KEYBOARD_TOP 112
-#define KEYBOARD_ROW_HEIGHT 22
-#define KEYBOARD_KEY_HEIGHT 20
-#define KEYBOARD_TABS_TOP 88
-#define KEYBOARD_ACTIONS_TOP 200
-#define KEYBOARD_ACTION_HEIGHT 20
 
 char inputTxtTemp[72];
 static void (*inputSureFun)(void);
@@ -38,7 +31,7 @@ static void updatePassword(void){
     if(length){
         char raw[80];
         snprintf(raw,sizeof(raw),"密码: %s",inputTxtTemp);
-        wrapPageText(passwordText,sizeof(passwordText),raw,28);
+        wrapPageText(passwordText,sizeof(passwordText),raw,WIFI_TEXT_COLUMNS);
         passwordLabel->color=0x2104;
     }else{
         snprintf(passwordText,sizeof(passwordText),"请输入 Wi-Fi 密码");
@@ -97,7 +90,7 @@ static void refreshKeyboard(void){
 
 static void buildKeyBackgrounds(void){
     removeAllLayerChild(4);
-    unsigned width=keyboard.page==2 ? 72 : 26;
+    unsigned width=KEYBOARD_WIDTH/(keyboard.page==2 ? 3 : 8)-2;
     for(unsigned key=0;key<KEYBOARD_KEYS;++key){
         keyBackgrounds[key]=newRoundRectDisObj(0xE71C,width,KEYBOARD_KEY_HEIGHT,0,0,4,1);
         addChild(4,keyBackgrounds[key]);
@@ -147,11 +140,12 @@ void inputPageGesture(int startX,int startY,int endX,int endY){
         return;
     }
     if(abs(dx)>12 || abs(dy)>12) return;
-    // Touch coordinates are physical LCD pixels; the page uses x=40..279.
+    // Translate physical touch coordinates into the active target viewport.
     int x=startX+WS_UI_LEFT, y=startY;
     if(y>=KEYBOARD_TABS_TOP && y<KEYBOARD_TABS_TOP+22 &&
        x>=KEYBOARD_LEFT && x<KEYBOARD_LEFT+KEYBOARD_WIDTH){
-        unsigned page=(x-KEYBOARD_LEFT)/56;
+        unsigned page=(x-KEYBOARD_LEFT)/KEYBOARD_TAB_PITCH;
+        if(page>=WIFI_KEYBOARD_PAGES) return;
         if(page!=keyboard.page){
             hideTips();
             keyboard.page=page;
@@ -169,8 +163,10 @@ void inputPageGesture(int startX,int startY,int endX,int endY){
             return;
         }
     }
-    if(y>=KEYBOARD_ACTIONS_TOP && y<KEYBOARD_ACTIONS_TOP+KEYBOARD_ACTION_HEIGHT && x>=WS_UI_LEFT && x<WS_UI_RIGHT){
-        keyboard.focus=count+(x-WS_UI_LEFT)/WS_UI_KEY_WIDTH;
+    if(y>=KEYBOARD_ACTIONS_TOP && y<KEYBOARD_ACTIONS_TOP+KEYBOARD_ACTION_HEIGHT && x>=KEYBOARD_ACTION_LEFT && x<KEYBOARD_ACTION_LEFT+KEYBOARD_ACTION_WIDTH){
+        unsigned action=(x-KEYBOARD_ACTION_LEFT)/KEYBOARD_ACTION_PITCH;
+        if(action>=WIFI_KEYBOARD_ACTIONS) return;
+        keyboard.focus=count+action;
         activateKey();
     }
 }
@@ -180,21 +176,21 @@ void inputPageInit(void (*fun)(void),u8 cnEnable){
     pageNow=PAGE_WIFI_PW;
     BGColor=0xFFFF;
     resetPageView(&keyboardEx);
-    LCD_SetPageViewport(&pageNow,PAGE_WIFI_PW,40,0,240,240);
+    LCD_SetPageViewport(&pageNow,PAGE_WIFI_PW,WS_UI_LEFT,0,WS_UI_WIDTH,240);
     inputSureFun=fun;
     keyboard=(WifiKeyboard){0,0};
     inputTxtTemp[WIFI_PASSWORD_MAX]=0;
     drawPageUITxt("上一键","输入","下一键");
     setPageUILongKeyText("返回","切类");
-    addChild(0,newRoundRectDisObj(0xF7BE,224,60,48,26,6,1));
-    passwordLabel=newChar(12,passwordText,0x2104,48,28);
+    addChild(0,newRoundRectDisObj(0xF7BE,WIFI_CONTENT_WIDTH,KEYBOARD_PANEL_HEIGHT,WIFI_CONTENT_LEFT,KEYBOARD_PANEL_TOP,6,1));
+    passwordLabel=newChar(12,passwordText,0x2104,WIFI_TEXT_LEFT,KEYBOARD_PASSWORD_TOP);
     addChild(8,passwordLabel);
-    addChild(8,newChar(12,countText,GRAY,232,68));
+    addChild(8,newChar(12,countText,GRAY,KEYBOARD_COUNT_LEFT,68));
     for(unsigned tab=0;tab<WIFI_KEYBOARD_PAGES;++tab){
-        tabBackgrounds[tab]=newRoundRectDisObj(0xE71C,54,22,48+tab*56,KEYBOARD_TABS_TOP,4,1);
+        tabBackgrounds[tab]=newRoundRectDisObj(0xE71C,KEYBOARD_TAB_PITCH-2,22,KEYBOARD_LEFT+tab*KEYBOARD_TAB_PITCH,KEYBOARD_TABS_TOP,4,1);
         addChild(2,tabBackgrounds[tab]);
         tabLabels[tab]=newChar(12,tabNames[tab],0x2104,
-            48+tab*56+27-getTxtLength(tabNames[tab])*4,KEYBOARD_TABS_TOP+3);
+            KEYBOARD_LEFT+tab*KEYBOARD_TAB_PITCH+(KEYBOARD_TAB_PITCH-2)/2-getTxtLength(tabNames[tab])*4,KEYBOARD_TABS_TOP+3);
         addChild(3,tabLabels[tab]);
     }
     for(unsigned key=0;key<KEYBOARD_KEYS;++key){
@@ -202,11 +198,11 @@ void inputPageInit(void (*fun)(void),u8 cnEnable){
         addChild(5,keyLabels[key]);
     }
     for(unsigned action=0;action<WIFI_KEYBOARD_ACTIONS;++action){
-        actionBackgrounds[action]=newRoundRectDisObj(0xE71C,78,KEYBOARD_ACTION_HEIGHT,
-            WS_UI_LEFT+action*WS_UI_KEY_WIDTH+1,KEYBOARD_ACTIONS_TOP,4,1);
+        actionBackgrounds[action]=newRoundRectDisObj(0xE71C,KEYBOARD_ACTION_PITCH-2,KEYBOARD_ACTION_HEIGHT,
+            KEYBOARD_ACTION_LEFT+action*KEYBOARD_ACTION_PITCH+1,KEYBOARD_ACTIONS_TOP,4,1);
         addChild(6,actionBackgrounds[action]);
         actionLabels[action]=newChar(12,actionNames[action],0x2104,
-            WS_UI_LEFT+action*WS_UI_KEY_WIDTH+40-getTxtLength(actionNames[action])*4,
+            KEYBOARD_ACTION_LEFT+action*KEYBOARD_ACTION_PITCH+KEYBOARD_ACTION_PITCH/2-getTxtLength(actionNames[action])*4,
             KEYBOARD_ACTIONS_TOP+2);
         addChild(7,actionLabels[action]);
     }

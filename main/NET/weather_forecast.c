@@ -17,7 +17,11 @@
 #include <string.h>
 #include <time.h>
 
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+#define WEATHER_HTTP_CAPACITY 8192
+#else
 #define WEATHER_HTTP_CAPACITY 16384
+#endif
 static const char *TAG = "WeatherForecast";
 static portMUX_TYPE forecastMux = portMUX_INITIALIZER_UNLOCKED;
 static uint8_t forecastReady;
@@ -367,19 +371,47 @@ static int weatherFetch(WeatherResponse *response,uint32_t serial){
 }
 
 static void weatherTask(void *argument){
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+    WeatherResponse *response=NULL;
+#else
     WeatherResponse *response=heap_caps_malloc(sizeof(*response),
                                                 MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT);
     if(!response) response=malloc(sizeof(*response));
     if(!response){ ESP_LOGE(TAG,"No memory for forecast response"); vTaskDelete(NULL); }
+#endif
+    uint32_t retrySerial=0,retryDelayMs=5000;
     while(1){
-        // TLS certificate validation needs the clock synchronized first.
-        if(IPAdressGet && getweather && time(NULL)>1704067200){
-            const uint32_t serial=requestSerial;
-            if(weatherFetch(response,serial)){
-                portENTER_CRITICAL(&forecastMux);
-                if(requestSerial==serial) getweather=false;
-                portEXIT_CRITICAL(&forecastMux);
-            }else ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(60000));
+        // Acknowledge the request before fetching so its old notification
+        // cannot consume the retry delay after a failed HTTP request.
+        ulTaskNotifyTake(pdTRUE,0);
+        portENTER_CRITICAL(&forecastMux);
+        const uint32_t serial=requestSerial;
+        const uint8_t pending=getweather;
+        portEXIT_CRITICAL(&forecastMux);
+        // Open-Meteo supplies dates and day/night state. Fetch as soon as Wi-Fi
+        // has an address; a failed clock service must not block weather.
+        // The HTTP client's configured TLS verification remains in effect.
+        if(IPAdressGet && pending){
+            if(retrySerial!=serial){retrySerial=serial;retryDelayMs=5000;}
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+            response=malloc(sizeof(*response));
+            if(!response){ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(10000));continue;}
+#endif
+            ESP_LOGI(TAG,"Requesting forecast (request %lu)",(unsigned long)serial);
+            const int fetched=weatherFetch(response,serial);
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+            free(response);response=NULL;
+#endif
+            portENTER_CRITICAL(&forecastMux);
+            const uint8_t current=requestSerial==serial;
+            if(current && fetched) getweather=false;
+            portEXIT_CRITICAL(&forecastMux);
+            if(!current)continue; // A newer city/connection request is ready now.
+            if(!fetched){
+                ESP_LOGW(TAG,"Forecast failed; retrying in %lu ms",(unsigned long)retryDelayMs);
+                ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(retryDelayMs));
+                retryDelayMs=retryDelayMs<30000?retryDelayMs*2:60000;
+            }
         }else{
             ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(1000));
         }

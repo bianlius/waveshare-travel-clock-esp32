@@ -16,6 +16,7 @@
 
 void mainViewOpenShop(void);
 void mainViewOpenGarden(void);
+void mainViewBindKeys(void (*previous)(void),void (*next)(void));
 
 void checkDayTime(void);
 void refreshWeatherDisplay(void);

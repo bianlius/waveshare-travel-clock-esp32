@@ -1,0 +1,33 @@
+{
+  "status": "retired",
+  "saved_id": 17,
+  "reuse_saved_id": false,
+  "animation": {
+    "file": "volbeat_fly.png",
+    "source_path": "project/pokemon/volbeat_fly.png",
+    "sha256": "2e2d37b38be74267e0ae642c53536ae116ba930a03a04a1722833f38aadc386c",
+    "symbol": "followerVolbeat",
+    "frames": 2,
+    "frame_width": 30,
+    "frame_height": 28,
+    "frame_ticks": 3,
+    "flip_x": true,
+    "credits": [
+      "Nintendo / Game Freak",
+      "christt105 (extraction)"
+    ],
+    "saved_id": 17,
+    "price": 700
+  },
+  "pricing": {
+    "saved_id": 17,
+    "name_zh": "电萤虫",
+    "symbol": "followerVolbeat",
+    "pokedex_id": 313,
+    "rarity": "uncommon",
+    "evolution_path": [
+      313
+    ],
+    "evolution_stage": 0
+  }
+}

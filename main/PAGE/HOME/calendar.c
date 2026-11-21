@@ -1,4 +1,4 @@
-#include "LCD/viewport.h"
+#include "GVIEW/viewport.h"
 #include "calendar.h"
 #include "../../NET/RTC_Internet.h"
 #include "../HOME/home.h"
@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 static void KeyDownM1(void){
-    clockPageInit();
+    weatherInit();
 }
 static void KeyDownM3(void){
     renderHomeInit();
@@ -30,7 +30,7 @@ void renderCalendarInit(void){
     BGColor = 0x9ebf; // Original calendar blue.
     pageNow = PAGE_CALENDAR;
     resetPageView(&calendarEx);
-    LCD_SetPageViewport(&pageNow, PAGE_CALENDAR, 40, 0, 240, 240);
+    LCD_SetPageViewport(&pageNow, PAGE_CALENDAR, WS_UI_LEFT, 0, WS_UI_WIDTH, 240);
 
     snprintf(calendarTitle,sizeof(calendarTitle),"%04dÄê%02dÔÂ",year,month);
     addChild(9,newChar(12,calendarTitle,0x0000,
@@ -39,11 +39,12 @@ void renderCalendarInit(void){
     u16 weekDaysNum = get_month_info(year,month);
     u8 weekNum = weekDaysNum >> 8;
     u8 weekY = 0;
-    addChild(4,newRoundRectDisObj(0xFFFF,224,24,48,52,4,1));
+    addChild(4,newRoundRectDisObj(0xFFFF,PAGE_CONTENT_WIDTH,24,PAGE_CONTENT_LEFT,52,4,1));
     for(u8 i=0;i<7;i++)
-        addChild(4,newChar(12,Darr[i],(i==0||i==6)?ORANGE:0,56+i*32,56));
+        addChild(4,newChar(12,Darr[i],(i==0||i==6)?ORANGE:0,PAGE_CONTENT_LEFT+i*PAGE_CALENDAR_COLUMN_WIDTH+(PAGE_CALENDAR_COLUMN_WIDTH-16)/2,56));
     for(u8 i=0;i<(weekDaysNum&0xFF);i++){
-        const short x = 54 + weekNum * 32;
+        const short x = PAGE_CONTENT_LEFT+PAGE_CALENDAR_COLUMN_WIDTH/2-10
+                          +weekNum*PAGE_CALENDAR_COLUMN_WIDTH;
         const short y = 88 + weekY * 24;
         if(day-1 == i)
             addChild(0,newRoundRectDisObj(ORANGE,28,22,x-2,y-3,3,1));
@@ -51,10 +52,5 @@ void renderCalendarInit(void){
         if(++weekNum > 6){ weekNum = 0; ++weekY; }
     }
 
-    setKeyFun(KM1,&mainViewOpenGarden);
-    setKeyFun(KM3,&mainViewOpenShop);
-    setKeyFun(KML,&KeyDownM3);
-    setKeyFun(KMR,&KeyDownM1);
-    setKeyFun(KMU1,&KeyDownM1);
-    setKeyFun(KMU3,&KeyDownM3);
+    mainViewBindKeys(KeyDownM3,KeyDownM1);
 }

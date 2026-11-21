@@ -14,3 +14,7 @@ main/weather_config.local.h
 # Local reference exports and editing history; active build assets live in assets/.
 emerald-restoration-handoff-2026-11-13-current/
 firmware-3.4-resources/
+
+# ESP-IDF outputs of the independent AI Passport target.
+ports/ai-passport/managed_components/
+ports/ai-passport/sdkconfig

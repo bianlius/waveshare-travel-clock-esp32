@@ -1,0 +1,127 @@
+{
+  "status": "retired",
+  "saved_id": 38,
+  "reuse_saved_id": false,
+  "animation": {
+    "file": "regice_hover.png",
+    "source_path": "Custom _ Edited - Pokemon Customs - Third Generation - #0378 Regice.png",
+    "source_kind": "user-provided download",
+    "sha256": "8349163e04f7cc104b4e11d8ef380883fadec7887202253a4f05e700ca0bd99e",
+    "symbol": "followerRegice",
+    "frames": 8,
+    "frame_width": 74,
+    "frame_height": 65,
+    "frame_ticks": 3,
+    "flip_x": true,
+    "credits": [
+      "King Kirby (sprite artwork)",
+      "Nintendo / Game Freak (character design)"
+    ],
+    "variant": "hover",
+    "name_zh": "雷吉艾斯",
+    "pokedex_id": 378,
+    "ground": false,
+    "price": 3500,
+    "uniform_cadence": true,
+    "deduplicate_frames": true,
+    "sheet_extract": {
+      "file": "source_sheets/regice.png",
+      "sha256": "532de760d7f0bed521c10dee90b7e324da9d6d4d858228009944f4c9004a90ab",
+      "background": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "origin": [
+        25,
+        21
+      ],
+      "poses": [
+        {
+          "box": [
+            3,
+            76,
+            68,
+            137
+          ],
+          "pivot": [
+            26,
+            95
+          ]
+        },
+        {
+          "box": [
+            91,
+            79,
+            159,
+            140
+          ],
+          "pivot": [
+            113,
+            98
+          ]
+        },
+        {
+          "box": [
+            178,
+            79,
+            241,
+            140
+          ],
+          "pivot": [
+            199,
+            98
+          ]
+        },
+        {
+          "box": [
+            258,
+            75,
+            313,
+            136
+          ],
+          "pivot": [
+            281,
+            94
+          ]
+        },
+        {
+          "box": [
+            331,
+            80,
+            386,
+            141
+          ],
+          "pivot": [
+            354,
+            99
+          ]
+        }
+      ],
+      "sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        3,
+        2,
+        1
+      ]
+    },
+    "saved_id": 38
+  },
+  "pricing": {
+    "saved_id": 38,
+    "name_zh": "雷吉艾斯",
+    "symbol": "followerRegice",
+    "pokedex_id": 378,
+    "rarity": "legendary",
+    "evolution_path": [
+      378
+    ],
+    "evolution_stage": 0
+  },
+  "source_sheet_preserved": "source_sheets/regice.png"
+}

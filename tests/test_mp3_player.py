@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory() as directory:
     library = Path(directory) / "libmp3.dylib"
     subprocess.run(
         ["cc", "-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-shared", "-fPIC",
-         str(ROOT / "main/mp3_player.c"), "-lm", "-o", str(library)],
+         "-I"+str(ROOT / "main"), str(ROOT / "ports/waveshare/mp3_player.c"), "-lm", "-o", str(library)],
         check=True,
     )
     player = ctypes.CDLL(str(library))

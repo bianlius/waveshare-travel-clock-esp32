@@ -28,7 +28,7 @@ plant_end = source.index("\n}", plant_start) + 2
 production = "\n".join((source[start:end], source[position_start:position_end],
                         source[temperature_start:temperature_end],
                         source[battery_start:battery_end],source[plant_start:plant_end]))
-for signature in ("static u8 enabledHomeAlarmCount(void){", "static void refreshHomeAlarmHint(void){"):
+for signature in ("static void refreshHomePowerHint(void){", "static u8 enabledHomeAlarmCount(void){", "static void refreshHomeAlarmHint(void){"):
     a = source.index(signature)
     z = source.index("\n}", a) + 2
     production += "\n" + source[a:z]
@@ -43,13 +43,16 @@ harness = r'''
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "power_status.h"
+static PowerStatus mockPowerStatus;
+PowerStatus powerStatusGet(void){return mockPowerStatus;}
 typedef uint8_t u8;
 #define WS_HOME_RIGHT 280
 #define WS_HOME_LEFT 40
 #define WS_HOME_TOP_LEFT_INSET 6
 #define WS_UI_RIGHT 280
 #define PAGE_HOME 1
-#define PAGE_CLOCK 2
+#define PAGE_WEATHER 2
 #define HOME_PLANT_HINT_ON 0xD5
 #define HOME_PLANT_HINT_OFF 0xD4
 #define SOUND_TRACK_COUNT 10
@@ -61,9 +64,12 @@ static DisplayObject *tempNetObj=&temperature,*tempDegreeObj=&degree;
 static DisplayObject *homeBatteryObj=&battery,*homePlantHintObj=&plant;
 static DisplayObject *homePlantCountObj=&plantCount;
 static char homePlantCountText[4];
+static DisplayObject charge,usb;
+static DisplayObject *homeChargeHintObj=&charge,*homeUsbHintObj=&usb;
 static DisplayObject alarm,alarmCount;
 static DisplayObject *homeAlarmHintObj=&alarm,*homeAlarmCountObj=&alarmCount;
 static char homeAlarmCountText[4];
+static char timeString[10]="12:30";
 static struct { u8 homePlantHintConfig; uint16_t alarmClock[5]; u8 alarmClockWeek[5]; }
     dataSaveInfo={.homePlantHintConfig=HOME_PLANT_HINT_ON};
 static u8 cloverNumNow;
@@ -109,16 +115,34 @@ int main(void){
     strcpy(weatherTxt,"\xc7\xe7\xc7\xe7\xc7\xe7\xc7\xe7");
     resetHomeTempX();
     assert(temperature.x==118 && degree.x==136);
-    pageNow=PAGE_CLOCK;
+    pageNow=PAGE_WEATHER;
     resetHomeTempX();
     positionWeatherDescription();
-    assert(weather.x==250 && temperature.x==242 && degree.x==260);
-    assert(description.x==170 && description.y==221);
+    assert(weather.x==256 && temperature.x==118 && degree.x==136);
+    assert(description.x==46 && description.y==52);
     pageNow=PAGE_HOME;
+    charge.width=usb.width=10;charge.height=usb.height=14;battery.y=221;
+    refreshHomePowerHint();assert(!charge.visible && !usb.visible);
     plant.width=16;
     strcpy(homeBatteryText,"\xb5\xe7\xc1\xbf 100%");
     strcpy(homePlantCountText,"1");
     positionHomeBattery();
+    assert(battery.x==194 && plantCount.x==182 && plant.x==164);
+    mockPowerStatus=POWER_STATUS_CHARGING;refreshHomePowerHint();
+    assert(charge.visible && !usb.visible && battery.x==194);
+    assert(charge.x==180 && charge.y==222 && plantCount.x==168 && plant.x==150);
+    mockPowerStatus=POWER_STATUS_USB_POWERED;refreshHomePowerHint();
+    assert(!charge.visible && usb.visible && usb.x==180 && usb.y==222);
+    strcpy(homePlantCountText,"30");positionHomeBattery();
+    assert(plantCount.x==160 && plant.x==142);
+    strcpy(homeBatteryText,"\xb5\xe7\xc1\xbf --%");refreshHomePowerHint();
+    assert(usb.x==196 && plantCount.x==176 && plant.x==158);
+    pageNow=PAGE_WEATHER;refreshHomePowerHint();assert(!charge.visible && !usb.visible);
+    pageNow=PAGE_HOME;refreshHomePowerHint();assert(usb.visible);
+    mockPowerStatus=POWER_STATUS_NONE;refreshHomePowerHint();
+    assert(!charge.visible && !usb.visible);
+    strcpy(homeBatteryText,"\xb5\xe7\xc1\xbf 100%");
+    strcpy(homePlantCountText,"1");positionHomeBattery();
     assert(battery.x==194 && plantCount.x==182 && plant.x==164);
     cloverNumNow=9;
     refreshHomePlantHint();
@@ -139,9 +163,12 @@ int main(void){
     assert(!plant.visible && !plantCount.visible && cloverNumNow==5);
     dataSaveInfo.homePlantHintConfig=HOME_PLANT_HINT_ON;
     refreshHomePlantHint();assert(plant.visible && plantCount.visible);
+    alarm.width=16;
     refreshHomeAlarmHint();assert(!alarm.visible && !alarmCount.visible);
     dataSaveInfo.alarmClock[0]=((7*60)<<4)|1;dataSaveInfo.alarmClockWeek[0]=1;
     refreshHomeAlarmHint();assert(alarm.visible && alarmCount.visible && strcmp(homeAlarmCountText,"1")==0);
+    assert(alarm.x==107 && alarm.y==11 && alarmCount.x==125 && alarmCount.y==11);
+    strcpy(timeString,"23:59");refreshHomeAlarmHint();assert(alarm.x==107);
     dataSaveInfo.alarmClock[1]=((8*60)<<4)|2;dataSaveInfo.alarmClockWeek[1]=64;
     refreshHomeAlarmHint();assert(strcmp(homeAlarmCountText,"2")==0);
     dataSaveInfo.alarmClock[2]=((9*60)<<4);dataSaveInfo.alarmClockWeek[2]=127; // Switched off.
@@ -149,7 +176,7 @@ int main(void){
     dataSaveInfo.alarmClock[4]=((24*60)<<4)|1;dataSaveInfo.alarmClockWeek[4]=127; // Invalid time.
     assert(enabledHomeAlarmCount()==2);
     dataSaveInfo.alarmClockWeek[1]=128;assert(enabledHomeAlarmCount()==1);
-    pageNow=PAGE_CLOCK;refreshHomeAlarmHint();assert(!alarm.visible && !alarmCount.visible);
+    pageNow=PAGE_WEATHER;refreshHomeAlarmHint();assert(!alarm.visible && !alarmCount.visible);
     pageNow=PAGE_HOME;memset(dataSaveInfo.alarmClockWeek,0,5);
     refreshHomeAlarmHint();assert(!alarm.visible && !alarmCount.visible);
     puts("PASS: home weather/battery, plant visibility toggle, and enabled alarm indicator/count");
@@ -161,5 +188,5 @@ with tempfile.TemporaryDirectory(prefix="gview-home-sun-") as folder:
     binary = Path(folder) / "test"
     test.write_text(harness.replace("__PRODUCTION__", production), encoding="utf-8")
     subprocess.run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
-                    "-fsanitize=address,undefined", str(test), "-o", str(binary)], check=True)
+                    "-fsanitize=address,undefined", "-I"+str(root / "main"), str(test), "-o", str(binary)], check=True)
     subprocess.run([str(binary)], check=True)

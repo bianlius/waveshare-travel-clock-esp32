@@ -23,7 +23,7 @@ def function(body, signature):
     return body[start:end] + "\n"
 
 
-backlight = source("main/LCD/backLight.c")
+backlight = source("ports/waveshare/backlight.c")
 rom = source("main/rom.c")
 assert "backLightIdleTick" not in backlight
 assert "backLightNoteActivity" not in backlight

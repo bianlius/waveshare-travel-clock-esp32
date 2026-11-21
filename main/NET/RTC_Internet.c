@@ -71,6 +71,11 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 
                         struct timeval now = {.tv_sec = (timestamp->valuedouble)/1000+3600*8};//从网上获取到的时间戳要除1000
                         settimeofday(&now, NULL);//ESPIDF官方提供的设置时间函数
+#if defined(CONFIG_GVIEW_AI_PASSPORT)
+                        gettime = false;
+                        extern void passport_time_sync_ready(void);
+                        passport_time_sync_ready();
+#else
                         update_rtc_Txt();
                         gettime = false;
                         refrushDayTime();
@@ -79,6 +84,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
                             //更新场景背景
                             changeSceneColor();
                         }
+#endif
                     }
                 }
             }
@@ -203,8 +209,6 @@ void update_rtc_Txt(void) {
     // 打印结果
     if(pageNow == PAGE_HOME || pageNow == PAGE_CALENDAR){
         sprintf(timeString, "%02d %02d", tStruct->tm_hour, tStruct->tm_min);
-    }else if(pageNow == PAGE_CLOCK){
-        updateTTime(hour*60+minute);
     }
 
     if(pageNow == PAGE_CALENDAR){

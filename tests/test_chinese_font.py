@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import re
+import json
 import unittest
 
 
@@ -17,7 +18,9 @@ class ChineseFontTest(unittest.TestCase):
         glyphs = [tuple(int(n, 16) for n in re.findall(rb"0x([0-9a-fA-F]+)", row)) for row in rows]
         self.assertTrue(all(len(glyph) == 24 for glyph in glyphs))
 
-        for character in "月日周城市温度设置天气":
+        manifest = json.loads((FONT.parents[2] / "assets/pokemon_followers/manifest.json").read_text())
+        names = "".join(e.get("name_zh", "") for e in manifest["assets"])
+        for character in set("月日周城市温度设置天气" + names):
             lead, trail = character.encode("gb2312")
             index = (lead - 0xB0) * 94 + trail - 0xA1
             self.assertTrue(any(glyphs[index]), character)
